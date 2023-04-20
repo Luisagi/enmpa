@@ -2,7 +2,7 @@
 #'
 #' @param x (numeric)
 #'
-#' @return the root square of a number.
+#' @return The root square of a number.
 #' @export
 #'
 #' @examples

@@ -1,15 +1,12 @@
-Package: testpackage1
-Title: This is a mock
-Version: 0.0.1
+Package: enmpa
+Title: What the Package Does (One Line, Title Case)
+Version: 0.0.0.9000
 Authors@R: 
-    person("Luis F.", "Arias-Giraldo", , "ariasgiraldo.luisfelipe@gmail.com", role = c("aut", "cre"), 
-    comment = c(ORCID = "YOUR-ORCID-ID"))
+    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
+           comment = c(ORCID = "YOUR-ORCID-ID"))
 Description: What the package does (one paragraph).
-License: GPL (>= 3)
+License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
+    license
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
-Imports: 
-    testpackage1
-URL: https://github.com/Luisagi/testpackage1
-BugReports: https://github.com/Luisagi/testpackage1/issues

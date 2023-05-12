@@ -1,10 +1,19 @@
 Package: enmpa
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
-Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+Title: Ecological Niche Modeling usign Presence-Absence Data
+Version: 0.0.1
+Authors@R: c(
+    person("Luis F.", "Arias-Giraldo", , "ariasgiraldo.luisfelipe@gmail.com",
+    role = c("aut", "cre"), comment = c(ORCID = "0000-0003-4861-8064")),
+    person("Marlon E.", "Cobos", email = "manubio13@gmail.com", 
+    role = "aut", comment = c(ORCID = "0000-0002-2611-1767")),
+    person("A. Townsend", "Peterson", email = "town@ku.edu", role = "aut",
+    comment = c(ORCID = "0000-0003-0243-2379"))
+    )
+Maintener: Luis F. Arias-Giraldo <ariasgiraldo.luisfelipe@gmail.com>
+Date: 2023-05-12
+Description: A set of tools to perform Ecological Niche Modeling analysis,
+    inclusing data partitioning, model selection, calibration, fitting and
+    evaluation.
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

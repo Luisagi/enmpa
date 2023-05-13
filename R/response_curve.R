@@ -1,23 +1,42 @@
-################################################################################
-##
-## Response curve: It evaluates the response of the variable and its limits
-##
+#' Response curve: It evaluates the response of the variable and its limits
+#'
+#' @param model an object of class "glm" which inherits from the class "lm".
+#' @param variable `character`, name of the variable to be plotted.
+#' @param n `numeric`, an integer guiding the number of breaks. Default n = 100
+#' @param new_data a `SpatRaster`, data.frame or  matrix of variables
+#' representing the range of values for the complete extent of the study area.
+#' Default = NULL
+#' @param new_range `numeric vector`, a numerical vector with the lower and
+#' upper limits of the variable. Default = NULL
+#'
+#'
+#' @importFrom stats predict
+#' @importFrom terra minmax
 
-## Usage:
-# mod: fitted model
-# var: variable of interest
-# env: raster layers used for the fitting of the model
-# N: number of steps (default 100)
 
-response_curve <- function(mod, var, envar , N = 100) {
+response_curve <- function(model, variable, n = 100, new_data = NULL,
+                           new_range = NULL) {
 
-  require(terra)
-  # get variables names from model object
-  varname_aux <-
-    colSums(sapply(colnames(mod$data), grepl, names(coef(mod)[-1]))) > 0
+  # initial tests
+  if (missing(model) | missing(variable)) {
+    stop("Argument 'model' or 'variable' must be defined.")
+  }
 
-  # calibration data
-  cal_data <- mod$data[, varname_aux]
+  if (!is.null(new_data)) {
+    if (!class(new_data)[1] %in% c("matrix", "data.frame", "SpatRaster")) {
+      stop("'new_data' must be of class 'matrix', 'data.frame', 'SpatRaster'")
+    }
+  }
+
+  # It gets only the variable names used in the fitted model
+  vnames <- colSums(sapply(colnames(model$data), grepl, names(coef(model)[-1]))) > 0
+
+  if (!variable %in% vnames){
+    stop("The name of the 'variable' was not defined correctly.")
+  }
+
+  # Extract calibration data from the model object
+  cal_data <- model$data[, vnames]
 
   # Extract the limits of the calibration data
   cal_maxs <-  apply(cal_data, 2, FUN = max)
@@ -26,29 +45,42 @@ response_curve <- function(mod, var, envar , N = 100) {
   # Get the average of all variables
   means <- apply(cal_data, 2, FUN = mean)
 
-  # range variable in all the extent
-  l <- terra::minmax(envar[[var]])
-  newvar <-
-    seq(l[1] - 0.1 * (l[2] - l[1]), l[2] + 0.1 * (l[2] - l[1]), length = N)
+  # Range variable in all the extent
+  if (is.null(new_data) & is.null(new_range)) {
+    rangev <- range(cal_data[, variable])
 
-  m <- data.frame(matrix(means, N , length(means), byrow = T))
+  } else {
+    if (!is.null(new_range)) {
+      rangev <- new_range
+    } else {
+      if (class(new_data)[1] == "SpatRaster") {
+        rangev <- terra::minmax(new_data[[variable]])
+      } else {
+        rangev <- range(new_data[, variable])
+      }
+    }
+  }
+
+  newvar <- seq(rangev[1] - 0.1 * (rangev[2] - rangev[1]),
+                rangev[2] + 0.1 * (rangev[2] - rangev[1]),
+                length = n)
+
+  m <- data.frame(matrix(means, n , length(means), byrow = T))
   colnames(m) <- names(means)
-  m[, var] <- newvar
 
+  m[, variable] <- newvar
 
-  # predictions of the model for the newdata
-  m$predicted <- terra::predict(mod, m, type = "response")
+  # Response of the variable
+  m$predicted <- stats::predict(model, m, type = "response")
 
   # Plotting curve
-  plot(m[, var], m$predicted, type = "l", ylim = c(0, 1),
-       xlab = var, ylab = "Probability of the Species")
+  plot(m[, variable], m$predicted, type = "l", ylim = c(0, 1),
+       xlab = variable, ylab = "Probability")
 
   # It adds the calibration limits
-  abline(v = c(cal_mins[var], cal_maxs[var]),
+  abline(v = c(cal_mins[variable], cal_maxs[variable]),
          col = c("red", "red"),
-         lty = c(2, 2), lwd = c(1, 1)
+         lty = c(2, 2),
+         lwd = c(1, 1)
   )
-
-  #out <- plot(m[,var], m$predicted, type = "l", xlab = var, ylab = "Probability of the Species")
-  #return(out)
 }

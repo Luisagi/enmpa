@@ -10,7 +10,8 @@
 #' upper limits of the variable. Default = NULL
 #'
 #'
-#' @importFrom stats predict
+#' @importFrom stats predict coef
+#' @importFrom graphics abline
 #' @importFrom terra minmax
 
 

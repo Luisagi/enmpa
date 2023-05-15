@@ -4,7 +4,7 @@
 \alias{optimize_metrics}
 \title{Find threshold values to produce three optimal metrics}
 \usage{
-optimize_metrics(actual, predicted, n_threshold = 1000)
+optimize_metrics(actual, predicted, n_threshold = 100)
 }
 \arguments{
 \item{actual}{\code{numeric} vector of actual values (0, 1) to be compared to

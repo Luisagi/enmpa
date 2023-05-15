@@ -6,7 +6,7 @@
 #' sensitivity = specificity, maximum TSS, and a sensitivity value of 0.9.
 #'
 #' @usage
-#' optimize_metrics(actual, predicted, n_threshold = 1000)
+#' optimize_metrics(actual, predicted, n_threshold = 100)
 #'
 #' @param actual `numeric` vector of actual values (0, 1) to be compared to
 #' `predicted` values after thresholding.

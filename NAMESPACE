@@ -2,5 +2,8 @@
 
 export(kfold_partition)
 export(optimize_metrics)
+importFrom(graphics,abline)
+importFrom(stats,coef)
 importFrom(stats,predict)
 importFrom(terra,minmax)
+importFrom(utils,combn)

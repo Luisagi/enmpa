@@ -1,103 +1,125 @@
-#' Get formula combinations
+#' Get formulas according to types of responses needed
 #'
 #' @description
-#' It provides a method for calculating all possible or the most complex formula(s).
+#' Produces forms in which independent variables can predict the dependent one,
+#' considering response types required. All possible combinations of these
+#' formulas considering combinations of variables can be calculated if needed.
 #'
 #' @usage
-#' get_formulas(resp_var = "species", data = data, type = "l",  all_comb = T)
+#' get_formulas(dependent, independent, type = "l", all_comb = T)
 #'
-#' @param resp_var `character`, name of the column with the presence-absence data.
-#' @param data a data.frame or  matrix of variables
-#' @param type `character`, a character string that must contain 'l', 'p', 'q'
-#' or a combination of them. l= lineal q = quadratic p = interaction between two variables.
-#' Default = 'l'.
-#' @param all_comb `logical`, return all combination (Default=TRUE) or only the most complex formula (FALSE).
+#' @param dependent `character`, name of independent variable.
+#' @param independent `character`, a vector of names of dependent variables.
+#' @param type `character`, a character string that must contain "l", "p", "q"
+#' or a combination of them. l = lineal, q = quadratic,
+#' p = interaction between two variables. Default = "l".
+#' @param all_combinations `logical`, whether to produce all combinations,
+#' default = TRUE. FALSE returns only the most complex formula defined in type.
 #'
-#' @return a character vector containing the resulting formula combination(s).
+#' @return
+#' A character vector containing the resulting formula(s).
 #'
 #' @importFrom utils combn
 #'
+#' @export
+#'
+#' @examples
+#' # example variables
+#' dep <- "presence"
+#' ind <- c("temperature", "humidity")
+#'
+#' # one formula according to "type"
+#' formula <- get_formulas(dep, ind, type = "lqp", all_combinations = FALSE)
+#'
+#' # all combinations according to type
+#' formulas <- get_formulas(dep, ind, type = "lqp", all_combinations = TRUE)
 
-
-get_formulas <- function(resp_var, data, type = 'l', all_comb = T) {
+get_formulas <- function(dependent, independent, type = "l",
+                         all_combinations = TRUE) {
 
   # initial test
-  if (!is.character(resp_var) || length(resp_var) != 1) {
-    stop("'resp_var' must be a unique response variable name.")
+  if (!is.character(dependent) || length(dependent) != 1) {
+    stop("'dependent' must be a unique response variable name.")
   }
-  if (!is.data.frame(data) &&  !is.matrix(data)) {
-    stop("'data' must be a data.frame or matrix.")
+  if (!is.character(dependent)) {
+    stop("'independent' must be a character vector.")
   }
-  if (!all(unlist(strsplit(type, "")) %in% c("l", "p", "q"))) {
-    warning(
-      "'type' must be contained in c('l', 'p', 'q') or a combination of them. Using the default option type = 'l'."
-    )
-    type = 'l'
-  }
-
-  explVarNames <- colnames(data)
-  if (resp_var %in% explVarNames) {
-    # remove the response variable if given in data
-    data <- data[,-which(explVarNames == resp_var), drop = FALSE]
-    explVarNames <- colnames(data)
+  if (is.character(type)) {
+    if (!all(unlist(strsplit(type, "")) %in% c("l", "p", "q"))) {
+      stop("'type' must be: 'l', 'p', 'q', or a combination of those three.")
+    }
+  } else {
+    stop("'type' must be of class character.")
   }
 
-  ## Formula creation
+  if (!is.logical(all_combinations)) {
+    stop("'all_combinations' must be logical (TRUE or FALSE).")
+  }
 
-  aux <- c(1)
+  predictors <- independent
+  npred <- length(predictors)
+
+  # remove the response variable if given in data
+  if (dependent %in% predictors) {
+    predictors <- predictors[predictors != dependent]
+  }
+
+  # produce formulas
+  aux <- " "
 
   # Lineal response
   if (grepl("l", type)) {
-    aux <- paste(aux, paste(explVarNames, collapse = " + "), sep = " + ")
+    aux <- paste(aux, paste(predictors, collapse = " + "), sep = " + ")
   }
 
   # Quadratic response
   if (grepl("q", type)) {
-    for (v in 1:ncol(data)) {
-      if (is.numeric(data[, v])) {
-        aux <- paste(aux, paste0("I(", explVarNames[v], "^2)"), sep = " + ")
+    for (v in 1:length(predictors)) {
+      aux <- paste(aux, paste0("I(", predictors[v], "^2)"), sep = " + ")
+    }
+  }
+
+  # Interaction between two variables
+  if (grepl("p", type)) {
+    if (npred > 1) {
+      inter_tab <- utils::combn(predictors, 2)
+      aux_inter <- paste0(" + ",
+                          paste(apply(inter_tab, 2, paste, collapse = ":"),
+                                collapse = " + "))
+
+      if (length(aux_inter) > 0) {
+        aux <- paste0(aux, aux_inter)
+      }
+    } else {
+      if (grepl("l", type) | grepl("q", type)) {
+        message("'p' is is only possible with 2 or more independent variables.",
+                "\nReturning other combinations.")
+      } else {
+        stop("'p' is is only possible with 2 or more independent variables.",
+             "\nTry other combinations of type.")
       }
     }
   }
-  # Interaction between two variables
-  if (grepl("p", type)) {
-    aux_inter <- c()
-    inter_tab <- utils::combn(explVarNames, 2)
-    aux_inter <- paste(aux_inter, paste(apply(inter_tab, 2, paste, collapse = ":"), collapse = " + "), sep = " + ")
 
-    if (length(aux_inter) > 0) {
-      aux <- paste0(aux, aux_inter)
-    }
-  }
+  # Create all possible combination
+  if (all_combinations) {
+    ## unlist predictors in formula
+    vec <- unlist(strsplit(gsub(" ", "", aux), split = "[+]"))[-1]
 
+    ## Get all combinations
+    all_comb <- lapply(1:length(vec), utils::combn, x = vec,
+                            simplify = FALSE)
 
-  if (all_comb == T) {
+    all_comb <- unlist(all_comb, recursive = FALSE)
 
-    ## Create all possible combination
-    vec <- unlist(strsplit(gsub(" ", "", aux), split = "[+]"))
-    vec <- vec[-1] # Remove the aux 1
-
-    # Get all combinations
-    list_formulas <-
-      lapply(1:length(vec),
-             utils::combn,
-             x = vec,
-             simplify = FALSE)
-    all_comb <- unlist(list_formulas, recursive = FALSE)
-
-    for (i in 1:length(all_comb)) {
-      all_comb[[i]] <-
-        as.character(paste0(resp_var, " ~ ", paste(all_comb[[i]], collapse = " + ")))
-    }
-
-    out <- unlist(all_comb)
-
-    ## Return a list of formulas
-    return(out)
+    out <- sapply(all_comb, function(x) {
+      paste0(dependent, " ~ ", paste(x, collapse = " + "))
+    })
 
   } else{
-    ## Return the most complex formula
-    out <- as.character(paste0(resp_var, " ~ ", sub("1 \\+ ", "", aux)))
-    return(out)
+    out <- gsub("  \\+", paste(dependent, "~"), aux)
   }
+
+  # Return formula(s)
+  return(out)
 }

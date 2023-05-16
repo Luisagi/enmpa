@@ -1,6 +1,6 @@
 Package: enmpa
 Title: Ecological Niche Modeling usign Presence-Absence Data
-Version: 0.0.1
+Version: 0.0.2
 Authors@R: c(
     person("Luis F.", "Arias-Giraldo", , "ariasgiraldo.luisfelipe@gmail.com",
     role = c("aut", "cre"), comment = c(ORCID = "0000-0003-4861-8064")),
@@ -10,7 +10,7 @@ Authors@R: c(
     comment = c(ORCID = "0000-0003-0243-2379"))
     )
 Maintener: Luis F. Arias-Giraldo <ariasgiraldo.luisfelipe@gmail.com>
-Date: 2023-05-12
+Date: 2023-05-15
 Description: A set of tools to perform Ecological Niche Modeling analysis,
     including data partitioning, model selection, calibration, fitting and
     evaluation.
@@ -21,4 +21,8 @@ RoxygenNote: 7.2.3
 URL: https://github.com/Luisagi/enmpa
 BugReports: https://github.com/Luisagi/enmpa/issues
 Imports:
-    terra
+    graphics,
+    stats,
+    terra,
+    utils
+    

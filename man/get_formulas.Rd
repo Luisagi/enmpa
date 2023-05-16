@@ -2,24 +2,38 @@
 % Please edit documentation in R/get_formulas.R
 \name{get_formulas}
 \alias{get_formulas}
-\title{Get formula combinations}
+\title{Get formulas according to types of responses needed}
 \usage{
-get_formulas("species", data = data, type = "l")
+get_formulas(dependent, independent, type = "l", all_combinations = TRUE)
 }
 \arguments{
-\item{resp_var}{\code{character}, name of the column with the presence-absence data.}
+\item{dependent}{\code{character}, name of independent variable.}
 
-\item{data}{a data.frame or  matrix of variables}
+\item{independent}{\code{character}, a vector of names of dependent variables.}
 
-\item{type}{\code{character}, a character string that must contain 'l', 'p', 'q'
-or a combination of them. l= lineal q = quadratic p = interaction between two variables.
-Default = 'l'.}
+\item{type}{\code{character}, a character string that must contain "l", "p", "q"
+or a combination of them. l = lineal, q = quadratic,
+p = interaction between two variables. Default = "l".}
 
-\item{all_comb}{\code{logical}, return all combination (Default=TRUE) or only the most complex formula (FALSE).}
+\item{all_combinations}{\code{logical}, whether to produce all combinations,
+default = TRUE. FALSE returns only the most complex formula defined in type.}
 }
 \value{
-a character vector containing the resulting formula combination(s).
+A character vector containing the resulting formula(s).
 }
 \description{
-It provides a method for calculating all possible or the most complex formula(s).
+Produces forms in which independent variables can predict the dependent one,
+considering response types required. All possible combinations of these
+formulas considering combinations of variables can be calculated if needed.
+}
+\examples{
+# example variables
+dep <- "presence"
+ind <- c("temperature", "humidity")
+
+# one formula according to "type"
+formula <- get_formulas(dep, ind, type = "lqp", all_combinations = FALSE)
+
+# all combinations according to type
+formulas <- get_formulas(dep, ind, type = "lqp", all_combinations = TRUE)
 }

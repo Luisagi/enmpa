@@ -9,6 +9,7 @@
 #' @param new_range `numeric vector`, a numerical vector with the lower and
 #' upper limits of the variable. Default = NULL
 #'
+#' @export
 #'
 #' @importFrom stats predict coef
 #' @importFrom graphics abline

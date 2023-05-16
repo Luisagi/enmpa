@@ -1,3 +1,30 @@
+#' Model validation options
+#'
+#' @description
+#' Model evaluation using entire set of data or a cross-validation approach.
+#'
+#' @usage
+#' model_validation(formula, data, family = binomial(link = "logit"),
+#'                  weights = NULL, cv = FALSE, partition_index = NULL,
+#'                  k = NULL, seed = 1)
+#'
+#' @param formula a formula.
+#' @param data data set to create model
+#' @param family family of model to be used
+#' @param weights weights for observations
+#' @param cv whether to use a cross-validation approach
+#' @param partition_index list of indices for cross-validation in k-fold
+#' @param k number of folds for a new k-fold index preparation. Ignored if
+#' `partition_index` is defined.
+#' @param seed seed.
+#'
+#' @return
+#' data.frame
+#'
+#' @export
+#'
+#' @importFrom stats as.formula binomial glm predict.glm
+#'
 
 model_validation <- function(formula, data, family = binomial(link = "logit"),
                              weights = NULL, cv = FALSE, partition_index = NULL,

@@ -7,9 +7,9 @@
 get_formulas(dependent, independent, type = "l", all_combinations = TRUE)
 }
 \arguments{
-\item{dependent}{\code{character}, name of independent variable.}
+\item{dependent}{\code{character}, name of dependent variable.}
 
-\item{independent}{\code{character}, a vector of names of dependent variables.}
+\item{independent}{\code{character}, a vector of names of independent variables.}
 
 \item{type}{\code{character}, a character string that must contain "l", "p", "q"
 or a combination of them. l = lineal, q = quadratic,

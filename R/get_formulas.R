@@ -8,8 +8,8 @@
 #' @usage
 #' get_formulas(dependent, independent, type = "l", all_combinations = TRUE)
 #'
-#' @param dependent `character`, name of independent variable.
-#' @param independent `character`, a vector of names of dependent variables.
+#' @param dependent `character`, name of dependent variable.
+#' @param independent `character`, a vector of names of independent variables.
 #' @param type `character`, a character string that must contain "l", "p", "q"
 #' or a combination of them. l = lineal, q = quadratic,
 #' p = interaction between two variables. Default = "l".

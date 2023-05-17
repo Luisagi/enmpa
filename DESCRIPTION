@@ -24,5 +24,9 @@ Imports:
     graphics,
     stats,
     terra,
-    utils
+    utils,
+    doSNOW,
+    foreach,
+    snow,
+    parallel
     

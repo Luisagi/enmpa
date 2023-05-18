@@ -33,7 +33,7 @@ response_curve <- function(model, variable, n = 100, new_data = NULL,
   # It gets only the variable names used in the fitted model
   vnames <- colSums(sapply(colnames(model$data), grepl, names(coef(model)[-1]))) > 0
 
-  if (!variable %in% vnames){
+  if (!variable %in% names(vnames)) {
     stop("The name of the 'variable' was not defined correctly.")
   }
 
@@ -63,9 +63,12 @@ response_curve <- function(model, variable, n = 100, new_data = NULL,
     }
   }
 
-  newvar <- seq(rangev[1] - 0.1 * (rangev[2] - rangev[1]),
-                rangev[2] + 0.1 * (rangev[2] - rangev[1]),
-                length = n)
+  # newvar <- seq(rangev[1] - 0.1 * (rangev[2] - rangev[1]),
+  #               rangev[2] + 0.1 * (rangev[2] - rangev[1]),
+  #               length = n)
+
+  newvar <- seq(rangev[1], rangev[2], length = n)
+
 
   m <- data.frame(matrix(means, n , length(means), byrow = T))
   colnames(m) <- names(means)

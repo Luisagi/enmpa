@@ -28,7 +28,7 @@
 
 model_validation <- function(formula, data, family = binomial(link = "logit"),
                              weights = NULL, cv = FALSE, partition_index = NULL,
-                             k = NULL, seed = 1) {
+                             k = NULL, n_threshold = 100, seed = 1) {
 
   # initial tests
   if (missing(formula) | missing(data)) {
@@ -72,7 +72,8 @@ model_validation <- function(formula, data, family = binomial(link = "logit"),
       # Evaluation using Test Dependent data
       pred_k <- predict.glm(kfit, data_test[,-1], type = "response")
       eval_k <- optimize_metrics(actual = data_test[, 1],
-                                 predicted = pred_k)$optimized
+                                 predicted = pred_k,
+                                 n_threshold = n_threshold)$optimized
 
       data.frame(Formulas = formula, Kfold = x, eval_k,
                  Parameters = nparameters, AIC = AIC)
@@ -84,7 +85,8 @@ model_validation <- function(formula, data, family = binomial(link = "logit"),
   } else {
     pred_global <- predict.glm(gfit, data[,-1], type = "response")
     eval_global <- optimize_metrics(actual = data[, 1],
-                                    predicted = pred_global)$optimized
+                                    predicted = pred_global,
+                                    n_threshold = n_threshold)$optimized
 
     out <- data.frame(Formulas = formula, eval_global,
                       Parameters = nparameters, AIC = AIC)

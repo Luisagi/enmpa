@@ -18,8 +18,8 @@
 #' @return
 #' A list containing a data.frame with the resulting metrics for all threshold
 #' values tested, and a second data.frame with the results for the threshold
-#' values that produce sensitivity = specificity (T1), maximum TSS (T2), and a
-#' sensitivity value of 0.9 (T3).
+#' values that produce sensitivity = specificity (ESS), maximum TSS (maxTSS),
+#' and a sensitivity value of 0.9 (SEN90).
 #'
 #' @export
 #'
@@ -67,11 +67,17 @@ optimize_metrics <- function(actual, predicted, n_threshold = 100) {
                         False_positive_rate = fpr, Accuracy = acc,
                         Sensitivity = tpr, Specificity = spe, TSS = tss)
 
+  t09 <- tpr == 0.9
+  if (sum(t09) == 0) {
+    t09 <- tpr == min(tpr[tpr >= 0.9])
+  }
+
   optimized <- rbind(metrics[which.min(abs(tpr - spe)), ][1, ],
-                     metrics[which.max(tss), ][1, ],
-                     metrics[which.min(abs(tpr - 0.9)), ][1, ])
+                     metrics[which.max(tss), ][1, ], metrics[t09, ][1, ])
 
-  optimized <- data.frame(Threshold_criteria = paste0("T", 1:3), optimized)
+  criteria <- c("ESS", "maxTSS", "SEN90")
 
-  return(list(metrics = metrics, optimized = optimized))
+  optimized <- data.frame(Threshold_criteria = criteria, optimized)
+
+  return(list(optimized = optimized, metrics = metrics))
 }

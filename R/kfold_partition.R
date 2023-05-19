@@ -43,7 +43,7 @@ kfold_partition <- function(data, k = 2,  seed = 1){
   out <- list() # empty list when are stored the index of each FOLD
 
   for (i in 1:k) {
-    out[[paste0("Fold.", i)]] <- as.numeric(names(all[all == i]))
+    out[[paste0("Fold_", i)]] <- as.numeric(names(all[all == i]))
   }
 
   return(out)

@@ -10,39 +10,38 @@
 #' the default predictions are of log-odds (probabilities on logit scale)
 #' and type = "response" gives the predicted probabilities.
 #'
-#' @return
+#' @return  a `SpatRaster` object or a list of vector with the probabilities.
 #' @export
 #'
-#'
-#
 
-predict_selected <- function(x, newdata, clamping = TRUE, type = "response"){
+predict_selected <- function(x, newdata, clamping = FALSE, type = "response"){
 
 
-  fs <- x$best_models_selection$Formulas
+  fs <- x$selected$Formulas
 
   # model fitting
   fits <- lapply(fs, function(y){
-    glm(formula = as.formula(y), family = binomial,
+    glm(formula = as.formula(y), family = binomial(link = "logit"),
         data = x$data,
         weights = x$weights)
   })
 
   # Obtain the predicted values (p) for each selected model
   p <- lapply( fits, function(y){
-    enmpa::predict_glm(y, newdata, clamping = clamping, type = type)
+    predict_glm(y, newdata, clamping = clamping, type = type)
     })
 
 
   # Name models
   if (class(newdata)[1] == "SpatRaster") {
     p <- terra::rast(p)
-    names(p) <- paste0("Model_ID_", row.names(x$best_models_selection))
+    names(p) <- paste0("Model_ID_", row.names(x$selected))
 
   } else{
-    names(p) <- paste0("Model_ID_", row.names(x$best_models_selection))
+    names(p) <- paste0("Model_ID_", row.names(x$selected))
   }
 
   return(p)
 
 }
+

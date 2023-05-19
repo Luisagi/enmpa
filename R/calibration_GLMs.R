@@ -207,7 +207,7 @@ calibration_glm <- function(data, dependent, independent, weights = NULL,
                          tolerance = 0.01)
 
   # Final output
-  output <- list(selected = sel, summary = stats, calibration_data = glm_res,
+  output <- list(selected = sel, summary = stats, calibration_results = glm_res,
                  data = data, weights = weights)
 
   return(output)

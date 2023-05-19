@@ -19,8 +19,8 @@ Default = 100.}
 \value{
 A list containing a data.frame with the resulting metrics for all threshold
 values tested, and a second data.frame with the results for the threshold
-values that produce sensitivity = specificity (T1), maximum TSS (T2), and a
-sensitivity value of 0.9 (T3).
+values that produce sensitivity = specificity (ESS), maximum TSS (maxTSS),
+and a sensitivity value of 0.9 (SEN90).
 }
 \description{
 The metrics true skill statistic (TSS), sensitivity, specificity are explored

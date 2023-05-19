@@ -1,21 +1,57 @@
-#' GLM model calibration
+#' GLM calibration with presence-absence data
 #'
-#' @param dependent `character`, name of dependent variable.
+#' @description
+#' Model calibration and selection using presence-absence data and GLMs.
+#'
+#' @usage
+#' calibration_glm(data, dependent, independent, weights = NULL,
+#'                 response_type = "l", all_combinations = TRUE,
+#'                 user_formulas = NULL, cv_kfolds = 5, seed = 1,
+#'                 n_threshold = 100, selection_criterion = "TSS",
+#'                 tolerance = 0.01, parallel = FALSE,
+#'                 n_cores = NULL, verbose = TRUE)
+#'
 #' @param data data.frame or matrix of independent variables.
-#' @param cv_kfolds `numeric`, number of folds to be using  k-fold
-#' cross-validation.
-#' @param cformulas a vector of character with the set of formulas to test.
-#' Default=NULL.
-#' @param type `character`, a character string that must contain "l", "p", "q"
-#' or a combination of them. l = lineal, q = quadratic,
-#' p = interaction between two variables. Default = "l".
-#' @param parallel `logical`, choose to run on parallel or sequential.
-#' Default = NULL.
-#' @param ncores `numeric`, number of cores to use. Default = 4.
-#' @param seed `numeric`, integer value to specify an initial seed. Default = 1.
+#' @param dependent `character`, name of dependent variable.
+#' @param independent `character`, vector of name(s) of independent variable(s).
 #' @param weights a vector with the weights for observations.
+#' @param response_type `character`, a character string that must contain "l",
+#' "p", "q" or a combination of them. l = lineal, q = quadratic,
+#' p = interaction between two variables. Default = "l".
+#' @param all_combinations `logical`, whether to produce all combinations of
+#' formulas according to `response_type`, default = TRUE. FALSE returns only
+#' the most complex formula defined in `response_type`.
+#' @param user_formulas a vector of character with the set of formulas to test.
+#' Default = NULL.
+#' @param cv_kfolds `numeric`, number of folds to use for k-fold
+#' cross-validation exercises. Default = 5.
+#' @param seed a seed for k-fold partitioning.
+#' @param n_threshold `logical`, number of thresholds to use to produce
+#' evaluation metrics. Default = 100,
+#' @param selection_criterion `character`, criterion used to select best models,
+#' options are "TSS" and "ESS". Default = "TSS",
+#' @param tolerance `numeric`, value to modify the metric used for model filtering
+#' for model selection if no models meet initial the consideration. Default = 0.01
+#' @param parallel `logical`, whether to run on parallel or sequential.
+#' Default = FALSE.
+#' @param n_cores `numeric`, number of cores to use. Default = number of free
+#' processors - 1.
+#' @param verbose `logical`, whether to print messages and show progress bar.
+#' Default = TRUE
 #'
-#' @return a list of dataframe.
+#' @return
+#' A list containing: selected models, a summary of statistics for all models,
+#' results obtained in cross-validation for all models, original data used, and
+#' weights.
+#'
+#' @details
+#' Model evaluation is done considering the ability to predict presences and
+#' absences. Model selection consists of three steps: 1) a first filter to keep
+#' the models with ROC AUC >= 0.5 (statistically significant models), 2) a
+#' second filter to maintain only models that meet the `selection_criterion`
+#' ("TSS": TSS >= 0.4; or "ESS": maximum Accuracy - `tolerance`), and 3) from
+#' those, pick the ones with delta AIC <= 2.
+#'
 #' @export
 #'
 #' @importFrom utils txtProgressBar
@@ -24,15 +60,21 @@
 #' @importFrom doSNOW registerDoSNOW
 #' @importFrom parallel clusterExport
 #' @importFrom foreach foreach %dopar%
-#'
 
-calibration_GLMs <- function(dependent, data, cv_kfolds = 5, cformulas=NULL,
-                             type = "l", parallel = FALSE, ncores = 4,
-                             seed = 1, weights = NULL){
+calibration_glm <- function(data, dependent, independent, weights = NULL,
+                            response_type = "l", all_combinations = TRUE,
+                            user_formulas = NULL, cv_kfolds = 5, seed = 1,
+                            n_threshold = 100, selection_criterion = "TSS",
+                            tolerance = 0.01, parallel = FALSE,
+                            n_cores = NULL, verbose = TRUE) {
 
   # initial tests
-  if (is.null(cformulas) & missing(dependent)) {
-    stop("Argument 'respuesta' must be defined if 'cformulas' in NULL.")
+  if (missing(data) | missing(dependent) | missing(dependent)) {
+    stop("Arguments 'data', 'dependent', and 'independent' must be defined.")
+  }
+
+  if (is.null(user_formulas) & missing(dependent)) {
+    stop("Argument 'respuesta' must be defined if 'user_formulas' in NULL.")
   }
 
 
@@ -42,46 +84,52 @@ calibration_GLMs <- function(dependent, data, cv_kfolds = 5, cformulas=NULL,
 
   ## 2. Formula combination
 
-  if (is.null(cformulas)) {
+  if (is.null(user_formulas)) {
     message("\nEstimating formulas combinations for evaluation.")
 
     pnames <- colnames(data)
-    t_formulas <- get_formulas(dependent = dependent, independent = pnames,
-                              type = type, all_combinations = T)
+    user_formulas <- get_formulas(dependent = dependent, independent = pnames,
+                                  type = response_type,
+                                  all_combinations = all_combinations)
 
   } else {
     message("\nUsing user-defined formulas.")
-
-    # Use custom formulas by the user
-    t_formulas <- cformulas
   }
 
-  message(paste0("Evaluating a total of ", length(t_formulas), " models.\n"))
+  if (verbose == TRUE) {
+    message("Evaluating a total of ", length(user_formulas), " models.\n")
+  }
 
 
   # 3. MAIN FUNCTION ___________________________________________________________
+  # number of models to test
+  iterations <- length(user_formulas)
 
   if (parallel == FALSE) {
     ## SEQUENTIAL RUNNING
-
-    message("Running in Sequential.")
+    if (verbose == TRUE) {
+      message("Running in Sequential.")
+    }
 
     # time start
     start <- Sys.time()
 
     ## progress bar
-    iterations <- length(t_formulas)
-    pb <- utils::txtProgressBar(min = 1, max = iterations, style = 3)
+    if (verbose == TRUE) {
+      pb <- utils::txtProgressBar(min = 1, max = iterations, style = 3)
+    }
 
     glm_res <- data.frame() # empty df to store results for each iteration.
 
     for (i in 1:iterations) {
-      utils::setTxtProgressBar(pb, i)
+      if (verbose == TRUE) {
+        utils::setTxtProgressBar(pb, i)
+      }
 
-      res <- model_validation(formula = t_formulas[i], data = data,
-                              weights = weights,
-                              cv = TRUE,
-                              partition_index = data_partition)
+      res <- model_validation(formula = user_formulas[i], data = data,
+                              weights = weights, cv = TRUE,
+                              partition_index = data_partition,
+                              n_threshold = n_threshold)
 
       # Concatenate by rows each loop iteration
       glm_res <- rbind(glm_res, res)
@@ -89,101 +137,78 @@ calibration_GLMs <- function(dependent, data, cv_kfolds = 5, cformulas=NULL,
 
     # Final time
     time.seq <- Sys.time() - start
-    message("\nRunning time: ")
-    print(time.seq)
+    if (verbose == TRUE) {
+      message("\nRunning time: ", time.seq)
+    }
 
   } else {
     ## PARALLEL RUNNING
+    if (is.null(n_cores)) {
+      n_cores <- parallel::detectCores() - 1
+    }
 
-    message(paste0("Running in Parallel using ", ncores, " threads."))
+    if (verbose == TRUE) {
+      message(paste0("Running in Parallel using ", n_cores, " threads."))
+    }
 
     # time start
     start <- Sys.time()
 
     ## progress bar
-    iterations <- length(t_formulas)
-    pb <- utils::txtProgressBar(min = 1, max = iterations, style = 3)
-    progress <- function(n) { utils::setTxtProgressBar(pb, n)}
-    opts <- list(progress = progress)
+    if (verbose == TRUE) {
+      pb <- utils::txtProgressBar(min = 1, max = iterations, style = 3)
+      progress <- function(n) {
+        utils::setTxtProgressBar(pb, n)
+      }
+      opts <- list(progress = progress)
+    } else {
+      opts <- NULL
+    }
+
 
     ## Make cluster
-    cl <- snow::makeSOCKcluster(ncores)
+    cl <- snow::makeSOCKcluster(n_cores)
     # export local function
-    parallel::clusterExport(cl, c("optimize_metrics", "model_validation"))
+    #parallel::clusterExport(cl, c("optimize_metrics", "model_validation"))
     doSNOW::registerDoSNOW(cl)
 
-    glm_res = foreach::foreach(
-      i = 1:iterations,
-      .combine = "rbind",
-      .inorder = FALSE,
-      .options.snow = opts ) %dopar% {
-        res <- model_validation(formula = t_formulas[i],
-                                data = data,
-                                weights = weights,
-                                cv = TRUE,
-                                partition_index = data_partition)
-        return(res)
-        }
+    glm_res <- foreach::foreach(
+      i = 1:iterations, .combine = "rbind", .inorder = FALSE,
+      .options.snow = opts
+    ) %dopar% {
+      res <- model_validation(formula = user_formulas[i], data = data,
+                              weights = weights, cv = TRUE,
+                              partition_index = data_partition,
+                              n_threshold = n_threshold)
+      return(res)
+    }
 
     # Closing cluster
     snow::stopCluster(cl)
 
     # Final time
     time.seq <- Sys.time() - start
-    message("\nRunning time: ")
-    print(time.seq)
-
+    if (verbose == TRUE) {
+      message("\nRunning time: ", time.seq)
+    }
   }
 
   # 4. data output rearrangement
-
-  message(paste0("\nResuming data ...\n"))   ### Final steps
-
-  ### Summary stats: mean and SD calculation for each models
-
-  toagg <- colnames(glm_res)[5:ncol(glm_res)]
-
-  xy <- lapply(toagg, function(y) {
-    do.call(data.frame,
-            aggregate(
-              as.formula(paste(y, "~ Formulas + Threshold_criteria")),
-              data = glm_res,
-              FUN = function(x) c(mean = round(mean(x), 4), sd = round(sd(x),4))
-            )
-    )
-  })
-
-  stats <- do.call(data.frame, lapply(xy, function(y) {y[, 3:4] }))
-  colnames(stats) <- do.call(c, lapply(xy, function(y) {colnames(y[, 3:4])}))
-
-  stats <- cbind(xy[[1]][c(1, 2)] , stats[, -c(14, 16)]) # remove sd for AIC and paramenters
-  colnames(stats)[c(15, 16)] <- c("parameters", "AIC")
-
-
-  # recalculate the delta and weighted AIC for the aggregate data
-  stats$deltaAIC <- stats$AIC - min(stats$AIC, na.rm = TRUE)
-  stats$w.AIC <- (exp(-0.5 * stats$deltaAIC)) / (sum(exp(-0.5 * stats$deltaAIC), na.rm = TRUE))
-
-  stats <- stats[order(stats$Formulas), ]
-
-  ### Best models selection: min ROC AUC > 0.5 & TSS >= 0.4 & deltaAIC < 2
-
-  sel <- stats[stats$ROC_AUC.mean > 0.5 & stats$TSS.mean >= 0.4,]
-
-  if (nrow(sel) == 0) {
-    sel <- stats[stats$ROC_AUC.mean > 0.5 & stats$TSS.mean >= max(stats$TSS.mean) - 0.01,]
+  if (verbose == TRUE) {
+    message("\nPreparing results...\n")   ### Final steps
   }
 
-  sel$deltaAIC <- sel$AIC - min(sel$AIC, na.rm = TRUE)
-  sel <- sel[sel$deltaAIC <= 2,]
+  # Summary stats: mean and SD calculation for each model based on folds
+  stats <- evaluation_stats(evaluation_results = glm_res)
 
-  # Calculation wAIC of the selected models
-  sel$w.AIC <-(exp(-0.5 * sel$deltaAIC)) / (sum(exp(-0.5 * sel$deltaAIC), na.rm = TRUE))
-
+  # selected models
+  sel <- model_selection(evaluation_stats = stats,
+                         criterion = selection_criterion,
+                         tolerance = 0.01)
 
   # Final output
-  output <- list( calibration_data = glm_res, summary_stats = stats,
-                  best_models_selection = sel )
+  output <- list(selected = sel, summary = stats, calibration_data = glm_res,
+                 data = data, weights = weights)
 
   return(output)
 }

@@ -26,6 +26,8 @@ predict_selected <- function(x, newdata, clamping = FALSE, type = "response"){
         weights = x$weights)
   })
 
+  names(fits) <- paste0("Model_ID_", rownames(x$selected))
+
   # Obtain the predicted values (p) for each selected model
   p <- lapply( fits, function(y){
     predict_glm(y, newdata, clamping = clamping, type = type)
@@ -41,7 +43,8 @@ predict_selected <- function(x, newdata, clamping = FALSE, type = "response"){
     names(p) <- paste0("Model_ID_", row.names(x$selected))
   }
 
-  return(p)
+  out <- list(fitted_models = fits, predictions = p)
+  return(out)
 
 }
 

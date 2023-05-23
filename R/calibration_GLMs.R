@@ -87,8 +87,7 @@ calibration_glm <- function(data, dependent, independent, weights = NULL,
   if (is.null(user_formulas)) {
     message("\nEstimating formulas combinations for evaluation.")
 
-    pnames <- colnames(data)
-    user_formulas <- get_formulas(dependent = dependent, independent = pnames,
+    user_formulas <- get_formulas(dependent = dependent, independent = independent,
                                   type = response_type,
                                   all_combinations = all_combinations)
 

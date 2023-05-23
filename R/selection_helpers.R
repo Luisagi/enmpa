@@ -1,5 +1,5 @@
 evaluation_stats <- function(evaluation_results) {
-  toagg <- colnames(evaluation_results)[5:ncol(evaluation_results)]
+  toagg <- colnames(evaluation_results)[4:ncol(evaluation_results)]
 
   xy <- lapply(toagg, function(x) {
     do.call(
@@ -17,8 +17,8 @@ evaluation_stats <- function(evaluation_results) {
   colnames(stats) <- unlist(lapply(xy, function(y) {colnames(y[, 3:4])}))
 
   # remove sd for AIC and paramenters
-  stats <- cbind(xy[[1]][, 1:2] , stats[, -c(14, 16)])
-  colnames(stats)[c(15, 16)] <- c("Parameters", "AIC")
+  stats <- cbind(xy[[1]][, 1:2] , stats[, -c(16, 18)])
+  colnames(stats)[c(17, 18)] <- c("Parameters", "AIC")
   colnames(stats) <- gsub(".", "_", colnames(stats), fixed = TRUE)
 
   # delta and weight of AIC for the aggregated data
@@ -68,15 +68,79 @@ model_selection <- function(evaluation_stats, criterion = "TSS",
     sel <- sel[sel$Accuracy >= (max(sel$Accuracy) - tolerance), ]
   }
 
-  # delta AIC for filtered models
-  sel$Delta_AIC <- sel$AIC - min(sel$AIC, na.rm = TRUE)
-  sel <- sel[sel$Delta_AIC <= 2, ]
+  tryCatch({
+    # delta AIC for filtered models
+    sel$Delta_AIC <- sel$AIC - min(sel$AIC, na.rm = TRUE)
+    sel <- sel[sel$Delta_AIC <= 2, ]
 
-  # weight of AIC selected models
-  sel$AIC_weight <- exp(-0.5 * sel$Delta_AIC)
-  sel$AIC_weight <- sel$AIC_weight / sum(sel$AIC_weight, na.rm = TRUE)
+    # weight of AIC selected models
+    sel$AIC_weight <- exp(-0.5 * sel$Delta_AIC)
+    sel$AIC_weight <- sel$AIC_weight / sum(sel$AIC_weight, na.rm = TRUE)
 
-  rownames(sel) <- 1:nrow(sel)
+    rownames(sel) <- 1:nrow(sel)
+
+  }, error = function(e) {
+
+    # error message
+    message_error <-
+      paste("No model passed the filters set, try lowering the tolerance level.",
+            "Default: tolerance = 0.01")
+    print(message_error)
+
+    # Default value for no candidate model met the
+    sel <- NULL
+  })
+
+
+  # # delta AIC for filtered models
+  # sel$Delta_AIC <- sel$AIC - min(sel$AIC, na.rm = TRUE)
+  # sel <- sel[sel$Delta_AIC <= 2, ]
+  #
+  # # weight of AIC selected models
+  # sel$AIC_weight <- exp(-0.5 * sel$Delta_AIC)
+  # sel$AIC_weight <- sel$AIC_weight / sum(sel$AIC_weight, na.rm = TRUE)
+  #
+  # try(rownames(sel) <- 1:nrow(sel))
+
 
   return(sel)
 }
+
+
+
+contribution_formulas <- function(data, dependent, independent, weights = NULL,
+                                  type = "lqp", range = c(0.0001, 0.2),
+                                  by = 0.0001) {
+
+  f <- get_formulas(dependent = dependent, independent = independent,
+                    type = type, all_combinations = FALSE)
+
+  allfit <- glm(as.formula(f), data = data, family = binomial(link = "logit"),
+                weights = weights)
+
+  av <- anova(allfit, test = "Chisq")
+  preds <- rownames(av)
+  devs <- av$Deviance[-1]
+
+  sequ <- seq(range[1], range[2], by = by)
+
+  norm_dev <- seq(0, max(devs), length.out = 100)
+
+  forms <- lapply(sequ, function(x) {
+    thres <- quantile(norm_dev, x)
+
+    pick <- devs > thres
+
+    pred <- preds[-1][pick]
+
+    paste(dependent, "~", paste(pred, collapse = " + "))
+  })
+
+  forms <- unique(unlist(forms))
+  forms <- forms[length(forms):1]
+
+  return(forms)
+}
+
+
+

@@ -60,14 +60,23 @@ model_validation <- function(formula, data, family = binomial(link = "logit"),
       partition_index <- kfold_partition(data, k = k, seed = seed)
     }
 
-    out <- lapply(1:length(partition_index), function(x) {
+    out <- data.frame()
+
+    for (x  in 1:length(partition_index)) {
       # Define the train and test data
       data_test  <- data[partition_index[[x]], ]
       data_train <- data[-partition_index[[x]], ]
 
+      # extract the corresponding weight values for the k-fold
+      if (!is.null(weights)) {
+        weights_p <- weights[-partition_index[[x]]]
+      } else {
+        weights_p <- NULL
+      }
+
       # Fit using training data
       kfit <- glm(formula = f, family = family, data = data_train,
-                  weights = weights)
+                  weights = weights_p)
 
       # Evaluation using Test Dependent data
       pred_k <- predict.glm(kfit, data_test[,-1], type = "response")
@@ -75,12 +84,42 @@ model_validation <- function(formula, data, family = binomial(link = "logit"),
                                  predicted = pred_k,
                                  n_threshold = n_threshold)$optimized
 
-      data.frame(Formulas = formula, Kfold = x, eval_k,
-                 Parameters = nparameters, AIC = AIC)
+      res <- data.frame(Formulas = formula, Kfold = x, eval_k,
+                        Parameters = nparameters, AIC = AIC)
 
-    })
+      out <- rbind(out, res)
 
-    out <- do.call(rbind, out)
+    }
+
+
+    # out <- lapply(1:length(partition_index), function(x) {
+    #   # Define the train and test data
+    #   data_test  <- data[partition_index[[x]], ]
+    #   data_train <- data[-partition_index[[x]], ]
+    #
+    #   # extract the corresponding weight values for the k-fold
+    #   if (!is.null(weights)) {
+    #     weights_p <- weights[-partition_index[[x]]]
+    #   } else {
+    #     weights_p <- NULL
+    #   }
+    #
+    #   # Fit using training data
+    #   kfit <- glm(formula = f, family = family, data = data_train,
+    #               weights = weights_p)
+    #
+    #   # Evaluation using Test Dependent data
+    #   pred_k <- predict.glm(kfit, data_test[,-1], type = "response")
+    #   eval_k <- optimize_metrics(actual = data_test[, 1],
+    #                              predicted = pred_k,
+    #                              n_threshold = n_threshold)$optimized
+    #
+    #   data.frame(Formulas = formula, Kfold = x, eval_k,
+    #              Parameters = nparameters, AIC = AIC)
+    #
+    # })
+    #
+    # out <- do.call(rbind, out)
 
   } else {
     pred_global <- predict.glm(gfit, data[,-1], type = "response")

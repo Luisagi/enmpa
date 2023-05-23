@@ -106,6 +106,15 @@ get_formulas <- function(dependent, independent, type = "l",
     ## unlist predictors in formula
     vec <- unlist(strsplit(gsub(" ", "", aux), split = "[+]"))[-1]
 
+
+    # Number of combinations
+    # total <- sapply(1:length(vec), function(x){
+    #   factorial(length(vec)) / (factorial(x) * factorial(length(vec) - x))
+    # })
+    #
+    # sum(total)
+
+
     ## Get all combinations
     all_comb <- lapply(1:length(vec), utils::combn, x = vec,
                             simplify = FALSE)

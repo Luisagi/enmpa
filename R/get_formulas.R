@@ -115,10 +115,16 @@ get_formulas <- function(dependent, independent, type = "l",
     # sum(total)
 
 
-    ## Get all combinations
-    all_comb <- lapply(1:length(vec), utils::combn, x = vec,
-                            simplify = FALSE)
+    y <- 1:length(vec)
 
+    if (length(y) >= 20){
+      l <- length(y)
+      y <- y[-c(l %/% 2 - 1, l %/% 2, l %/% 2 + 1)]
+
+    }
+
+    ## Get all combinations
+    all_comb <- lapply(y , utils::combn, x = vec, simplify = FALSE)
     all_comb <- unlist(all_comb, recursive = FALSE)
 
     out <- sapply(all_comb, function(x) {
@@ -132,3 +138,4 @@ get_formulas <- function(dependent, independent, type = "l",
   # Return formula(s)
   return(out)
 }
+

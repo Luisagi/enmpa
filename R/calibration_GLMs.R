@@ -21,6 +21,8 @@
 #' @param all_combinations `logical`, whether to produce all combinations of
 #' formulas according to `response_type`, default = TRUE. FALSE returns only
 #' the most complex formula defined in `response_type`.
+#' @param minvar `numeric` minimum number of features.
+#' @param maxvar `numeric` maximum number of features.
 #' @param user_formulas a vector of character with the set of formulas to test.
 #' Default = NULL.
 #' @param cv_kfolds `numeric`, number of folds to use for k-fold
@@ -63,10 +65,10 @@
 
 calibration_glm <- function(data, dependent, independent, weights = NULL,
                             response_type = "l", all_combinations = TRUE,
-                            user_formulas = NULL, cv_kfolds = 5, seed = 1,
-                            n_threshold = 100, selection_criterion = "TSS",
-                            tolerance = 0.01, parallel = FALSE,
-                            n_cores = NULL, verbose = TRUE) {
+                            minvar=1, maxvar = NULL,  user_formulas = NULL,
+                            cv_kfolds = 5, seed = 1, n_threshold = 100,
+                            selection_criterion = "TSS", tolerance = 0.01,
+                            parallel = FALSE, n_cores = NULL, verbose = TRUE) {
 
   # initial tests
   if (missing(data) | missing(dependent) | missing(dependent)) {
@@ -88,7 +90,7 @@ calibration_glm <- function(data, dependent, independent, weights = NULL,
     message("\nEstimating formulas combinations for evaluation.")
 
     user_formulas <- get_formulas(dependent = dependent, independent = independent,
-                                  type = response_type,
+                                  type = response_type, minvar=1, maxvar = NULL,
                                   all_combinations = all_combinations)
 
   } else {

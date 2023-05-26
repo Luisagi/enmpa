@@ -15,6 +15,8 @@
 #' p = interaction between two variables. Default = "l".
 #' @param all_combinations `logical`, whether to produce all combinations,
 #' default = TRUE. FALSE returns only the most complex formula defined in type.
+#' @param minvar `numeric` minimum number of features.
+#' @param maxvar `numeric` maximum number of features.
 #'
 #' @return
 #' A character vector containing the resulting formula(s).
@@ -35,7 +37,8 @@
 #' formulas <- get_formulas(dep, ind, type = "lqp", all_combinations = TRUE)
 
 get_formulas <- function(dependent, independent, type = "l",
-                         all_combinations = TRUE) {
+                         all_combinations = TRUE,
+                         minvar=1, maxvar = NULL) {
 
   # initial test
   if (!is.character(dependent) || length(dependent) != 1) {
@@ -114,17 +117,25 @@ get_formulas <- function(dependent, independent, type = "l",
     #
     # sum(total)
 
+    if (!is.null(maxvar)){
+      if (maxvar > length(vec)) {
+        message("Maximum number of features: ", length(vec))
+        maxvar = length(vec)
+      }
+    } else {
+      maxvar = length(vec)
+    }
 
-    y <- 1:length(vec)
+    range_var <- minvar:maxvar
 
-    if (length(y) >= 20){
-      l <- length(y)
-      y <- y[-c(l %/% 2 - 1, l %/% 2, l %/% 2 + 1)]
+    if (length(range_var) >= 20){
+      l <- length(range_var)
+      range_var <- range_var[-c(l %/% 2 - 1, l %/% 2, l %/% 2 + 1)]
 
     }
 
     ## Get all combinations
-    all_comb <- lapply(y , utils::combn, x = vec, simplify = FALSE)
+    all_comb <- lapply(range_var, utils::combn, x = vec, simplify = FALSE)
     all_comb <- unlist(all_comb, recursive = FALSE)
 
     out <- sapply(all_comb, function(x) {

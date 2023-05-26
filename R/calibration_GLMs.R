@@ -90,7 +90,7 @@ calibration_glm <- function(data, dependent, independent, weights = NULL,
     message("\nEstimating formulas combinations for evaluation.")
 
     user_formulas <- get_formulas(dependent = dependent, independent = independent,
-                                  type = response_type, minvar=1, maxvar = NULL,
+                                  type = response_type, minvar=minvar, maxvar = maxvar,
                                   all_combinations = all_combinations)
 
   } else {

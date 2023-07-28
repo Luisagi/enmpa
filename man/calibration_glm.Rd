@@ -6,10 +6,10 @@
 \usage{
 calibration_glm(data, dependent, independent, weights = NULL,
                 response_type = "l", all_combinations = TRUE,
-                user_formulas = NULL, cv_kfolds = 5, seed = 1,
-                n_threshold = 100, selection_criterion = "TSS",
-                tolerance = 0.01, parallel = FALSE,
-                n_cores = NULL, verbose = TRUE)
+                minvar=1, maxvar = NULL, user_formulas = NULL,
+                cv_kfolds = 5, seed = 1,n_threshold = 100,
+                selection_criterion = "TSS", tolerance = 0.01,
+                parallel = FALSE, n_cores = NULL, verbose = TRUE)
 }
 \arguments{
 \item{data}{data.frame or matrix of independent variables.}
@@ -27,6 +27,10 @@ p = interaction between two variables. Default = "l".}
 \item{all_combinations}{\code{logical}, whether to produce all combinations of
 formulas according to \code{response_type}, default = TRUE. FALSE returns only
 the most complex formula defined in \code{response_type}.}
+
+\item{minvar}{\code{numeric} minimum number of features.}
+
+\item{maxvar}{\code{numeric} maximum number of features.}
 
 \item{user_formulas}{a vector of character with the set of formulas to test.
 Default = NULL.}

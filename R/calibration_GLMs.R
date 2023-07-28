@@ -6,10 +6,10 @@
 #' @usage
 #' calibration_glm(data, dependent, independent, weights = NULL,
 #'                 response_type = "l", all_combinations = TRUE,
-#'                 user_formulas = NULL, cv_kfolds = 5, seed = 1,
-#'                 n_threshold = 100, selection_criterion = "TSS",
-#'                 tolerance = 0.01, parallel = FALSE,
-#'                 n_cores = NULL, verbose = TRUE)
+#'                 minvar=1, maxvar = NULL, user_formulas = NULL,
+#'                 cv_kfolds = 5, seed = 1,n_threshold = 100,
+#'                 selection_criterion = "TSS", tolerance = 0.01,
+#'                 parallel = FALSE, n_cores = NULL, verbose = TRUE)
 #'
 #' @param data data.frame or matrix of independent variables.
 #' @param dependent `character`, name of dependent variable.

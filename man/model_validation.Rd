@@ -6,7 +6,7 @@
 \usage{
 model_validation(formula, data, family = binomial(link = "logit"),
                  weights = NULL, cv = FALSE, partition_index = NULL,
-                 k = NULL, seed = 1)
+                 k = NULL, n_threshold = 100, seed = 1)
 }
 \arguments{
 \item{formula}{a formula.}
@@ -23,6 +23,9 @@ model_validation(formula, data, family = binomial(link = "logit"),
 
 \item{k}{number of folds for a new k-fold index preparation. Ignored if
 \code{partition_index} is defined.}
+
+\item{n_threshold}{\code{numeric}number of threshold values to be used.
+Default = 100.}
 
 \item{seed}{seed.}
 }

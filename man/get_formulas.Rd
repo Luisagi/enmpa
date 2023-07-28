@@ -4,7 +4,8 @@
 \alias{get_formulas}
 \title{Get formulas according to types of responses needed}
 \usage{
-get_formulas(dependent, independent, type = "l", all_combinations = TRUE)
+get_formulas(dependent, independent, type = "l", all_combinations = TRUE,
+minvar=1, maxvar = NULL)
 }
 \arguments{
 \item{dependent}{\code{character}, name of dependent variable.}
@@ -17,6 +18,10 @@ p = interaction between two variables. Default = "l".}
 
 \item{all_combinations}{\code{logical}, whether to produce all combinations,
 default = TRUE. FALSE returns only the most complex formula defined in type.}
+
+\item{minvar}{\code{numeric} minimum number of features.}
+
+\item{maxvar}{\code{numeric} maximum number of features.}
 }
 \value{
 A character vector containing the resulting formula(s).

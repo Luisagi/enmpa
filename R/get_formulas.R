@@ -6,7 +6,8 @@
 #' formulas considering combinations of variables can be calculated if needed.
 #'
 #' @usage
-#' get_formulas(dependent, independent, type = "l", all_combinations = TRUE)
+#' get_formulas(dependent, independent, type = "l", all_combinations = TRUE,
+#' minvar=1, maxvar = NULL)
 #'
 #' @param dependent `character`, name of dependent variable.
 #' @param independent `character`, a vector of names of independent variables.

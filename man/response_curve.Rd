@@ -4,7 +4,14 @@
 \alias{response_curve}
 \title{Response curve: It evaluates the response of the variable and its limits}
 \usage{
-response_curve(model, variable, n = 100, new_data = NULL, new_range = NULL)
+response_curve(
+  model,
+  variable,
+  n = 100,
+  new_data = NULL,
+  new_range = NULL,
+  rescale = FALSE
+)
 }
 \arguments{
 \item{model}{an object of class "glm" which inherits from the class "lm".}
@@ -19,6 +26,8 @@ Default = NULL}
 
 \item{new_range}{\verb{numeric vector}, a numerical vector with the lower and
 upper limits of the variable. Default = NULL}
+
+\item{rescale}{probability 0-1. Default = FALSE.}
 }
 \description{
 Response curve: It evaluates the response of the variable and its limits

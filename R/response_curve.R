@@ -8,6 +8,7 @@
 #' Default = NULL
 #' @param new_range `numeric vector`, a numerical vector with the lower and
 #' upper limits of the variable. Default = NULL
+#' @param rescale probability 0-1. Default = FALSE.
 #'
 #' @export
 #'
@@ -17,7 +18,7 @@
 
 
 response_curve <- function(model, variable, n = 100, new_data = NULL,
-                           new_range = NULL) {
+                           new_range = NULL, rescale = FALSE) {
 
   # initial tests
   if (missing(model) | missing(variable)) {
@@ -78,9 +79,18 @@ response_curve <- function(model, variable, n = 100, new_data = NULL,
   # Response of the variable
   m$predicted <- stats::predict(model, m, type = "response")
 
-  # Plotting curve
-  plot(m[, variable], m$predicted, type = "l", ylim = c(0, 1),
-       xlab = variable, ylab = "Probability")
+  if (rescale){
+    # Plotting curve
+    plot(m[, variable], m$predicted, type = "l",ylim = c(0, 1),
+         xlab = variable, ylab = "Probability")
+  } else{
+    # Plotting curve
+    plot(m[, variable], m$predicted, type = "l",
+         xlab = variable, ylab = "Probability")
+  }
+
+
+
 
   # It adds the calibration limits
   abline(v = c(cal_mins[variable], cal_maxs[variable]),

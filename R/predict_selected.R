@@ -2,8 +2,8 @@
 #' Predict the selected models
 #'
 #' @param x the object returned by the function "calibration_glm()".
-#' @param newdata a data.frame or matrix with the new data to project the
-#' predictions.
+#' @param newdata a `SpatRaster`, data.frame or matrix with the new data to
+#' project the predictions.
 #' @param clamping Clamp values to a minimum and maximum value, that are
 #' establish for the max and min values of the calibration limits.
 #' @param type the type of prediction required. For a default binomial model

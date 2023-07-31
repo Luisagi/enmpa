@@ -52,10 +52,6 @@ var_importance <- function(model){
   return(tab_contr)
 }
 
-model <- preds$fitted_models$Model_ID_1
-
-var_importance(model)
-
 
 
 

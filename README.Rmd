@@ -51,14 +51,132 @@ env_vars <- terra::rast(system.file("extdata", "raster_vars.tif", package = "enm
 
 
 ```{r }
+# Presence-absence data with the values of the environmental variables associated
+# with the occurrences. 
 head(pa_data)
 ```
 
-```{r }
-terra::plot(env_vars)
+```{r, figures-raster_layers, fig.show="hold", out.width="70%"}
+# Raster layers of the areas we want to project.
+# bio_1 = Annual Mean Temperature
+# bio_12 = Annual Precipitation
+
+terra::plot(env_vars, nr = 2)
 ```
 
 
-### Running analyses
+### Formula creation
+
+This package has as a novelty the possibility to explore all those combinations
+of formulas considering both the linear (l), quadratic (q) response and the interactions
+of the variables two by two (p).
 
 
+```{r }
+# Linear responses
+get_formulas(dependent = "Pres_abs",
+             independent = c("bio_1", "bio_12"),
+             type = "l")
+```
+
+```{r }
+# Linear + quadratic responses
+get_formulas(dependent = "Pres_abs",
+             independent = c("bio_1", "bio_12"),
+             type = "lq")
+```
+
+```{r }
+# Linear + quadratic + products responses
+get_formulas(dependent = "Pres_abs",
+             independent = c("bio_1", "bio_12"),
+             type = "lqp")
+```
+
+
+### Model calibration and selection
+
+The function `calibration_glm()` is a wrapper function that includes creating
+formulas, fitting all possible models and selecting the best ones. 
+ 
+* Model selection consists of three steps:
+  + 1) a first filter to keep the models with ROC AUC >= 0.5 (statistically significant models)
+  + 2) a second filter to maintain only models that meet the selection_criterion ("TSS": TSS >= 0.4; or "ESS": maximum Accuracy - tolerance).
+  + 3) from those, pick the ones with delta AIC <= 2.
+
+* It mainly returns a list containing:
+  + selected models `cal_res$selected`,
+  + a summary of statistics for all models `cal_res$summary` and
+  + results obtained in cross-validation for all models  `cal_res$calibration_results`
+
+```{r}
+# Linear + quadratic + products responses
+cal_res <- calibration_glm(data = pa_data,
+                           dependent = "Pres_abs",
+                           independent = c("bio_1", "bio_12"),
+                           response_type = "lpq",
+                           selection_criterion = "TSS",
+                           cv_kfolds = 5,
+                           parallel = T,
+                           n_cores = 4)
+```
+
+```{r}
+# Two models were selected out of 31 models evaluated.
+cal_res$selected
+```
+
+### Prediction
+
+
+```{r, figures-prediction_selected, fig.show="hold", out.width="70%"}
+# Prediction of the two selected models.
+preds <- predict_selected(x = cal_res, newdata = env_vars)
+
+terra::plot(preds$predictions, nr = 2)
+```
+
+### Response Curves
+
+```{r, figures-rcurve_model_ID_1, fig.show="hold", out.width="50%"}
+# Response Curves for Bio_1 and Bio_2 
+par(mar = c(4, 4, .1, .1))
+
+# BIO_1: 
+response_curve(model = preds$fitted_models$Model_ID_1,
+               variable = "bio_1",
+               new_data = env_vars)
+
+response_curve(model = preds$fitted_models$Model_ID_1,
+               variable = "bio_12",
+               new_data = env_vars, rescale = F)
+```
+
+
+### Variable importance
+
+The variable importance is calculated as a function of the relative deviance
+explained by each predictor.
+
+```{r}
+# Summary
+summary(preds$fitted_models$Model_ID_1)
+```
+
+
+```{r warning=FALSE}
+# Analysis of Deviance for the selected model.
+anova(preds$fitted_models$Model_ID_1, test = "Chi")
+```
+
+```{r warning=FALSE}
+# Relative contribution of the deviance explained.
+varimport <- enmpa::var_importance(preds$fitted_models$Model_ID_1)
+varimport
+```
+
+
+
+```{r warning=FALSE}
+barplot(varimport[,"contr"], names = varimport[,"features"])
+```

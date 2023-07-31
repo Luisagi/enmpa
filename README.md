@@ -76,18 +76,18 @@ response and the interactions of the variables two by two (p).
 
 ``` r
 # Linear responses
-get_formulas(dependent = "Pres_abs",
-             independent = c("bio_1", "bio_12"),
-             type = "l")
+enmpa::get_formulas(dependent = "Pres_abs", 
+                    independent = c("bio_1", "bio_12"), 
+                    type = "l")
 #> [1] "Pres_abs ~ bio_1"          "Pres_abs ~ bio_12"        
 #> [3] "Pres_abs ~ bio_1 + bio_12"
 ```
 
 ``` r
 # Linear + quadratic responses
-get_formulas(dependent = "Pres_abs",
-             independent = c("bio_1", "bio_12"),
-             type = "lq")
+enmpa::get_formulas(dependent = "Pres_abs", 
+                    independent = c("bio_1", "bio_12"), 
+                    type = "lq")
 #>  [1] "Pres_abs ~ bio_1"                                    
 #>  [2] "Pres_abs ~ bio_12"                                   
 #>  [3] "Pres_abs ~ I(bio_1^2)"                               
@@ -107,9 +107,9 @@ get_formulas(dependent = "Pres_abs",
 
 ``` r
 # Linear + quadratic + products responses
-get_formulas(dependent = "Pres_abs",
-             independent = c("bio_1", "bio_12"),
-             type = "lqp")
+enmpa::get_formulas(dependent = "Pres_abs", 
+                    independent = c("bio_1", "bio_12"), 
+                    type = "lqp")
 #>  [1] "Pres_abs ~ bio_1"                                                   
 #>  [2] "Pres_abs ~ bio_12"                                                  
 #>  [3] "Pres_abs ~ I(bio_1^2)"                                              
@@ -166,21 +166,19 @@ ones.
 
 ``` r
 # Linear + quadratic + products responses
-cal_res <- calibration_glm(data = pa_data,
-                           dependent = "Pres_abs",
-                           independent = c("bio_1", "bio_12"),
-                           response_type = "lpq",
-                           selection_criterion = "TSS",
-                           cv_kfolds = 5,
-                           parallel = T,
-                           n_cores = 4)
+cal_res <- enmpa::calibration_glm(data = pa_data,
+                                  dependent = "Pres_abs",
+                                  independent = c("bio_1", "bio_12"),
+                                  response_type = "lpq",
+                                  selection_criterion = "TSS",
+                                  cv_kfolds = 5,parallel = T, n_cores = 4)
 #> 
 #> Estimating formulas combinations for evaluation.
 #> Evaluating a total of 31 models.
 #> Running in Parallel using 4 threads.
 #>   |                                                                              |                                                                      |   0%  |                                                                              |==                                                                    |   3%  |                                                                              |=====                                                                 |   7%  |                                                                              |=======                                                               |  10%  |                                                                              |=========                                                             |  13%  |                                                                              |============                                                          |  17%  |                                                                              |==============                                                        |  20%  |                                                                              |================                                                      |  23%  |                                                                              |===================                                                   |  27%  |                                                                              |=====================                                                 |  30%  |                                                                              |=======================                                               |  33%  |                                                                              |==========================                                            |  37%  |                                                                              |============================                                          |  40%  |                                                                              |==============================                                        |  43%  |                                                                              |=================================                                     |  47%  |                                                                              |===================================                                   |  50%  |                                                                              |=====================================                                 |  53%  |                                                                              |========================================                              |  57%  |                                                                              |==========================================                            |  60%  |                                                                              |============================================                          |  63%  |                                                                              |===============================================                       |  67%  |                                                                              |=================================================                     |  70%  |                                                                              |===================================================                   |  73%  |                                                                              |======================================================                |  77%  |                                                                              |========================================================              |  80%  |                                                                              |==========================================================            |  83%  |                                                                              |=============================================================         |  87%  |                                                                              |===============================================================       |  90%  |                                                                              |=================================================================     |  93%  |                                                                              |====================================================================  |  97%  |                                                                              |======================================================================| 100%
 #> 
-#> Running time: 3.47538208961487
+#> Running time: 3.62184071540833
 #> 
 #> Preparing results...
 ```
@@ -209,11 +207,7 @@ cal_res$selected
 
 ``` r
 # Prediction of the two selected models.
-preds <- predict_selected(x = cal_res, newdata = env_vars)
-#> Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-
-#> Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
-
+preds <- enmpa::predict_selected(x = cal_res, newdata = env_vars)
 terra::plot(preds$predictions, nr = 2)
 ```
 
@@ -226,13 +220,13 @@ terra::plot(preds$predictions, nr = 2)
 par(mar = c(4, 4, .1, .1))
 
 # BIO_1: 
-response_curve(model = preds$fitted_models$Model_ID_1,
-               variable = "bio_1",
-               new_data = env_vars)
+enmpa::response_curve(model = preds$fitted_models$Model_ID_1,
+                      variable = "bio_1",
+                      new_data = env_vars)
 
-response_curve(model = preds$fitted_models$Model_ID_1,
-               variable = "bio_12",
-               new_data = env_vars, rescale = F)
+enmpa::response_curve(model = preds$fitted_models$Model_ID_1,
+                      variable = "bio_12",
+                      new_data = env_vars)
 ```
 
 <img src="man/figures/README-figures-rcurve_model_ID_1-1.png" width="50%" /><img src="man/figures/README-figures-rcurve_model_ID_1-2.png" width="50%" />
@@ -313,4 +307,4 @@ varimport
 barplot(varimport[,"contr"], names = varimport[,"features"])
 ```
 
-<img src="man/figures/README-unnamed-chunk-12-1.png" width="100%" />
+<img src="man/figures/README-figures-var_importance-1.png" width="70%" />

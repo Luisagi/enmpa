@@ -9,8 +9,8 @@ predict_selected(x, newdata, clamping = FALSE, type = "response")
 \arguments{
 \item{x}{the object returned by the function "calibration_glm()".}
 
-\item{newdata}{a data.frame or matrix with the new data to project the
-predictions.}
+\item{newdata}{a \code{SpatRaster}, data.frame or matrix with the new data to
+project the predictions.}
 
 \item{clamping}{Clamp values to a minimum and maximum value, that are
 establish for the max and min values of the calibration limits.}

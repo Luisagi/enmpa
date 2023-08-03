@@ -230,5 +230,5 @@ varimport
 Plotting these values can help with interpretations:
 
 ```{r warning=FALSE, figures-var_importance, fig.show="hold", out.width="70%", cache=TRUE}
-barplot(varimport[,"contr"], names = varimport[,"features"])
+barplot(varimport$contribution, names = varimport$predictor)
 ```

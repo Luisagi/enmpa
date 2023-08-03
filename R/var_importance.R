@@ -36,7 +36,7 @@ var_importance <- function(model){
   deviance_importance <- dev_reduction / sum(dev_reduction)
 
   # preparing results
-  tab_contr <- data.frame(predictors = names(deviance_importance),
+  tab_contr <- data.frame(predictor = names(deviance_importance),
                           stringsAsFactors = FALSE)
   tab_contr$contribution <- deviance_importance
 

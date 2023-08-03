@@ -1,115 +1,150 @@
 ---
-title: "ENMPA: An R package for Ecological Niche Modeling using Presence-Absence Data"
-author: "Luis F. Arias-Giraldo, Marlon E. Cobos, A. Town Peterson."
+title: "enmpa: Ecological Niche Modeling for Presence-absence Data"
+author: "Luis F. Arias-Giraldo, Marlon E. Cobos, A. Townsend Peterson"
 output: 
   github_document:
     toc: yes
     toc_depth: 3
-
+editor_options: 
+  markdown: 
+    wrap: 80
 ---
-
-
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-```{r, include = FALSE}
+```{r, include=FALSE}
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>", 
                       fig.path = "man/figures/README-", out.width = "100%")
 ```
 
 <!-- badges: start -->
+
 <!-- badges: end -->
 
 <hr>
 
-The package `enmpa` comprises a set of tools to perform Ecological Niche Modeling
-analysis, including data partitioning, model selection, calibration, fitting and evaluation.
+The package `enmpa` comprises a set of tools to perform Ecological Niche
+Modeling using presence-absence data. Some of the main functions help perform
+data partitioning, model calibration, model selection, variable response
+exploration, and model projection.
 
 <br>
 
 ## Installation
 
-You can install the development version of enmpa from [GitHub](https://github.com/) with:
+You can install the development version of `enmpa` from
+[GitHub](https://github.com/Luisagi/enmpa) with:
 
-``` r
-# install.packages("devtools")
-devtools::install_github("Luisagi/enmpa")
+```{r eval=FALSE}
+# install.packages("remotes")
+remotes::install_github("Luisagi/enmpa")
 ```
+
+<br>
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+### Loading packages needed
+
+The package `terra` will be used to handle spatial data, and `enmpa` will be
+used to perform ENM.
 
 ```{r message=FALSE}
 library(enmpa)
 library(terra)
-
-# Load species occurrences and environmental data
-pa_data <- read.csv(system.file("extdata", "pa_data.csv", package = "enmpa"))
-env_vars <- terra::rast(system.file("extdata", "raster_vars.tif", package = "enmpa"))
 ```
 
+<br>
 
-```{r }
-# Presence-absence data with the values of the environmental variables associated
-# with the occurrences. 
+### Example data
+
+This is a basic example which shows you how to solve a common problem:
+
+```{r message=FALSE, cache=TRUE}
+# Load species occurrences and environmental data.
+pa_data <- read.csv(system.file("extdata", "pa_data.csv", package = "enmpa"))
+env_vars <- terra::rast(system.file("extdata", "raster_vars.tif", 
+                                    package = "enmpa"))
+
+
+# Presence-absence data with the values of environmental variables associated
 head(pa_data)
 ```
 
-```{r, figures-raster_layers, fig.show="hold", out.width="70%"}
-# Raster layers of the areas we want to project.
-# bio_1 = Annual Mean Temperature
-# bio_12 = Annual Precipitation
+Check raster layers for the projection area. Obtained from
+[WorldClim](https://worldclim.org/):
 
+-   bio_1 = Annual Mean Temperature
+-   bio_12 = Annual Precipitation
+
+```{r figures-raster_layers, fig.show="hold", out.width="70%", cache=TRUE}
 terra::plot(env_vars, nr = 2)
 ```
 
+<br>
 
-### Formula creation
+### Model formulas
 
-This package has as a novelty the possibility to explore all those combinations
-of formulas considering both the linear (l), quadratic (q) response and the interactions
-of the variables two by two (p).
+With `enmpa` you have the possibility to explore multiple model formulas derived
+from combinations of variables considering linear (l), quadratic (q), and
+product (p) responses. Product refers to pair interactions of variables.
 
+Linear responses:
 
-```{r }
-# Linear responses
+```{r cache=TRUE}
 enmpa::get_formulas(dependent = "Pres_abs", 
                     independent = c("bio_1", "bio_12"), 
                     type = "l")
 ```
 
-```{r }
-# Linear + quadratic responses
+Linear + quadratic responses:
+
+```{r cache=TRUE}
 enmpa::get_formulas(dependent = "Pres_abs", 
                     independent = c("bio_1", "bio_12"), 
                     type = "lq")
 ```
 
-```{r }
-# Linear + quadratic + products responses
+Linear + quadratic + products responses:
+
+```{r cache=TRUE}
 enmpa::get_formulas(dependent = "Pres_abs", 
                     independent = c("bio_1", "bio_12"), 
                     type = "lqp")
 ```
 
+<br>
 
 ### Model calibration and selection
 
-The function `calibration_glm()` is a wrapper function that includes creating
-formulas, fitting all possible models and selecting the best ones. 
- 
-* Model selection consists of three steps:
-  + 1) a first filter to keep the models with ROC AUC >= 0.5 (statistically significant models)
-  + 2) a second filter to maintain only models that meet the selection_criterion ("TSS": TSS >= 0.4; or "ESS": maximum Accuracy - tolerance).
-  + 3) from those, pick the ones with delta AIC <= 2.
+The function `calibration_glm()` is a wrapper function that allows to:
 
-* It mainly returns a list containing:
-  + selected models `cal_res$selected`,
-  + a summary of statistics for all models `cal_res$summary` and
-  + results obtained in cross-validation for all models  `cal_res$calibration_results`
+-   Create model formulas
+-   Fit and evaluate models based on such formulas
+-   Select best performing models
 
-```{r}
+Model selection consists of three steps:
+
+1.  a first filter to keep the models with ROC AUC \>= 0.5 (statistically
+    significant models).
+2.  a second filter to maintain only models that meet a `selection_criterion`
+    ("TSS": TSS \>= 0.4; or "ESS": maximum Accuracy - tolerance).
+3.  from those, pick the ones with delta AIC \<= 2.
+
+<br>
+
+Results are returned as a list containing:
+
+-   selected models `*$selected`
+-   a summary of statistics for all models `*$summary`
+-   results obtained from cross-validation for all models
+    `*$calibration_results`
+
+<br>
+
+Now lets run an example of model calibration and selection:
+
+```{r cache=TRUE}
 # Linear + quadratic + products responses
 cal_res <- enmpa::calibration_glm(data = pa_data,
                                   dependent = "Pres_abs",
@@ -119,24 +154,38 @@ cal_res <- enmpa::calibration_glm(data = pa_data,
                                   cv_kfolds = 5,parallel = T, n_cores = 4)
 ```
 
-```{r}
-# Two models were selected out of 31 models evaluated.
+Process results:
+
+```{r cache=TRUE}
+# Two models were selected out of 31 models evaluated
 cal_res$selected
 ```
 
-### Prediction
+<br>
 
+### Predictions (projections)
 
-```{r warning=FALSE, figures-prediction_selected, fig.show="hold", out.width="70%"}
-# Prediction of the two selected models.
+After one or more models are selected, predictions can be made. In this case we
+are projecting the model to the whole area of interest.
+
+```{r warning=FALSE, figures-prediction_selected, fig.show="hold", out.width="70%", cache=TRUE}
+# Prediction for the two selected models
 preds <- enmpa::predict_selected(x = cal_res, newdata = env_vars)
+
+# Visualization
 terra::plot(preds$predictions, nr = 2)
 ```
 
+<br>
+
 ### Response Curves
 
-```{r, figures-rcurve_model_ID_1, fig.show="hold", out.width="50%"}
-# Response Curves for Bio_1 and Bio_2 
+An important step in understanding the ecological niches that can be
+characterized with these models is to explore variable responses. The following
+lines of code help to do so:
+
+```{r figures-rcurve_model_ID_1, fig.show="hold", out.width="50%", cache=TRUE}
+# Response Curves for Bio_1 and Bio_2, first selected model 
 par(mar = c(4, 4, .1, .1))
 
 # BIO_1: 
@@ -144,36 +193,42 @@ enmpa::response_curve(model = preds$fitted_models$Model_ID_1,
                       variable = "bio_1",
                       new_data = env_vars)
 
+# BIO_12:
 enmpa::response_curve(model = preds$fitted_models$Model_ID_1,
                       variable = "bio_12",
                       new_data = env_vars)
 ```
 
+<br>
 
 ### Variable importance
 
-The variable importance is calculated as a function of the relative deviance
-explained by each predictor.
+The variable importance or contribution to models can be calculated as a
+function of the relative deviance explained by each predictor.
 
-```{r}
-# Summary
+Model summary:
+
+```{r cache=TRUE}
 summary(preds$fitted_models$Model_ID_1)
 ```
 
+Analysis of Deviance for the first selected model:
 
-```{r warning=FALSE}
-# Analysis of Deviance for the selected model.
+```{r warning=FALSE, cache=TRUE}
 anova(preds$fitted_models$Model_ID_1, test = "Chi")
 ```
 
-```{r warning=FALSE}
-# Relative contribution of the deviance explained.
+Using a function from `enmpa` you can explore variable importance in terms of
+contribution.
+
+```{r warning=FALSE, cache=TRUE}
+# Relative contribution of the deviance explained
 varimport <- enmpa::var_importance(preds$fitted_models$Model_ID_1)
 varimport
 ```
 
+Plotting these values can help with interpretations:
 
-
-```{r warning=FALSE, figures-var_importance, fig.show="hold", out.width="70%"}
+```{r warning=FALSE, figures-var_importance, fig.show="hold", out.width="70%", cache=TRUE}
 barplot(varimport[,"contr"], names = varimport[,"features"])
 ```

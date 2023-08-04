@@ -32,3 +32,5 @@ Imports:
     vegan,
     ellipse
 LazyData: true
+Depends:
+    R (>= 3.5.0)

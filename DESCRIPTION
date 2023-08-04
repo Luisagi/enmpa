@@ -1,6 +1,6 @@
 Package: enmpa
 Title: Ecological Niche Modeling using Presence-Absence Data
-Version: 0.0.6
+Version: 0.0.7
 Authors@R: c(
     person("Luis F.", "Arias-Giraldo", email = "ariasgiraldo.luisfelipe@gmail.com",
     role = c("aut", "cre"), comment = c(ORCID = "0000-0003-4861-8064")),

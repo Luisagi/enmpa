@@ -25,30 +25,26 @@ var_importance <- function(model){
     stop("Argument 'model' must be defined.")
   }
 
-  # Aux function to get deviance of a reduced model
-  get_red_dev <- function(full_model, reduce_var){
-    reduce_model <- suppressWarnings(update(full_model,
-                           as.formula(paste("~.-", reduce_var)),
-                           data = full_model$data))
-    return(deviance(reduce_model))
-  }
-
   # deviance of the full model
   dev_full <- deviance(model)
 
   # deviance of the reduced models
-  dev_reduction <- sapply( names(coef(model))[-1], function(x){
+  dev_reduction <- sapply(names(coef(model))[-1], function(x) {
     dev_full - get_red_dev(model, x)
   })
 
   deviance_importance <- dev_reduction / sum(dev_reduction)
 
-  tab_contr <- data.frame(features = names(deviance_importance), stringsAsFactors = FALSE)
-  tab_contr$contr <- deviance_importance
+  # preparing results
+  tab_contr <- data.frame(predictor = names(deviance_importance),
+                          stringsAsFactors = FALSE)
+  tab_contr$contribution <- deviance_importance
 
-  ord <- order(tab_contr$contr, decreasing = TRUE)
+  ord <- order(tab_contr$contribution, decreasing = TRUE)
   tab_contr <- tab_contr[ord,]
-  tab_contr$cum_contr <- cumsum(tab_contr$contr)
+  tab_contr$cum_contribution <- cumsum(tab_contr$contribution)
+
+  # returning results
   return(tab_contr)
 }
 

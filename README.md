@@ -1,13 +1,14 @@
-ENMPA: An R package for Ecological Niche Modeling using Presence-Absence
-Data
+enmpa: Ecological Niche Modeling for Presence-absence Data
 ================
-Luis F. Arias-Giraldo, Marlon E. Cobos, A. Town Peterson.
+Luis F. Arias-Giraldo, Marlon E. Cobos, A. Townsend Peterson
 
 - [Installation](#installation)
 - [Example](#example)
-  - [Formula creation](#formula-creation)
+  - [Loading packages needed](#loading-packages-needed)
+  - [Example data](#example-data)
+  - [Model formulas](#model-formulas)
   - [Model calibration and selection](#model-calibration-and-selection)
-  - [Prediction](#prediction)
+  - [Predictions (projections)](#predictions-projections)
   - [Response Curves](#response-curves)
   - [Variable importance](#variable-importance)
 
@@ -17,37 +18,50 @@ Luis F. Arias-Giraldo, Marlon E. Cobos, A. Town Peterson.
 <hr>
 
 The package `enmpa` comprises a set of tools to perform Ecological Niche
-Modeling analysis, including data partitioning, model selection,
-calibration, fitting and evaluation.
+Modeling using presence-absence data. Some of the main functions help
+perform data partitioning, model calibration, model selection, variable
+response exploration, and model projection.
 
 <br>
 
 ## Installation
 
-You can install the development version of enmpa from
-[GitHub](https://github.com/) with:
+You can install the development version of `enmpa` from
+[GitHub](https://github.com/Luisagi/enmpa) with:
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("Luisagi/enmpa")
+# install.packages("remotes")
+remotes::install_github("Luisagi/enmpa")
 ```
+
+<br>
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+### Loading packages needed
+
+The package `terra` will be used to handle spatial data, and `enmpa`
+will be used to perform ENM.
 
 ``` r
 library(enmpa)
 library(terra)
-
-# Load species occurrences and environmental data
-pa_data <- read.csv(system.file("extdata", "pa_data.csv", package = "enmpa"))
-env_vars <- terra::rast(system.file("extdata", "raster_vars.tif", package = "enmpa"))
 ```
 
+<br>
+
+### Example data
+
+This is a basic example which shows you how to solve a common problem:
+
 ``` r
-# Presence-absence data with the values of the environmental variables associated
-# with the occurrences. 
+# Load species occurrences and environmental data.
+pa_data <- read.csv(system.file("extdata", "pa_data.csv", package = "enmpa"))
+env_vars <- terra::rast(system.file("extdata", "raster_vars.tif", 
+                                    package = "enmpa"))
+
+
+# Presence-absence data with the values of environmental variables associated
 head(pa_data)
 #>   Pres_abs     bio_1 bio_12
 #> 1        0  4.222687    403
@@ -58,24 +72,30 @@ head(pa_data)
 #> 6        1 16.934618    319
 ```
 
-``` r
-# Raster layers of the areas we want to project.
-# bio_1 = Annual Mean Temperature
-# bio_12 = Annual Precipitation
+Check raster layers for the projection area. Obtained from
+[WorldClim](https://worldclim.org/):
 
+- bio_1 = Annual Mean Temperature
+- bio_12 = Annual Precipitation
+
+``` r
 terra::plot(env_vars, nr = 2)
 ```
 
 <img src="man/figures/README-figures-raster_layers-1.png" width="70%" />
 
-### Formula creation
+<br>
 
-This package has as a novelty the possibility to explore all those
-combinations of formulas considering both the linear (l), quadratic (q)
-response and the interactions of the variables two by two (p).
+### Model formulas
+
+With `enmpa` you have the possibility to explore multiple model formulas
+derived from combinations of variables considering linear (l), quadratic
+(q), and product (p) responses. Product refers to pair interactions of
+variables.
+
+Linear responses:
 
 ``` r
-# Linear responses
 enmpa::get_formulas(dependent = "Pres_abs", 
                     independent = c("bio_1", "bio_12"), 
                     type = "l")
@@ -83,8 +103,9 @@ enmpa::get_formulas(dependent = "Pres_abs",
 #> [3] "Pres_abs ~ bio_1 + bio_12"
 ```
 
+Linear + quadratic responses:
+
 ``` r
-# Linear + quadratic responses
 enmpa::get_formulas(dependent = "Pres_abs", 
                     independent = c("bio_1", "bio_12"), 
                     type = "lq")
@@ -105,8 +126,9 @@ enmpa::get_formulas(dependent = "Pres_abs",
 #> [15] "Pres_abs ~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2)"
 ```
 
+Linear + quadratic + products responses:
+
 ``` r
-# Linear + quadratic + products responses
 enmpa::get_formulas(dependent = "Pres_abs", 
                     independent = c("bio_1", "bio_12"), 
                     type = "lqp")
@@ -143,26 +165,37 @@ enmpa::get_formulas(dependent = "Pres_abs",
 #> [31] "Pres_abs ~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12"
 ```
 
+<br>
+
 ### Model calibration and selection
 
-The function `calibration_glm()` is a wrapper function that includes
-creating formulas, fitting all possible models and selecting the best
-ones.
+The function `calibration_glm()` is a wrapper function that allows to:
 
-- Model selection consists of three steps:
-  - 1)  a first filter to keep the models with ROC AUC \>= 0.5
-        (statistically significant models)
+- Create model formulas
+- Fit and evaluate models based on such formulas
+- Select best performing models
 
-  - 2)  a second filter to maintain only models that meet the
-        selection_criterion (“TSS”: TSS \>= 0.4; or “ESS”: maximum
-        Accuracy - tolerance).
+Model selection consists of three steps:
 
-  - 3)  from those, pick the ones with delta AIC \<= 2.
-- It mainly returns a list containing:
-  - selected models `cal_res$selected`,
-  - a summary of statistics for all models `cal_res$summary` and
-  - results obtained in cross-validation for all models
-    `cal_res$calibration_results`
+1.  a first filter to keep the models with ROC AUC \>= 0.5
+    (statistically significant models).
+2.  a second filter to maintain only models that meet a
+    `selection_criterion` (“TSS”: TSS \>= 0.4; or “ESS”: maximum
+    Accuracy - tolerance).
+3.  from those, pick the ones with delta AIC \<= 2.
+
+<br>
+
+Results are returned as a list containing:
+
+- selected models `*$selected`
+- a summary of statistics for all models `*$summary`
+- results obtained from cross-validation for all models
+  `*$calibration_results`
+
+<br>
+
+Now lets run an example of model calibration and selection:
 
 ``` r
 # Linear + quadratic + products responses
@@ -178,13 +211,15 @@ cal_res <- enmpa::calibration_glm(data = pa_data,
 #> Running in Parallel using 4 threads.
 #>   |                                                                              |                                                                      |   0%  |                                                                              |==                                                                    |   3%  |                                                                              |=====                                                                 |   7%  |                                                                              |=======                                                               |  10%  |                                                                              |=========                                                             |  13%  |                                                                              |============                                                          |  17%  |                                                                              |==============                                                        |  20%  |                                                                              |================                                                      |  23%  |                                                                              |===================                                                   |  27%  |                                                                              |=====================                                                 |  30%  |                                                                              |=======================                                               |  33%  |                                                                              |==========================                                            |  37%  |                                                                              |============================                                          |  40%  |                                                                              |==============================                                        |  43%  |                                                                              |=================================                                     |  47%  |                                                                              |===================================                                   |  50%  |                                                                              |=====================================                                 |  53%  |                                                                              |========================================                              |  57%  |                                                                              |==========================================                            |  60%  |                                                                              |============================================                          |  63%  |                                                                              |===============================================                       |  67%  |                                                                              |=================================================                     |  70%  |                                                                              |===================================================                   |  73%  |                                                                              |======================================================                |  77%  |                                                                              |========================================================              |  80%  |                                                                              |==========================================================            |  83%  |                                                                              |=============================================================         |  87%  |                                                                              |===============================================================       |  90%  |                                                                              |=================================================================     |  93%  |                                                                              |====================================================================  |  97%  |                                                                              |======================================================================| 100%
 #> 
-#> Running time: 3.62184071540833
+#> Running time: 10.5122113227844
 #> 
 #> Preparing results...
 ```
 
+Process results:
+
 ``` r
-# Two models were selected out of 31 models evaluated.
+# Two models were selected out of 31 models evaluated
 cal_res$selected
 #>                                                              Formulas
 #> 1 Pres_abs ~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12
@@ -203,20 +238,33 @@ cal_res$selected
 #> 2 0.0404          4 2186.70    1.0201  0.3751818
 ```
 
-### Prediction
+<br>
+
+### Predictions (projections)
+
+After one or more models are selected, predictions can be made. In this
+case we are projecting the model to the whole area of interest.
 
 ``` r
-# Prediction of the two selected models.
+# Prediction for the two selected models
 preds <- enmpa::predict_selected(x = cal_res, newdata = env_vars)
+
+# Visualization
 terra::plot(preds$predictions, nr = 2)
 ```
 
 <img src="man/figures/README-figures-prediction_selected-1.png" width="70%" />
 
+<br>
+
 ### Response Curves
 
+An important step in understanding the ecological niches that can be
+characterized with these models is to explore variable responses. The
+following lines of code help to do so:
+
 ``` r
-# Response Curves for Bio_1 and Bio_2 
+# Response Curves for Bio_1 and Bio_2, first selected model 
 par(mar = c(4, 4, .1, .1))
 
 # BIO_1: 
@@ -224,6 +272,7 @@ enmpa::response_curve(model = preds$fitted_models$Model_ID_1,
                       variable = "bio_1",
                       new_data = env_vars)
 
+# BIO_12:
 enmpa::response_curve(model = preds$fitted_models$Model_ID_1,
                       variable = "bio_12",
                       new_data = env_vars)
@@ -231,22 +280,21 @@ enmpa::response_curve(model = preds$fitted_models$Model_ID_1,
 
 <img src="man/figures/README-figures-rcurve_model_ID_1-1.png" width="50%" /><img src="man/figures/README-figures-rcurve_model_ID_1-2.png" width="50%" />
 
+<br>
+
 ### Variable importance
 
-The variable importance is calculated as a function of the relative
-deviance explained by each predictor.
+The variable importance or contribution to models can be calculated as a
+function of the relative deviance explained by each predictor.
+
+Model summary:
 
 ``` r
-# Summary
 summary(preds$fitted_models$Model_ID_1)
 #> 
 #> Call:
 #> glm(formula = as.formula(y), family = binomial(link = "logit"), 
 #>     data = x$data, weights = x$weights)
-#> 
-#> Deviance Residuals: 
-#>     Min       1Q   Median       3Q      Max  
-#> -1.5537  -0.3876  -0.1032  -0.0140   3.4559  
 #> 
 #> Coefficients:
 #>                Estimate Std. Error z value Pr(>|z|)    
@@ -268,8 +316,9 @@ summary(preds$fitted_models$Model_ID_1)
 #> Number of Fisher Scoring iterations: 9
 ```
 
+Analysis of Deviance for the first selected model:
+
 ``` r
-# Analysis of Deviance for the selected model.
 anova(preds$fitted_models$Model_ID_1, test = "Chi")
 #> Analysis of Deviance Table
 #> 
@@ -291,20 +340,25 @@ anova(preds$fitted_models$Model_ID_1, test = "Chi")
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
 
-``` r
-# Relative contribution of the deviance explained.
-varimport <- enmpa::var_importance(preds$fitted_models$Model_ID_1)
-varimport
-#>       features      contr cum_contr
-#> 1        bio_1 0.31901523 0.3190152
-#> 3   I(bio_1^2) 0.28433044 0.6033457
-#> 4  I(bio_12^2) 0.22805823 0.8314039
-#> 5 bio_1:bio_12 0.15250677 0.9839107
-#> 2       bio_12 0.01608933 1.0000000
-```
+Using a function from `enmpa` you can explore variable importance in
+terms of contribution.
 
 ``` r
-barplot(varimport[,"contr"], names = varimport[,"features"])
+# Relative contribution of the deviance explained
+varimport <- enmpa::var_importance(preds$fitted_models$Model_ID_1)
+varimport
+#>      predictor contribution cum_contribution
+#> 1        bio_1   0.31901523        0.3190152
+#> 3   I(bio_1^2)   0.28433044        0.6033457
+#> 4  I(bio_12^2)   0.22805823        0.8314039
+#> 5 bio_1:bio_12   0.15250677        0.9839107
+#> 2       bio_12   0.01608933        1.0000000
+```
+
+Plotting these values can help with interpretations:
+
+``` r
+barplot(varimport$contribution, names = varimport$predictor)
 ```
 
 <img src="man/figures/README-figures-var_importance-1.png" width="70%" />

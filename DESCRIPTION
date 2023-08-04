@@ -28,5 +28,7 @@ Imports:
     doSNOW,
     foreach,
     snow,
-    parallel
+    parallel,
+    vegan,
+    ellipse
 LazyData: true

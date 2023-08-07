@@ -33,6 +33,8 @@
 #'
 #' @rdname niche_signal
 #'
+##' @export
+#'
 #' @importFrom vegan adonis2
 #' @importFrom stats median sd ecdf
 

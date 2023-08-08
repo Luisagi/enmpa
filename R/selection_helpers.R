@@ -38,6 +38,16 @@ evaluation_stats <- function(evaluation_results) {
 
 model_selection <- function(evaluation_stats, criterion = "TSS",
                             tolerance = 0.01) {
+  if (missing(evaluation_stats) ) {
+    stop("Argument 'evaluation_stats' must be defined.")
+  }
+  if (!criterion %in% c("TSS", "ESS")) {
+    stop("'criterion' must be 'TSS' or 'ESS'.")
+  }
+  if (!is.numeric(tolerance)) {
+    stop("Argument 'tolerance' must be of class numeric.")
+  }
+
   # selection
   sel <- evaluation_stats[evaluation_stats$ROC_AUC_mean > 0.5, ]
 
@@ -51,7 +61,7 @@ model_selection <- function(evaluation_stats, criterion = "TSS",
 
   # intermediate selection based on TSS or Accuracy (filter)
   if (criterion == "TSS") {
-    sel <- evaluation_stats[evaluation_stats$Threshold_criteria == "maxTSS", ]
+    sel <- sel[sel$Threshold_criteria == "maxTSS", ]
 
     sel <- sel[sel$TSS_mean >= 0.4, ]
 
@@ -63,7 +73,7 @@ model_selection <- function(evaluation_stats, criterion = "TSS",
       sel <- sel[sel$TSS_mean >= (max(sel$TSS_mean) - tolerance), ]
     }
   } else {
-    sel <- evaluation_stats[evaluation_stats$Threshold_criteria == "ESS", ]
+    sel <- sel[sel$Threshold_criteria == "ESS", ]
 
     sel <- sel[sel$Accuracy >= (max(sel$Accuracy) - tolerance), ]
   }
@@ -82,9 +92,9 @@ model_selection <- function(evaluation_stats, criterion = "TSS",
   }, error = function(e) {
 
     # error message
-    message_error <-
-      paste("No model passed the filters set, try lowering the tolerance level.",
-            "Default: tolerance = 0.01")
+    message_error <- paste0("No model passed selection criteria,",
+                            "try increasing 'tolerance'.\n",
+                            "current 'tolerance' = ", tolerance)
     print(message_error)
 
     # Default value for no candidate model met the

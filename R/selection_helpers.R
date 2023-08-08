@@ -38,6 +38,16 @@ evaluation_stats <- function(evaluation_results) {
 
 model_selection <- function(evaluation_stats, criterion = "TSS",
                             tolerance = 0.01) {
+  if (missing(evaluation_stats) ) {
+    stop("Argument 'evaluation_stats' must be defined.")
+  }
+  if (!criterion %in% c("TSS", "ESS")) {
+    stop("'criterion' must be 'TSS' or 'ESS'.")
+  }
+  if (!is.numeric(tolerance)) {
+    stop("Argument 'tolerance' must be of class numeric.")
+  }
+
   # selection
   sel <- evaluation_stats[evaluation_stats$ROC_AUC_mean > 0.5, ]
 
@@ -51,44 +61,44 @@ model_selection <- function(evaluation_stats, criterion = "TSS",
 
   # intermediate selection based on TSS or Accuracy (filter)
   if (criterion == "TSS") {
-    sel <- evaluation_stats[evaluation_stats$Threshold_criteria == "maxTSS", ]
+    sel <- sel[sel$Threshold_criteria == "maxTSS", ]
 
-    sel <- sel[sel$TSS_mean >= 0.4, ]
+    sel1 <- sel[sel$TSS_mean >= 0.4, ]
 
-    if (nrow(sel) == 0) {
+    if (nrow(sel1) == 0) {
       warning("No candidate model met the 'TSS >= 0.4' criterion.",
               "\nModels with 'TSS values >= (maximum TSS - ",  tolerance,
               ")' will be used.")
 
-      sel <- sel[sel$TSS_mean >= (max(sel$TSS_mean) - tolerance), ]
+      sel1 <- sel[sel$TSS_mean >= (max(sel$TSS_mean) - tolerance), ]
     }
   } else {
-    sel <- evaluation_stats[evaluation_stats$Threshold_criteria == "ESS", ]
+    sel <- sel[sel$Threshold_criteria == "ESS", ]
 
-    sel <- sel[sel$Accuracy >= (max(sel$Accuracy) - tolerance), ]
+    sel1 <- sel[sel$Accuracy >= (max(sel$Accuracy) - tolerance), ]
   }
 
   tryCatch({
     # delta AIC for filtered models
-    sel$Delta_AIC <- sel$AIC - min(sel$AIC, na.rm = TRUE)
-    sel <- sel[sel$Delta_AIC <= 2, ]
+    sel1$Delta_AIC <- sel1$AIC - min(sel1$AIC, na.rm = TRUE)
+    sel1 <- sel1[sel1$Delta_AIC <= 2, ]
 
     # weight of AIC selected models
-    sel$AIC_weight <- exp(-0.5 * sel$Delta_AIC)
-    sel$AIC_weight <- sel$AIC_weight / sum(sel$AIC_weight, na.rm = TRUE)
+    sel1$AIC_weight <- exp(-0.5 * sel1$Delta_AIC)
+    sel1$AIC_weight <- sel1$AIC_weight / sum(sel1$AIC_weight, na.rm = TRUE)
 
-    rownames(sel) <- 1:nrow(sel)
+    rownames(sel1) <- 1:nrow(sel1)
 
   }, error = function(e) {
 
     # error message
-    message_error <-
-      paste("No model passed the filters set, try lowering the tolerance level.",
-            "Default: tolerance = 0.01")
-    print(message_error)
+    message_error <- paste0("No model passed selection criteria,",
+                            "try increasing 'tolerance'.",
+                            "\nCurrent 'tolerance' = ", tolerance)
+    message(message_error)
 
     # Default value for no candidate model met the
-    sel <- NULL
+    sel1 <- NULL
   })
 
 
@@ -103,7 +113,7 @@ model_selection <- function(evaluation_stats, criterion = "TSS",
   # try(rownames(sel) <- 1:nrow(sel))
 
 
-  return(sel)
+  return(sel1)
 }
 
 

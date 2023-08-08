@@ -61,11 +61,11 @@ model_selection <- function(evaluation_stats, criterion = "TSS",
 
   # intermediate selection based on TSS or Accuracy (filter)
   if (criterion == "TSS") {
-    sel1 <- sel[sel$Threshold_criteria == "maxTSS", ]
+    sel <- sel[sel$Threshold_criteria == "maxTSS", ]
 
-    sel1 <- sel1[sel1$TSS_mean >= 0.4, ]
+    sel1 <- sel[sel$TSS_mean >= 0.4, ]
 
-    if (nrow(sel) == 0) {
+    if (nrow(sel1) == 0) {
       warning("No candidate model met the 'TSS >= 0.4' criterion.",
               "\nModels with 'TSS values >= (maximum TSS - ",  tolerance,
               ")' will be used.")
@@ -73,9 +73,9 @@ model_selection <- function(evaluation_stats, criterion = "TSS",
       sel1 <- sel[sel$TSS_mean >= (max(sel$TSS_mean) - tolerance), ]
     }
   } else {
-    sel1 <- sel[sel$Threshold_criteria == "ESS", ]
+    sel <- sel[sel$Threshold_criteria == "ESS", ]
 
-    sel1 <- sel1[sel1$Accuracy >= (max(sel1$Accuracy) - tolerance), ]
+    sel1 <- sel[sel$Accuracy >= (max(sel$Accuracy) - tolerance), ]
   }
 
   tryCatch({

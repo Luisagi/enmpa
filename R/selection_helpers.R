@@ -61,44 +61,44 @@ model_selection <- function(evaluation_stats, criterion = "TSS",
 
   # intermediate selection based on TSS or Accuracy (filter)
   if (criterion == "TSS") {
-    sel <- sel[sel$Threshold_criteria == "maxTSS", ]
+    sel1 <- sel[sel$Threshold_criteria == "maxTSS", ]
 
-    sel <- sel[sel$TSS_mean >= 0.4, ]
+    sel1 <- sel1[sel1$TSS_mean >= 0.4, ]
 
     if (nrow(sel) == 0) {
       warning("No candidate model met the 'TSS >= 0.4' criterion.",
               "\nModels with 'TSS values >= (maximum TSS - ",  tolerance,
               ")' will be used.")
 
-      sel <- sel[sel$TSS_mean >= (max(sel$TSS_mean) - tolerance), ]
+      sel1 <- sel[sel$TSS_mean >= (max(sel$TSS_mean) - tolerance), ]
     }
   } else {
-    sel <- sel[sel$Threshold_criteria == "ESS", ]
+    sel1 <- sel[sel$Threshold_criteria == "ESS", ]
 
-    sel <- sel[sel$Accuracy >= (max(sel$Accuracy) - tolerance), ]
+    sel1 <- sel1[sel1$Accuracy >= (max(sel1$Accuracy) - tolerance), ]
   }
 
   tryCatch({
     # delta AIC for filtered models
-    sel$Delta_AIC <- sel$AIC - min(sel$AIC, na.rm = TRUE)
-    sel <- sel[sel$Delta_AIC <= 2, ]
+    sel1$Delta_AIC <- sel1$AIC - min(sel1$AIC, na.rm = TRUE)
+    sel1 <- sel1[sel1$Delta_AIC <= 2, ]
 
     # weight of AIC selected models
-    sel$AIC_weight <- exp(-0.5 * sel$Delta_AIC)
-    sel$AIC_weight <- sel$AIC_weight / sum(sel$AIC_weight, na.rm = TRUE)
+    sel1$AIC_weight <- exp(-0.5 * sel1$Delta_AIC)
+    sel1$AIC_weight <- sel1$AIC_weight / sum(sel1$AIC_weight, na.rm = TRUE)
 
-    rownames(sel) <- 1:nrow(sel)
+    rownames(sel1) <- 1:nrow(sel1)
 
   }, error = function(e) {
 
     # error message
     message_error <- paste0("No model passed selection criteria,",
-                            "try increasing 'tolerance'.\n",
-                            "current 'tolerance' = ", tolerance)
-    print(message_error)
+                            "try increasing 'tolerance'.",
+                            "\nCurrent 'tolerance' = ", tolerance)
+    message(message_error)
 
     # Default value for no candidate model met the
-    sel <- NULL
+    sel1 <- NULL
   })
 
 
@@ -113,7 +113,7 @@ model_selection <- function(evaluation_stats, criterion = "TSS",
   # try(rownames(sel) <- 1:nrow(sel))
 
 
-  return(sel)
+  return(sel1)
 }
 
 

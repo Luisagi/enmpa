@@ -9,6 +9,7 @@ Luis F. Arias-Giraldo, Marlon E. Cobos, A. Townsend Peterson
   - [Model formulas](#model-formulas)
   - [Model calibration and selection](#model-calibration-and-selection)
   - [Predictions (projections)](#predictions-projections)
+  - [Consensus models](#consensus-models)
   - [Response Curves](#response-curves)
   - [Variable importance](#variable-importance)
 
@@ -79,10 +80,10 @@ Check raster layers for the projection area. Obtained from
 - bio_12 = Annual Precipitation
 
 ``` r
-terra::plot(env_vars, nr = 2)
+terra::plot(env_vars, mar=  c(0, 0, 0, 5.1))
 ```
 
-<img src="man/figures/README-figures-raster_layers-1.png" width="70%" />
+<img src="man/figures/README-figures-raster_layers-1.png" width="100%" />
 
 <br>
 
@@ -211,7 +212,7 @@ cal_res <- enmpa::calibration_glm(data = pa_data,
 #> Running in Parallel using 4 threads.
 #>   |                                                                              |                                                                      |   0%  |                                                                              |==                                                                    |   3%  |                                                                              |=====                                                                 |   7%  |                                                                              |=======                                                               |  10%  |                                                                              |=========                                                             |  13%  |                                                                              |============                                                          |  17%  |                                                                              |==============                                                        |  20%  |                                                                              |================                                                      |  23%  |                                                                              |===================                                                   |  27%  |                                                                              |=====================                                                 |  30%  |                                                                              |=======================                                               |  33%  |                                                                              |==========================                                            |  37%  |                                                                              |============================                                          |  40%  |                                                                              |==============================                                        |  43%  |                                                                              |=================================                                     |  47%  |                                                                              |===================================                                   |  50%  |                                                                              |=====================================                                 |  53%  |                                                                              |========================================                              |  57%  |                                                                              |==========================================                            |  60%  |                                                                              |============================================                          |  63%  |                                                                              |===============================================                       |  67%  |                                                                              |=================================================                     |  70%  |                                                                              |===================================================                   |  73%  |                                                                              |======================================================                |  77%  |                                                                              |========================================================              |  80%  |                                                                              |==========================================================            |  83%  |                                                                              |=============================================================         |  87%  |                                                                              |===============================================================       |  90%  |                                                                              |=================================================================     |  93%  |                                                                              |====================================================================  |  97%  |                                                                              |======================================================================| 100%
 #> 
-#> Running time: 10.5122113227844
+#> Running time: 3.36889982223511
 #> 
 #> Preparing results...
 ```
@@ -250,10 +251,44 @@ case we are projecting the model to the whole area of interest.
 preds <- enmpa::predict_selected(x = cal_res, newdata = env_vars)
 
 # Visualization
-terra::plot(preds$predictions, nr = 2)
+terra::plot(preds$predictions,  mar=  c(0, 0, 0, 5.1))
 ```
 
-<img src="man/figures/README-figures-prediction_selected-1.png" width="70%" />
+<img src="man/figures/README-figures-prediction_selected-1.png" width="80%" />
+
+<br>
+
+### Consensus models
+
+An alternative to the strict selection of one single model is to use an
+ensemble of models. The main idea is to avoid selecting the best model
+and instead relying on multiple candidate models.
+
+Here, we describe how to create agreement among these models using
+techniques such as mean, median, or weighted averaging based on an
+information criterion (Akaike weigths).
+
+``` r
+# Mean 
+c_mean <- app(preds$predictions, mean)
+
+# Median 
+c_media <- terra::app(preds$predictions, median)
+
+# Weighted average based on Akaike weights (wAIC)
+wAIC <- cal_res$selected$AIC_weight
+c_wmean <- terra::app(preds$predictions*wAIC, sum)
+
+# Variance between the consensus methods
+c_var <- terra::app(c(c_mean, c_media, c_wmean), var)
+
+
+terra::plot(c(c_mean, c_media, c_wmean, c_var), 
+            mar=  c(0, 0, 0, 5.1),
+            main = c("Mean", "Median", "Weighted average (wAIC)", "Variance"))
+```
+
+<img src="man/figures/README-figures-consensus-1.png" width="80%" />
 
 <br>
 
@@ -295,6 +330,10 @@ summary(preds$fitted_models$Model_ID_1)
 #> Call:
 #> glm(formula = as.formula(y), family = binomial(link = "logit"), 
 #>     data = x$data, weights = x$weights)
+#> 
+#> Deviance Residuals: 
+#>     Min       1Q   Median       3Q      Max  
+#> -1.5537  -0.3876  -0.1032  -0.0140   3.4559  
 #> 
 #> Coefficients:
 #>                Estimate Std. Error z value Pr(>|z|)    

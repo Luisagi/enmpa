@@ -77,8 +77,8 @@ Check raster layers for the projection area. Obtained from
 -   bio_1 = Annual Mean Temperature
 -   bio_12 = Annual Precipitation
 
-```{r figures-raster_layers, fig.show="hold", out.width="70%", cache=TRUE}
-terra::plot(env_vars, nr = 2)
+```{r figures-raster_layers, fig.show="hold", out.width="80%", cache=TRUE}
+terra::plot(env_vars, mar=  c(0, 0, 0, 5.1))
 ```
 
 <br>
@@ -168,12 +168,45 @@ cal_res$selected
 After one or more models are selected, predictions can be made. In this case we
 are projecting the model to the whole area of interest.
 
-```{r warning=FALSE, figures-prediction_selected, fig.show="hold", out.width="70%", cache=TRUE}
+```{r warning=FALSE, figures-prediction_selected, fig.show="hold", out.width="80%", cache=TRUE}
 # Prediction for the two selected models
 preds <- enmpa::predict_selected(x = cal_res, newdata = env_vars)
 
 # Visualization
-terra::plot(preds$predictions, nr = 2)
+terra::plot(preds$predictions,  mar=  c(0, 0, 0, 5.1))
+```
+
+<br>
+
+### Consensus models
+
+An alternative to strict selection of a single model is to use an ensemble of
+models. The main idea is to avoid selecting the best model and instead rely on
+multiple candidate models that prove to be robust. 
+
+Here we describe how to create concordance between these models using techniques
+such as mean, median or weighted mean based on an information criterion
+(Akaike weights).
+
+```{r warning=FALSE, figures-consensus, fig.show="hold", out.width="80%", cache=TRUE}
+# Mean 
+c_mean <- app(preds$predictions, mean)
+
+# Median 
+c_media <- terra::app(preds$predictions, median)
+
+# Weighted average based on Akaike weights (wAIC)
+wAIC <- cal_res$selected$AIC_weight
+c_wmean <- terra::app(preds$predictions*wAIC, sum)
+
+# Variance between the consensus methods
+c_var <- terra::app(c(c_mean, c_media, c_wmean), var)
+
+
+terra::plot(c(c_mean, c_media, c_wmean, c_var), 
+            mar=  c(0, 0, 0, 5.1),
+            main = c("Mean", "Median", "Weighted average (wAIC)", "Variance"))
+
 ```
 
 <br>

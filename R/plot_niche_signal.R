@@ -118,6 +118,7 @@ plot_niche_signal <- function(niche_signal_list, statistic = "mean",
 
 #' @rdname plot_niche_signal
 #' @param niche_signal_univariate_list list of results from niche_signal_univariate.
+#' @export
 #' @usage
 #' plot_niche_signal_univariate(niche_signal_univariate_list, statistic = "mean",
 #'                              breaks = "Sturges", main = "", xlab = NULL,
@@ -202,6 +203,7 @@ plot_niche_signal_univariate <- function(niche_signal_univariate_list, statistic
 
 #' @rdname plot_niche_signal
 #' @param niche_signal_permanova_list list of results from niche_signal_permanova.
+#' @export
 #' @usage
 #' plot_niche_signal_permanova(niche_signal_permanova_list, variables = NULL,
 #'                            ellipses = FALSE, level = 0.99, main = "",

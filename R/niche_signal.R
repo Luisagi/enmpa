@@ -37,6 +37,7 @@
 #'
 #' @importFrom vegan adonis2
 #' @importFrom stats median sd ecdf
+#' @export
 
 niche_signal <- function(data, condition, variables, method = "univariate",
                          permanova_method = "mahalanobis", iterations = 1000,
@@ -94,6 +95,7 @@ niche_signal <- function(data, condition, variables, method = "univariate",
 #' @rdname niche_signal
 #' @param variable (character) name of the column containing data to be used
 #' as environmental variable.
+#' @export
 #' @usage
 #' niche_signal_univariate(data, condition, variable, iterations = 1000,
 #'                         set_seed = 1, verbose = TRUE)
@@ -214,6 +216,7 @@ niche_signal_univariate <- function(data, condition, variable, iterations = 1000
 
 #' @rdname niche_signal
 #' @param permutations number of permutations to be performed.
+#' @export
 #' @usage
 #' niche_signal_permanova(data, condition, variables, permutations = 999,
 #'                        permanova_method = "mahalanobis", verbose = TRUE, ...)

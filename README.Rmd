@@ -62,7 +62,7 @@ This is a basic example which shows you how to solve a common problem:
 
 ```{r message=FALSE, cache=TRUE}
 # Load species occurrences and environmental data.
-pa_data <- read.csv(system.file("extdata", "pa_data.csv", package = "enmpa"))
+pa_data  <- read.csv(system.file("extdata", "pa_data.csv", package = "enmpa"))
 env_vars <- terra::rast(system.file("extdata", "raster_vars.tif", 
                                     package = "enmpa"))
 
@@ -190,7 +190,7 @@ such as mean, median or weighted mean based on an information criterion
 
 ```{r warning=FALSE, figures-consensus, fig.show="hold", out.width="80%", cache=TRUE}
 # Mean 
-c_mean <- app(preds$predictions, mean)
+c_mean <- terra::app(preds$predictions, mean)
 
 # Median 
 c_media <- terra::app(preds$predictions, median)
@@ -219,17 +219,13 @@ lines of code help to do so:
 
 ```{r figures-rcurve_model_ID_1, fig.show="hold", out.width="50%", cache=TRUE}
 # Response Curves for Bio_1 and Bio_2, first selected model 
-par(mar = c(4, 4, .1, .1))
 
-# BIO_1: 
 enmpa::response_curve(model = preds$fitted_models$Model_ID_1,
-                      variable = "bio_1",
+                      variable = c("bio_1", "bio_12"),
                       new_data = env_vars)
 
-# BIO_12:
-enmpa::response_curve(model = preds$fitted_models$Model_ID_1,
-                      variable = "bio_12",
-                      new_data = env_vars)
+
+
 ```
 
 <br>

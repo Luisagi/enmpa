@@ -2,7 +2,7 @@
 % Please edit documentation in R/response_curve.R
 \name{response_curve}
 \alias{response_curve}
-\title{Response curve: It evaluates the response of the variable and its limits}
+\title{Response curve: It evaluates the response of the variable and its limits.}
 \usage{
 response_curve(
   model,
@@ -16,7 +16,7 @@ response_curve(
 \arguments{
 \item{model}{an object of class "glm" which inherits from the class "lm".}
 
-\item{variable}{\code{character}, name of the variable to be plotted.}
+\item{variable}{\verb{character vector}, name or names of the variables to be plotted.}
 
 \item{n}{\code{numeric}, an integer guiding the number of breaks. Default n = 100}
 
@@ -30,5 +30,5 @@ upper limits of the variable. Default = NULL}
 \item{rescale}{probability 0-1. Default = FALSE.}
 }
 \description{
-Response curve: It evaluates the response of the variable and its limits
+Response curve: It evaluates the response of the variable and its limits.
 }

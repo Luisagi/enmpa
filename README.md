@@ -57,7 +57,7 @@ This is a basic example which shows you how to solve a common problem:
 
 ``` r
 # Load species occurrences and environmental data.
-pa_data <- read.csv(system.file("extdata", "pa_data.csv", package = "enmpa"))
+pa_data  <- read.csv(system.file("extdata", "pa_data.csv", package = "enmpa"))
 env_vars <- terra::rast(system.file("extdata", "raster_vars.tif", 
                                     package = "enmpa"))
 
@@ -83,7 +83,7 @@ Check raster layers for the projection area. Obtained from
 terra::plot(env_vars, mar=  c(0, 0, 0, 5.1))
 ```
 
-<img src="man/figures/README-figures-raster_layers-1.png" width="100%" />
+<img src="man/figures/README-figures-raster_layers-1.png" width="80%" />
 
 <br>
 
@@ -212,7 +212,7 @@ cal_res <- enmpa::calibration_glm(data = pa_data,
 #> Running in Parallel using 4 threads.
 #>   |                                                                              |                                                                      |   0%  |                                                                              |==                                                                    |   3%  |                                                                              |=====                                                                 |   7%  |                                                                              |=======                                                               |  10%  |                                                                              |=========                                                             |  13%  |                                                                              |============                                                          |  17%  |                                                                              |==============                                                        |  20%  |                                                                              |================                                                      |  23%  |                                                                              |===================                                                   |  27%  |                                                                              |=====================                                                 |  30%  |                                                                              |=======================                                               |  33%  |                                                                              |==========================                                            |  37%  |                                                                              |============================                                          |  40%  |                                                                              |==============================                                        |  43%  |                                                                              |=================================                                     |  47%  |                                                                              |===================================                                   |  50%  |                                                                              |=====================================                                 |  53%  |                                                                              |========================================                              |  57%  |                                                                              |==========================================                            |  60%  |                                                                              |============================================                          |  63%  |                                                                              |===============================================                       |  67%  |                                                                              |=================================================                     |  70%  |                                                                              |===================================================                   |  73%  |                                                                              |======================================================                |  77%  |                                                                              |========================================================              |  80%  |                                                                              |==========================================================            |  83%  |                                                                              |=============================================================         |  87%  |                                                                              |===============================================================       |  90%  |                                                                              |=================================================================     |  93%  |                                                                              |====================================================================  |  97%  |                                                                              |======================================================================| 100%
 #> 
-#> Running time: 3.36889982223511
+#> Running time: 4.1115345954895
 #> 
 #> Preparing results...
 ```
@@ -260,17 +260,17 @@ terra::plot(preds$predictions,  mar=  c(0, 0, 0, 5.1))
 
 ### Consensus models
 
-An alternative to the strict selection of one single model is to use an
+An alternative to strict selection of a single model is to use an
 ensemble of models. The main idea is to avoid selecting the best model
-and instead relying on multiple candidate models.
+and instead rely on multiple candidate models that prove to be robust.
 
-Here, we describe how to create agreement among these models using
-techniques such as mean, median, or weighted averaging based on an
-information criterion (Akaike weigths).
+Here we describe how to create concordance between these models using
+techniques such as mean, median or weighted mean based on an information
+criterion (Akaike weights).
 
 ``` r
 # Mean 
-c_mean <- app(preds$predictions, mean)
+c_mean <- terra::app(preds$predictions, mean)
 
 # Median 
 c_media <- terra::app(preds$predictions, median)
@@ -300,16 +300,9 @@ following lines of code help to do so:
 
 ``` r
 # Response Curves for Bio_1 and Bio_2, first selected model 
-par(mar = c(4, 4, .1, .1))
 
-# BIO_1: 
 enmpa::response_curve(model = preds$fitted_models$Model_ID_1,
-                      variable = "bio_1",
-                      new_data = env_vars)
-
-# BIO_12:
-enmpa::response_curve(model = preds$fitted_models$Model_ID_1,
-                      variable = "bio_12",
+                      variable = c("bio_1", "bio_12"),
                       new_data = env_vars)
 ```
 

@@ -1,7 +1,7 @@
-#' Response curve: It evaluates the response of the variable and its limits
+#' Response curve: It evaluates the response of the variable and its limits.
 #'
 #' @param model an object of class "glm" which inherits from the class "lm".
-#' @param variable `character`, name of the variable to be plotted.
+#' @param variable `character vector`, name or names of the variables to be plotted.
 #' @param n `numeric`, an integer guiding the number of breaks. Default n = 100
 #' @param new_data a `SpatRaster`, data.frame or  matrix of variables
 #' representing the range of values for the complete extent of the study area.
@@ -34,68 +34,44 @@ response_curve <- function(model, variable, n = 100, new_data = NULL,
   # It gets only the variable names used in the fitted model
   vnames <- colSums(sapply(colnames(model$data), grepl, names(coef(model)[-1]))) > 0
 
-  if (!variable %in% names(vnames)) {
+  if (any(!variable %in% names(vnames))) {
     stop("The name of the 'variable' was not defined correctly.")
   }
 
-  # Extract calibration data from the model object
-  cal_data <- model$data[, vnames]
 
-  # Extract the limits of the calibration data
-  cal_maxs <-  apply(cal_data, 2, FUN = max)
-  cal_mins <-  apply(cal_data, 2, FUN = min)
+  res_list <- sapply(variable,  function(x){
 
-  # Get the average of all variables
-  means <- apply(cal_data, 2, FUN = mean)
+    # Call the aux function "response()"
+    response(model = model, variable = x, n = n,
+             new_data = new_data, new_range = new_range)
+  })
 
-  # Range variable in all the extent
-  if (is.null(new_data) & is.null(new_range)) {
-    rangev <- range(cal_data[, variable])
 
-  } else {
-    if (!is.null(new_range)) {
-      rangev <- new_range
-    } else {
-      if (class(new_data)[1] == "SpatRaster") {
-        rangev <- terra::minmax(new_data[[variable]])
-      } else {
-        rangev <- range(new_data[, variable])
-      }
+  for (i in names(res_list)){
+
+    m <- res_list[[i]][[1]]        # Variable response
+    limits <- res_list[[i]][[2]]   # Calibration limits
+
+    Sys.sleep(2)
+
+    if (rescale){
+      # Plotting curve
+      plot(m[, i], m$predicted, type = "l",ylim = c(0, 1),
+           xlab = i, ylab = "Probability")
+    } else{
+      # Plotting curve
+      plot(m[, i], m$predicted, type = "l",
+           xlab = i, ylab = "Probability")
     }
+
+    # It adds the calibration limits
+    abline(v = limits,
+           col = c("red", "red"),
+           lty = c(2, 2),
+           lwd = c(1, 1)
+    )
+
+
+
   }
-
-  # newvar <- seq(rangev[1] - 0.1 * (rangev[2] - rangev[1]),
-  #               rangev[2] + 0.1 * (rangev[2] - rangev[1]),
-  #               length = n)
-
-  newvar <- seq(rangev[1], rangev[2], length = n)
-
-
-  m <- data.frame(matrix(means, n , length(means), byrow = T))
-  colnames(m) <- names(means)
-
-  m[, variable] <- newvar
-
-  # Response of the variable
-  m$predicted <- stats::predict(model, m, type = "response")
-
-  if (rescale){
-    # Plotting curve
-    plot(m[, variable], m$predicted, type = "l",ylim = c(0, 1),
-         xlab = variable, ylab = "Probability")
-  } else{
-    # Plotting curve
-    plot(m[, variable], m$predicted, type = "l",
-         xlab = variable, ylab = "Probability")
-  }
-
-
-
-
-  # It adds the calibration limits
-  abline(v = c(cal_mins[variable], cal_maxs[variable]),
-         col = c("red", "red"),
-         lty = c(2, 2),
-         lwd = c(1, 1)
-  )
 }

@@ -78,10 +78,8 @@ calibration_glmb <- function (data, dependent, independent, weights = NULL,
     cl <- snow::makeSOCKcluster(n_cores)
     doSNOW::registerDoSNOW(cl)
     glm_res <- foreach::foreach(i = 1:iterations, .combine = "rbind",
-                                .inorder = FALSE, .options.snow = opts,
-                                .packages = "enmpa") %dopar%
+                                .inorder = FALSE, .options.snow = opts) %dopar%
       {
-        source("Scripts/functions_calibration_nobimodal.R")
         res <- model_validationb(formula = user_formulas[i],
                                  data = data, weights = weights, cv = TRUE,
                                  partition_index = data_partition,

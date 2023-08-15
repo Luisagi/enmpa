@@ -96,7 +96,9 @@ calibration_glmb <- function (data, dependent, independent, weights = NULL,
   if (verbose == TRUE) {
     message("\nPreparing results...\n")
   }
-  stats <- evaluation_stats(evaluation_results = glm_res)
+  stats <- evaluation_statsb(evaluation_results = glm_res,
+                             bimodal_toexclude = exclude_bimodal,
+                             cv_kfolds = cv_kfolds)
   sel <- model_selectionb(evaluation_stats = stats, criterion = selection_criterion,
                           exclude_bimodal = exclude_bimodal, tolerance = 0.01)
   output <- list(selected = sel, summary = stats, calibration_results = glm_res,
@@ -202,6 +204,75 @@ detect_concave <- function(glm_coefficents) {
 
 
 ############
+evaluation_statsb <- function(evaluation_results, bimodal_toexclude = FALSE,
+                              cv_kfolds = NULL) {
+  if (bimodal_toexclude) {
+    toagg <- colnames(evaluation_results)[4:(ncol(evaluation_results) - 1)]
+    bim <- evaluation_results[seq(1, nrow(evaluation_results), (cv_kfolds * 3)),
+                              "Concave_responses"]
+
+    agg_formula <- "~ Formulas + Threshold_criteria + Concave_responses"
+    msd <- 4:5
+
+  } else {
+    toagg <- colnames(evaluation_results)[4:ncol(evaluation_results)]
+
+    agg_formula <- "~ Formulas + Threshold_criteria"
+    msd <- 3:4
+  }
+
+
+
+  xy <- lapply(toagg, function(x) {
+    do.call(
+      data.frame,
+      aggregate(
+        as.formula(paste(x, agg_formula)),
+        data = evaluation_results,
+        FUN = function(y) c(mean = round(mean(y), 4), sd = round(sd(y), 4))
+      )
+    )
+  })
+
+  # put summary together
+  stats <- do.call(data.frame, lapply(xy, function(y) {y[, msd]}))
+  colnames(stats) <- unlist(lapply(xy, function(y) {colnames(y[, msd])}))
+
+  # remove sd for AIC and paramenters
+  stats <- cbind(xy[[1]][, 1:2] , stats[, -c(16, 18)])
+  colnames(stats)[c(17, 18)] <- c("Parameters", "AIC")
+  colnames(stats) <- gsub(".", "_", colnames(stats), fixed = TRUE)
+
+  # delta and weight of AIC for the aggregated data
+  stats$Delta_AIC <- stats$AIC - min(stats$AIC, na.rm = TRUE)
+  stats$AIC_weight <- exp(-0.5 * stats$Delta_AIC)
+  stats$AIC_weight <- stats$AIC_weight / sum(stats$AIC_weight, na.rm = TRUE)
+
+  if (bimodal_toexclude) {
+    stats$Concave_responses <- xy[[1]][, 3]
+  }
+
+  # sort by formula
+  stats <- stats[order(stats$Formulas), ]
+
+  rownames(stats) <- 1:nrow(stats)
+
+  return(stats)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+################
 
 model_selectionb <- function (evaluation_stats, criterion = "TSS",
                               exclude_bimodal = FALSE, tolerance = 0.01) {

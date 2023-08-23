@@ -6,10 +6,11 @@
 #' @usage
 #' calibration_glm(data, dependent, independent, weights = NULL,
 #'                 response_type = "l", all_combinations = TRUE,
-#'                 minvar=1, maxvar = NULL, user_formulas = NULL,
+#'                 minvar = 1, maxvar = NULL, user_formulas = NULL,
 #'                 cv_kfolds = 5, seed = 1,n_threshold = 100,
-#'                 selection_criterion = "TSS", tolerance = 0.01,
-#'                 parallel = FALSE, n_cores = NULL, verbose = TRUE)
+#'                 selection_criterion = "TSS", exclude_bimodal = FALSE,
+#'                 tolerance = 0.01, parallel = FALSE, n_cores = NULL,
+#'                 verbose = TRUE)
 #'
 #' @param data data.frame or matrix of independent variables.
 #' @param dependent `character`, name of dependent variable.
@@ -31,7 +32,9 @@
 #' @param n_threshold `logical`, number of thresholds to use to produce
 #' evaluation metrics. Default = 100,
 #' @param selection_criterion `character`, criterion used to select best models,
-#' options are "TSS" and "ESS". Default = "TSS",
+#' options are "TSS" and "ESS". Default = "TSS".
+#' @param exclude_bimodal logical, whether to exclude from selected models those
+#' with one or more variable presenting concave responses. Default = FALSE.
 #' @param tolerance `numeric`, value to modify the metric used for model filtering
 #' for model selection if no models meet initial the consideration. Default = 0.01
 #' @param parallel `logical`, whether to run on parallel or sequential.
@@ -67,8 +70,9 @@ calibration_glm <- function(data, dependent, independent, weights = NULL,
                             response_type = "l", all_combinations = TRUE,
                             minvar=1, maxvar = NULL,  user_formulas = NULL,
                             cv_kfolds = 5, seed = 1, n_threshold = 100,
-                            selection_criterion = "TSS", tolerance = 0.01,
-                            parallel = FALSE, n_cores = NULL, verbose = TRUE) {
+                            selection_criterion = "TSS", exclude_bimodal = FALSE,
+                            tolerance = 0.01, parallel = FALSE, n_cores = NULL,
+                            verbose = TRUE) {
 
   # initial tests
   if (missing(data) | missing(dependent) | missing(dependent)) {
@@ -127,10 +131,11 @@ calibration_glm <- function(data, dependent, independent, weights = NULL,
         utils::setTxtProgressBar(pb, i)
       }
 
-      res <- model_validation(formula = user_formulas[i], data = data,
-                              weights = weights, cv = TRUE,
+      res <- model_validation(formula = user_formulas[i],
+                              data = data, weights = weights, cv = TRUE,
                               partition_index = data_partition,
-                              n_threshold = n_threshold)
+                              n_threshold = n_threshold,
+                              keep_coefficients = exclude_bimodal)
 
       # Concatenate by rows each loop iteration
       glm_res <- rbind(glm_res, res)
@@ -177,10 +182,11 @@ calibration_glm <- function(data, dependent, independent, weights = NULL,
       i = 1:iterations, .combine = "rbind", .inorder = FALSE,
       .options.snow = opts
     ) %dopar% {
-      res <- model_validation(formula = user_formulas[i], data = data,
-                              weights = weights, cv = TRUE,
+      res <- model_validation(formula = user_formulas[i],
+                              data = data, weights = weights, cv = TRUE,
                               partition_index = data_partition,
-                              n_threshold = n_threshold)
+                              n_threshold = n_threshold,
+                              keep_coefficients = exclude_bimodal)
       return(res)
     }
 
@@ -200,11 +206,14 @@ calibration_glm <- function(data, dependent, independent, weights = NULL,
   }
 
   # Summary stats: mean and SD calculation for each model based on folds
-  stats <- evaluation_stats(evaluation_results = glm_res)
+  stats <- evaluation_stats(evaluation_results = glm_res,
+                            bimodal_toexclude = exclude_bimodal,
+                            cv_kfolds = cv_kfolds)
 
   # selected models
   sel <- model_selection(evaluation_stats = stats,
                          criterion = selection_criterion,
+                         exclude_bimodal = exclude_bimodal,
                          tolerance = 0.01)
 
   # Final output

@@ -6,10 +6,11 @@
 \usage{
 calibration_glm(data, dependent, independent, weights = NULL,
                 response_type = "l", all_combinations = TRUE,
-                minvar=1, maxvar = NULL, user_formulas = NULL,
+                minvar = 1, maxvar = NULL, user_formulas = NULL,
                 cv_kfolds = 5, seed = 1,n_threshold = 100,
-                selection_criterion = "TSS", tolerance = 0.01,
-                parallel = FALSE, n_cores = NULL, verbose = TRUE)
+                selection_criterion = "TSS", exclude_bimodal = FALSE,
+                tolerance = 0.01, parallel = FALSE, n_cores = NULL,
+                verbose = TRUE)
 }
 \arguments{
 \item{data}{data.frame or matrix of independent variables.}
@@ -44,7 +45,10 @@ cross-validation exercises. Default = 5.}
 evaluation metrics. Default = 100,}
 
 \item{selection_criterion}{\code{character}, criterion used to select best models,
-options are "TSS" and "ESS". Default = "TSS",}
+options are "TSS" and "ESS". Default = "TSS".}
+
+\item{exclude_bimodal}{logical, whether to exclude from selected models those
+with one or more variable presenting concave responses. Default = FALSE.}
 
 \item{tolerance}{\code{numeric}, value to modify the metric used for model filtering
 for model selection if no models meet initial the consideration. Default = 0.01}

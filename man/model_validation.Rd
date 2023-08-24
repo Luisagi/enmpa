@@ -6,7 +6,8 @@
 \usage{
 model_validation(formula, data, family = binomial(link = "logit"),
                  weights = NULL, cv = FALSE, partition_index = NULL,
-                 k = NULL, n_threshold = 100, seed = 1)
+                 k = NULL, n_threshold = 100, keep_coefficients = FALSE,
+                 seed = 1)
 }
 \arguments{
 \item{formula}{a formula.}
@@ -26,6 +27,9 @@ model_validation(formula, data, family = binomial(link = "logit"),
 
 \item{n_threshold}{\code{numeric}number of threshold values to be used.
 Default = 100.}
+
+\item{keep_coefficients}{logical, whether to keep model coefficients.
+Default = FALSE.}
 
 \item{seed}{seed.}
 }

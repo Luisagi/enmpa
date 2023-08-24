@@ -1,11 +1,31 @@
-evaluation_stats <- function(evaluation_results) {
-  toagg <- colnames(evaluation_results)[4:ncol(evaluation_results)]
+# summary of evaluation statistics for candidate models
+evaluation_stats <- function(evaluation_results, bimodal_toexclude = FALSE,
+                             cv_kfolds = NULL) {
+  if (missing(evaluation_results)) {
+    stop("Argumet 'evaluation_results' must be defined.")
+  }
 
+  if (bimodal_toexclude) {
+    toagg <- colnames(evaluation_results)[4:(ncol(evaluation_results) - 1)]
+    bim <- evaluation_results[seq(1, nrow(evaluation_results), (cv_kfolds * 3)),
+                              "Concave_responses"]
+
+    agg_formula <- "~ Formulas + Threshold_criteria + Concave_responses"
+    msd <- 4:5
+
+  } else {
+    toagg <- colnames(evaluation_results)[4:ncol(evaluation_results)]
+
+    agg_formula <- "~ Formulas + Threshold_criteria"
+    msd <- 3:4
+  }
+
+  # summary stats
   xy <- lapply(toagg, function(x) {
     do.call(
       data.frame,
       aggregate(
-        as.formula(paste(x, "~ Formulas + Threshold_criteria")),
+        as.formula(paste(x, agg_formula)),
         data = evaluation_results,
         FUN = function(y) c(mean = round(mean(y), 4), sd = round(sd(y), 4))
       )
@@ -13,8 +33,8 @@ evaluation_stats <- function(evaluation_results) {
   })
 
   # put summary together
-  stats <- do.call(data.frame, lapply(xy, function(y) {y[, 3:4]}))
-  colnames(stats) <- unlist(lapply(xy, function(y) {colnames(y[, 3:4])}))
+  stats <- do.call(data.frame, lapply(xy, function(y) {y[, msd]}))
+  colnames(stats) <- unlist(lapply(xy, function(y) {colnames(y[, msd])}))
 
   # remove sd for AIC and paramenters
   stats <- cbind(xy[[1]][, 1:2] , stats[, -c(16, 18)])
@@ -26,9 +46,12 @@ evaluation_stats <- function(evaluation_results) {
   stats$AIC_weight <- exp(-0.5 * stats$Delta_AIC)
   stats$AIC_weight <- stats$AIC_weight / sum(stats$AIC_weight, na.rm = TRUE)
 
+  if (bimodal_toexclude) {
+    stats$Concave_responses <- xy[[1]][, 3]
+  }
+
   # sort by formula
   stats <- stats[order(stats$Formulas), ]
-
   rownames(stats) <- 1:nrow(stats)
 
   return(stats)
@@ -36,9 +59,10 @@ evaluation_stats <- function(evaluation_results) {
 
 
 
+# selection of best candidate models considering various criteria
 model_selection <- function(evaluation_stats, criterion = "TSS",
-                            tolerance = 0.01) {
-  if (missing(evaluation_stats) ) {
+                            exclude_bimodal = FALSE, tolerance = 0.01) {
+  if (missing(evaluation_stats)) {
     stop("Argument 'evaluation_stats' must be defined.")
   }
   if (!criterion %in% c("TSS", "ESS")) {
@@ -48,13 +72,25 @@ model_selection <- function(evaluation_stats, criterion = "TSS",
     stop("Argument 'tolerance' must be of class numeric.")
   }
 
-  # selection
-  sel <- evaluation_stats[evaluation_stats$ROC_AUC_mean > 0.5, ]
+  # selection based on significance
+  if (exclude_bimodal) {
+    sel <- evaluation_stats[evaluation_stats$Concave_responses == "", ]
+
+    if (nrow(sel) == 0) {
+      message("All models have at least one predictor with concave responses.",
+              "\nReturning selected_models = NULL.")
+      return(NULL)
+    }
+
+    sel <- sel[sel$ROC_AUC_mean > 0.5, ]
+
+  } else {
+    sel <- evaluation_stats[evaluation_stats$ROC_AUC_mean > 0.5, ]
+  }
 
   if (nrow(sel) == 0) {
     warning("No candidate model met the 'AUC > 0.5' criterion.",
             "\nModels with maximum AUC values will be used.")
-
     sel <- evaluation_stats[evaluation_stats$ROC_AUC_mean ==
                               max(evaluation_stats$ROC_AUC_mean), ]
   }
@@ -62,20 +98,18 @@ model_selection <- function(evaluation_stats, criterion = "TSS",
   # intermediate selection based on TSS or Accuracy (filter)
   if (criterion == "TSS") {
     sel <- sel[sel$Threshold_criteria == "maxTSS", ]
-
     sel1 <- sel[sel$TSS_mean >= 0.4, ]
-
     if (nrow(sel1) == 0) {
       warning("No candidate model met the 'TSS >= 0.4' criterion.",
-              "\nModels with 'TSS values >= (maximum TSS - ",  tolerance,
-              ")' will be used.")
-
-      sel1 <- sel[sel$TSS_mean >= (max(sel$TSS_mean) - tolerance), ]
+              "\nModels with 'TSS values >= (maximum TSS - ",
+              tolerance, ")' will be used.")
+      sel1 <- sel[sel$TSS_mean >= (max(sel$TSS_mean) -
+                                     tolerance), ]
     }
   } else {
     sel <- sel[sel$Threshold_criteria == "ESS", ]
-
-    sel1 <- sel[sel$Accuracy >= (max(sel$Accuracy) - tolerance), ]
+    sel1 <- sel[sel$Accuracy >= (max(sel$Accuracy) - tolerance),
+    ]
   }
 
   tryCatch({
@@ -85,35 +119,39 @@ model_selection <- function(evaluation_stats, criterion = "TSS",
 
     # weight of AIC selected models
     sel1$AIC_weight <- exp(-0.5 * sel1$Delta_AIC)
-    sel1$AIC_weight <- sel1$AIC_weight / sum(sel1$AIC_weight, na.rm = TRUE)
-
+    sel1$AIC_weight <- sel1$AIC_weight/sum(sel1$AIC_weight,
+                                           na.rm = TRUE)
     rownames(sel1) <- 1:nrow(sel1)
-
   }, error = function(e) {
-
-    # error message
     message_error <- paste0("No model passed selection criteria,",
-                            "try increasing 'tolerance'.",
-                            "\nCurrent 'tolerance' = ", tolerance)
+                            "try increasing 'tolerance'.", "\nCurrent 'tolerance' = ",
+                            tolerance)
     message(message_error)
-
-    # Default value for no candidate model met the
     sel1 <- NULL
   })
 
-
-  # # delta AIC for filtered models
-  # sel$Delta_AIC <- sel$AIC - min(sel$AIC, na.rm = TRUE)
-  # sel <- sel[sel$Delta_AIC <= 2, ]
-  #
-  # # weight of AIC selected models
-  # sel$AIC_weight <- exp(-0.5 * sel$Delta_AIC)
-  # sel$AIC_weight <- sel$AIC_weight / sum(sel$AIC_weight, na.rm = TRUE)
-  #
-  # try(rownames(sel) <- 1:nrow(sel))
-
-
   return(sel1)
+}
+
+
+
+# detection of response curves that are concave (non-unimodal)
+detect_concave <- function(glm_coefficents) {
+  if (missing(glm_coefficents)) {
+    stop("Argumet 'glm_coefficents' must be defined.")
+  }
+  coef <- glm_coefficents
+  varname <- names(coef)
+
+  ccoef <- grep("\\^2", varname, value = TRUE)
+
+  if (length(ccoef) == 0) {
+    return("")
+  } else {
+    cccoef <- ccoef[coef[ccoef] >= 0]
+
+    return(paste(cccoef, collapse = ", "))
+  }
 }
 
 

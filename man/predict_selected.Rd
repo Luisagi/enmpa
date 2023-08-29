@@ -4,7 +4,13 @@
 \alias{predict_selected}
 \title{Predict the selected models}
 \usage{
-predict_selected(x, newdata, clamping = FALSE, type = "response")
+predict_selected(
+  x,
+  newdata,
+  clamping = FALSE,
+  type = "response",
+  consensus = TRUE
+)
 }
 \arguments{
 \item{x}{the object returned by the function "calibration_glm()".}
@@ -12,15 +18,27 @@ predict_selected(x, newdata, clamping = FALSE, type = "response")
 \item{newdata}{a \code{SpatRaster}, data.frame or matrix with the new data to
 project the predictions.}
 
-\item{clamping}{Clamp values to a minimum and maximum value, that are
-establish for the max and min values of the calibration limits.}
+\item{clamping}{\code{logical}, this option mitigates the risk of extreme
+extrapolations when making model predictions for environmental conditions
+beyond the calibrated data range. It employs the marginal values within the
+calibration area to predict outcomes for more extreme conditions in transfer
+areas. Default = FALSE.}
 
 \item{type}{the type of prediction required. For a default binomial model
 the default predictions are of log-odds (probabilities on logit scale)
 and type = "response" gives the predicted probabilities.}
+
+\item{consensus}{\code{logical}, whether to produce three consensus forecasts
+(or “ensemble”) obtained by combining the forecasts from the collection the
+selected models. Consensuses are calculated from the mean, median and weighted
+mean using the wAIC as the weighting metric. An intra-consensus map of variance
+is also calculated to measure the amount of variability or disagreement among
+individuals consensus. Default = TRUE.}
 }
 \value{
-a \code{SpatRaster} object or a list of vector with the probabilities.
+A list that includes a second list of fitting models, an individual model
+predictions \code{SpatRaster} object, and a consensus predictions \code{SpatRaster}
+object.
 }
 \description{
 Predict the selected models

@@ -30,7 +30,9 @@ Imports:
     snow,
     parallel,
     vegan,
-    ellipse
+    ellipse,
+    mgcv,
+    methods
 LazyData: true
 Depends:
     R (>= 3.5.0)

@@ -1,6 +1,14 @@
-#' Response curve: It evaluates the response of the variable and its limits.
+#' Response curve
 #'
-#' @param model an object of class "glm" which inherits from the class "lm".
+#' @description
+#' The function evaluates the response of the variable and its limits.
+#'
+#' @usage
+#' response_curve(model, variable, n = 100, new_data = NULL,
+#' new_range = NULL, rescale = FALSE)
+#
+#' @param model an object of class "glm" of a "list" of them which inherit
+#' from the class "lm".
 #' @param variable `character vector`, name or names of the variables to be plotted.
 #' @param n `numeric`, an integer guiding the number of breaks. Default n = 100
 #' @param new_data a `SpatRaster`, data.frame or  matrix of variables
@@ -13,8 +21,9 @@
 #' @export
 #'
 #' @importFrom stats predict coef
-#' @importFrom graphics abline
+#' @importFrom graphics abline polygon
 #' @importFrom terra minmax
+#' @importFrom mgcv gam
 
 
 response_curve <- function(model, variable, n = 100, new_data = NULL,
@@ -31,47 +40,27 @@ response_curve <- function(model, variable, n = 100, new_data = NULL,
     }
   }
 
-  # It gets only the variable names used in the fitted model
-  vnames <- colSums(sapply(colnames(model$data), grepl, names(coef(model)[-1]))) > 0
+  if (check_if_glm_list(model)){
 
-  if (any(!variable %in% names(vnames))) {
-    stop("The name of the 'variable' was not defined correctly.")
+    response_curve_cons(model, variable, n = 100, new_data = new_data,
+                        new_range = new_range, rescale = rescale)
   }
-
-
-  res_list <- sapply(variable,  function(x){
-
-    # Call the aux function "response()"
-    response(model = model, variable = x, n = n,
-             new_data = new_data, new_range = new_range)
-  })
-
-
-  for (i in names(res_list)){
-
-    m <- res_list[[i]][[1]]        # Variable response
-    limits <- res_list[[i]][[2]]   # Calibration limits
-
-    Sys.sleep(2)
-
-    if (rescale){
-      # Plotting curve
-      plot(m[, i], m$predicted, type = "l",ylim = c(0, 1),
-           xlab = i, ylab = "Probability")
-    } else{
-      # Plotting curve
-      plot(m[, i], m$predicted, type = "l",
-           xlab = i, ylab = "Probability")
-    }
-
-    # It adds the calibration limits
-    abline(v = limits,
-           col = c("red", "red"),
-           lty = c(2, 2),
-           lwd = c(1, 1)
-    )
-
-
-
+  else {
+    response_curve_ind(model, variable, n = 100, new_data = new_data,
+                        new_range = new_range, rescale = rescale)
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -193,7 +193,7 @@ response_curve_cons <- function(model, variable, n = 100, new_data = NULL,
       variable_q <- c(variable, paste0("I(", variable,"^2)")) # find the quadratic too
 
       if ( sum(variable_q %in% names(coefs))){
-        x <- enmpa:::response(x, variable, new_data = new_data)
+        x <- response(x, variable, new_data = new_data)
         return(x)
       } else{
         return(NULL)

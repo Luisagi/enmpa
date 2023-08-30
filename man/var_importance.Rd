@@ -4,10 +4,13 @@
 \alias{var_importance}
 \title{Variable importance}
 \usage{
-var_importance(model)
+var_importance(x, plot = TRUE)
 }
 \arguments{
-\item{model}{an object of class "glm" which inherits from the class "lm".}
+\item{x}{an object of class "glm" or a "list" of them which inherit
+from the class "lm".}
+
+\item{plot}{\code{logical}, whether plot the variable contribution. Default = TRUE.}
 }
 \value{
 data.frame

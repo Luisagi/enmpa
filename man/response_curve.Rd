@@ -8,7 +8,7 @@ response_curve(model, variable, n = 100, new_data = NULL,
 new_range = NULL, rescale = FALSE)
 }
 \arguments{
-\item{model}{an object of class "glm" of a "list" of them which inherit
+\item{model}{an object of class "glm" or a "list" of them which inherit
 from the class "lm".}
 
 \item{variable}{\verb{character vector}, name or names of the variables to be plotted.}

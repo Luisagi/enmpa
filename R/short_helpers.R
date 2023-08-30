@@ -208,7 +208,7 @@ response_curve_cons <- function(model, variable, n = 100, new_data = NULL,
   y <- response_out$predicted
 
   # Fit GAM model
-  fitting <- gam(y ~ s(x, bs = "cs"))
+  fitting <- mgcv::gam(y ~ s(x, bs = "cs"))
 
   # Generate predicted values and standard error.
   x_seq <- seq(min(x), max(x), length.out = 100)
@@ -271,7 +271,7 @@ consensus_p <- function(predictions, weights = NULL){
 
   cons <- c(c_mean, c_media, c_wmean, c_var)
   names(cons) <- c("Mean", "Median", "Weighted_average",
-                   "Intra-consensus_variance")
+                   "Consensus_variance")
   return(cons)
 }
 

@@ -7,7 +7,7 @@
 #' response_curve(model, variable, n = 100, new_data = NULL,
 #' new_range = NULL, rescale = FALSE)
 #
-#' @param model an object of class "glm" of a "list" of them which inherit
+#' @param model an object of class "glm" or a "list" of them which inherit
 #' from the class "lm".
 #' @param variable `character vector`, name or names of the variables to be plotted.
 #' @param n `numeric`, an integer guiding the number of breaks. Default n = 100
@@ -42,11 +42,11 @@ response_curve <- function(model, variable, n = 100, new_data = NULL,
 
   if (check_if_glm_list(model)){
 
-    response_curve_cons(model, variable, n = 100, new_data = new_data,
+    response_curve_cons(model, variable, n = n, new_data = new_data,
                         new_range = new_range, rescale = rescale)
   }
   else {
-    response_curve_ind(model, variable, n = 100, new_data = new_data,
+    response_curve_ind(model, variable, n = n, new_data = new_data,
                         new_range = new_range, rescale = rescale)
   }
 }

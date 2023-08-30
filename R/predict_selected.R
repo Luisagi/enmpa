@@ -15,7 +15,7 @@
 #' @param consensus `logical`, whether to produce three consensus forecasts
 #' (or “ensemble”) obtained by combining the forecasts from the collection the
 #' selected models. Consensuses are calculated from the mean, median and weighted
-#' mean using the wAIC as the weighting metric. An intra-consensus map of variance
+#' mean using the wAIC as the weighting metric. An consensus map of variance
 #' is also calculated to measure the amount of variability or disagreement among
 #' individuals consensus. Default = TRUE.
 #'

@@ -49,7 +49,11 @@ model_validation <- function(formula, data, family = binomial(link = "logit"),
     stop("'cv' must be logical.")
   }
   f <- as.formula(formula)
-  gfit <- glm(formula = f, family = family, data = data, weights = weights)
+
+  gfit <- suppressWarnings(
+    glm(formula = f, family = family, data = data, weights = weights)
+    )
+
   AIC <- gfit$aic
   nparameters <- length(gfit$coefficients) - 1
 
@@ -74,8 +78,10 @@ model_validation <- function(formula, data, family = binomial(link = "logit"),
       }
 
       # Fit using training data
-      kfit <- glm(formula = f, family = family, data = data_train,
+      kfit <- suppressWarnings(
+        glm(formula = f, family = family, data = data_train,
                   weights = weights_p)
+        )
 
       # Evaluation using Test Dependent data
       pred_k <- predict.glm(kfit, data_test[, -1], type = "response")

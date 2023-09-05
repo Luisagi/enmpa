@@ -58,19 +58,17 @@ This is a basic example which shows you how to solve a common problem:
 ``` r
 # Load species occurrences and environmental data.
 pa_data  <- read.csv(system.file("extdata", "pa_data.csv", package = "enmpa"))
-env_vars <- terra::rast(system.file("extdata", "raster_vars.tif", 
-                                    package = "enmpa"))
-
+env_vars <- terra::rast(system.file("extdata", "vars.tif", package = "enmpa"))
 
 # Presence-absence data with the values of environmental variables associated
 head(pa_data)
-#>   Pres_abs     bio_1 bio_12
-#> 1        0  4.222687    403
-#> 2        0  6.006802    738
-#> 3        0  4.079385    786
-#> 4        1  8.418489    453
-#> 5        0  8.573750    553
-#> 6        1 16.934618    319
+#>   Sp     bio_1 bio_12
+#> 1  0  4.222687    403
+#> 2  0  6.006802    738
+#> 3  0  4.079385    786
+#> 4  1  8.418489    453
+#> 5  0  8.573750    553
+#> 6  1 16.934618    319
 ```
 
 Check raster layers for the projection area. Obtained from
@@ -80,10 +78,10 @@ Check raster layers for the projection area. Obtained from
 - bio_12 = Annual Precipitation
 
 ``` r
-terra::plot(env_vars, mar=  c(0, 0, 0, 5.1))
+terra::plot(env_vars, mar = c(0, 0, 0, 5))
 ```
 
-<img src="man/figures/README-figures-raster_layers-1.png" width="80%" />
+<img src="man/figures/README-figures-raster_layers-1.png" width="100%" />
 
 <br>
 
@@ -97,73 +95,72 @@ variables.
 Linear responses:
 
 ``` r
-enmpa::get_formulas(dependent = "Pres_abs", 
-                    independent = c("bio_1", "bio_12"), 
+enmpa::get_formulas(dependent = "Sp", 
+                    independent = c("bio_1", "bio_12"),
                     type = "l")
-#> [1] "Pres_abs ~ bio_1"          "Pres_abs ~ bio_12"        
-#> [3] "Pres_abs ~ bio_1 + bio_12"
+#> [1] "Sp ~ bio_1"          "Sp ~ bio_12"         "Sp ~ bio_1 + bio_12"
 ```
 
 Linear + quadratic responses:
 
 ``` r
-enmpa::get_formulas(dependent = "Pres_abs", 
+enmpa::get_formulas(dependent = "Sp", 
                     independent = c("bio_1", "bio_12"), 
                     type = "lq")
-#>  [1] "Pres_abs ~ bio_1"                                    
-#>  [2] "Pres_abs ~ bio_12"                                   
-#>  [3] "Pres_abs ~ I(bio_1^2)"                               
-#>  [4] "Pres_abs ~ I(bio_12^2)"                              
-#>  [5] "Pres_abs ~ bio_1 + bio_12"                           
-#>  [6] "Pres_abs ~ bio_1 + I(bio_1^2)"                       
-#>  [7] "Pres_abs ~ bio_1 + I(bio_12^2)"                      
-#>  [8] "Pres_abs ~ bio_12 + I(bio_1^2)"                      
-#>  [9] "Pres_abs ~ bio_12 + I(bio_12^2)"                     
-#> [10] "Pres_abs ~ I(bio_1^2) + I(bio_12^2)"                 
-#> [11] "Pres_abs ~ bio_1 + bio_12 + I(bio_1^2)"              
-#> [12] "Pres_abs ~ bio_1 + bio_12 + I(bio_12^2)"             
-#> [13] "Pres_abs ~ bio_1 + I(bio_1^2) + I(bio_12^2)"         
-#> [14] "Pres_abs ~ bio_12 + I(bio_1^2) + I(bio_12^2)"        
-#> [15] "Pres_abs ~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2)"
+#>  [1] "Sp ~ bio_1"                                    
+#>  [2] "Sp ~ bio_12"                                   
+#>  [3] "Sp ~ I(bio_1^2)"                               
+#>  [4] "Sp ~ I(bio_12^2)"                              
+#>  [5] "Sp ~ bio_1 + bio_12"                           
+#>  [6] "Sp ~ bio_1 + I(bio_1^2)"                       
+#>  [7] "Sp ~ bio_1 + I(bio_12^2)"                      
+#>  [8] "Sp ~ bio_12 + I(bio_1^2)"                      
+#>  [9] "Sp ~ bio_12 + I(bio_12^2)"                     
+#> [10] "Sp ~ I(bio_1^2) + I(bio_12^2)"                 
+#> [11] "Sp ~ bio_1 + bio_12 + I(bio_1^2)"              
+#> [12] "Sp ~ bio_1 + bio_12 + I(bio_12^2)"             
+#> [13] "Sp ~ bio_1 + I(bio_1^2) + I(bio_12^2)"         
+#> [14] "Sp ~ bio_12 + I(bio_1^2) + I(bio_12^2)"        
+#> [15] "Sp ~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2)"
 ```
 
 Linear + quadratic + products responses:
 
 ``` r
-enmpa::get_formulas(dependent = "Pres_abs", 
+enmpa::get_formulas(dependent = "Sp", 
                     independent = c("bio_1", "bio_12"), 
                     type = "lqp")
-#>  [1] "Pres_abs ~ bio_1"                                                   
-#>  [2] "Pres_abs ~ bio_12"                                                  
-#>  [3] "Pres_abs ~ I(bio_1^2)"                                              
-#>  [4] "Pres_abs ~ I(bio_12^2)"                                             
-#>  [5] "Pres_abs ~ bio_1:bio_12"                                            
-#>  [6] "Pres_abs ~ bio_1 + bio_12"                                          
-#>  [7] "Pres_abs ~ bio_1 + I(bio_1^2)"                                      
-#>  [8] "Pres_abs ~ bio_1 + I(bio_12^2)"                                     
-#>  [9] "Pres_abs ~ bio_1 + bio_1:bio_12"                                    
-#> [10] "Pres_abs ~ bio_12 + I(bio_1^2)"                                     
-#> [11] "Pres_abs ~ bio_12 + I(bio_12^2)"                                    
-#> [12] "Pres_abs ~ bio_12 + bio_1:bio_12"                                   
-#> [13] "Pres_abs ~ I(bio_1^2) + I(bio_12^2)"                                
-#> [14] "Pres_abs ~ I(bio_1^2) + bio_1:bio_12"                               
-#> [15] "Pres_abs ~ I(bio_12^2) + bio_1:bio_12"                              
-#> [16] "Pres_abs ~ bio_1 + bio_12 + I(bio_1^2)"                             
-#> [17] "Pres_abs ~ bio_1 + bio_12 + I(bio_12^2)"                            
-#> [18] "Pres_abs ~ bio_1 + bio_12 + bio_1:bio_12"                           
-#> [19] "Pres_abs ~ bio_1 + I(bio_1^2) + I(bio_12^2)"                        
-#> [20] "Pres_abs ~ bio_1 + I(bio_1^2) + bio_1:bio_12"                       
-#> [21] "Pres_abs ~ bio_1 + I(bio_12^2) + bio_1:bio_12"                      
-#> [22] "Pres_abs ~ bio_12 + I(bio_1^2) + I(bio_12^2)"                       
-#> [23] "Pres_abs ~ bio_12 + I(bio_1^2) + bio_1:bio_12"                      
-#> [24] "Pres_abs ~ bio_12 + I(bio_12^2) + bio_1:bio_12"                     
-#> [25] "Pres_abs ~ I(bio_1^2) + I(bio_12^2) + bio_1:bio_12"                 
-#> [26] "Pres_abs ~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2)"               
-#> [27] "Pres_abs ~ bio_1 + bio_12 + I(bio_1^2) + bio_1:bio_12"              
-#> [28] "Pres_abs ~ bio_1 + bio_12 + I(bio_12^2) + bio_1:bio_12"             
-#> [29] "Pres_abs ~ bio_1 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12"         
-#> [30] "Pres_abs ~ bio_12 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12"        
-#> [31] "Pres_abs ~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12"
+#>  [1] "Sp ~ bio_1"                                                   
+#>  [2] "Sp ~ bio_12"                                                  
+#>  [3] "Sp ~ I(bio_1^2)"                                              
+#>  [4] "Sp ~ I(bio_12^2)"                                             
+#>  [5] "Sp ~ bio_1:bio_12"                                            
+#>  [6] "Sp ~ bio_1 + bio_12"                                          
+#>  [7] "Sp ~ bio_1 + I(bio_1^2)"                                      
+#>  [8] "Sp ~ bio_1 + I(bio_12^2)"                                     
+#>  [9] "Sp ~ bio_1 + bio_1:bio_12"                                    
+#> [10] "Sp ~ bio_12 + I(bio_1^2)"                                     
+#> [11] "Sp ~ bio_12 + I(bio_12^2)"                                    
+#> [12] "Sp ~ bio_12 + bio_1:bio_12"                                   
+#> [13] "Sp ~ I(bio_1^2) + I(bio_12^2)"                                
+#> [14] "Sp ~ I(bio_1^2) + bio_1:bio_12"                               
+#> [15] "Sp ~ I(bio_12^2) + bio_1:bio_12"                              
+#> [16] "Sp ~ bio_1 + bio_12 + I(bio_1^2)"                             
+#> [17] "Sp ~ bio_1 + bio_12 + I(bio_12^2)"                            
+#> [18] "Sp ~ bio_1 + bio_12 + bio_1:bio_12"                           
+#> [19] "Sp ~ bio_1 + I(bio_1^2) + I(bio_12^2)"                        
+#> [20] "Sp ~ bio_1 + I(bio_1^2) + bio_1:bio_12"                       
+#> [21] "Sp ~ bio_1 + I(bio_12^2) + bio_1:bio_12"                      
+#> [22] "Sp ~ bio_12 + I(bio_1^2) + I(bio_12^2)"                       
+#> [23] "Sp ~ bio_12 + I(bio_1^2) + bio_1:bio_12"                      
+#> [24] "Sp ~ bio_12 + I(bio_12^2) + bio_1:bio_12"                     
+#> [25] "Sp ~ I(bio_1^2) + I(bio_12^2) + bio_1:bio_12"                 
+#> [26] "Sp ~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2)"               
+#> [27] "Sp ~ bio_1 + bio_12 + I(bio_1^2) + bio_1:bio_12"              
+#> [28] "Sp ~ bio_1 + bio_12 + I(bio_12^2) + bio_1:bio_12"             
+#> [29] "Sp ~ bio_1 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12"         
+#> [30] "Sp ~ bio_12 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12"        
+#> [31] "Sp ~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12"
 ```
 
 <br>
@@ -201,18 +198,18 @@ Now lets run an example of model calibration and selection:
 ``` r
 # Linear + quadratic + products responses
 cal_res <- enmpa::calibration_glm(data = pa_data,
-                                  dependent = "Pres_abs",
+                                  dependent = "Sp",
                                   independent = c("bio_1", "bio_12"),
                                   response_type = "lpq",
                                   selection_criterion = "TSS",
-                                  cv_kfolds = 5,parallel = T, n_cores = 4)
+                                  cv_kfolds = 5)
 #> 
 #> Estimating formulas combinations for evaluation.
 #> Evaluating a total of 31 models.
-#> Running in Parallel using 4 threads.
+#> Running in Sequential.
 #>   |                                                                              |                                                                      |   0%  |                                                                              |==                                                                    |   3%  |                                                                              |=====                                                                 |   7%  |                                                                              |=======                                                               |  10%  |                                                                              |=========                                                             |  13%  |                                                                              |============                                                          |  17%  |                                                                              |==============                                                        |  20%  |                                                                              |================                                                      |  23%  |                                                                              |===================                                                   |  27%  |                                                                              |=====================                                                 |  30%  |                                                                              |=======================                                               |  33%  |                                                                              |==========================                                            |  37%  |                                                                              |============================                                          |  40%  |                                                                              |==============================                                        |  43%  |                                                                              |=================================                                     |  47%  |                                                                              |===================================                                   |  50%  |                                                                              |=====================================                                 |  53%  |                                                                              |========================================                              |  57%  |                                                                              |==========================================                            |  60%  |                                                                              |============================================                          |  63%  |                                                                              |===============================================                       |  67%  |                                                                              |=================================================                     |  70%  |                                                                              |===================================================                   |  73%  |                                                                              |======================================================                |  77%  |                                                                              |========================================================              |  80%  |                                                                              |==========================================================            |  83%  |                                                                              |=============================================================         |  87%  |                                                                              |===============================================================       |  90%  |                                                                              |=================================================================     |  93%  |                                                                              |====================================================================  |  97%  |                                                                              |======================================================================| 100%
 #> 
-#> Running time: 4.1115345954895
+#> Running time: 2.15913414955139
 #> 
 #> Preparing results...
 ```
@@ -222,9 +219,9 @@ Process results:
 ``` r
 # Two models were selected out of 31 models evaluated
 cal_res$selected
-#>                                                              Formulas
-#> 1 Pres_abs ~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12
-#> 2          Pres_abs ~ bio_1 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12
+#>                                                        Formulas
+#> 1 Sp ~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12
+#> 2          Sp ~ bio_1 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12
 #>   Threshold_criteria Threshold_mean Threshold_sd ROC_AUC_mean ROC_AUC_sd
 #> 1             maxTSS         0.0991       0.0154       0.9002     0.0192
 #> 2             maxTSS         0.0951       0.0166       0.9003     0.0190
@@ -248,13 +245,13 @@ case we are projecting the model to the whole area of interest.
 
 ``` r
 # Prediction for the two selected models
-preds <- enmpa::predict_selected(x = cal_res, newdata = env_vars)
+preds <- enmpa::predict_selected(x = cal_res, newdata = env_vars, consensus = T)
 
 # Visualization
-terra::plot(preds$predictions,  mar=  c(0, 0, 0, 5.1))
+terra::plot(preds$predictions,  mar = c(0, 0, 0, 5))
 ```
 
-<img src="man/figures/README-figures-prediction_selected-1.png" width="80%" />
+<img src="man/figures/README-figures-prediction_selected-1.png" width="100%" />
 
 <br>
 
@@ -269,26 +266,11 @@ techniques such as mean, median or weighted mean based on an information
 criterion (Akaike weights).
 
 ``` r
-# Mean 
-c_mean <- terra::app(preds$predictions, mean)
-
-# Median 
-c_media <- terra::app(preds$predictions, median)
-
-# Weighted average based on Akaike weights (wAIC)
-wAIC <- cal_res$selected$AIC_weight
-c_wmean <- terra::app(preds$predictions*wAIC, sum)
-
-# Variance between the consensus methods
-c_var <- terra::app(c(c_mean, c_media, c_wmean), var)
-
-
-terra::plot(c(c_mean, c_media, c_wmean, c_var), 
-            mar=  c(0, 0, 0, 5.1),
-            main = c("Mean", "Median", "Weighted average (wAIC)", "Variance"))
+# Consensus projections
+terra::plot(preds$consensus, mar=  c(0, 0, 0, 5.1))
 ```
 
-<img src="man/figures/README-figures-consensus-1.png" width="80%" />
+<img src="man/figures/README-figures-consensus-1.png" width="100%" />
 
 <br>
 
@@ -300,13 +282,30 @@ following lines of code help to do so:
 
 ``` r
 # Response Curves for Bio_1 and Bio_2, first selected model 
-
 enmpa::response_curve(model = preds$fitted_models$Model_ID_1,
                       variable = c("bio_1", "bio_12"),
                       new_data = env_vars)
 ```
 
 <img src="man/figures/README-figures-rcurve_model_ID_1-1.png" width="50%" /><img src="man/figures/README-figures-rcurve_model_ID_1-2.png" width="50%" />
+
+``` r
+# Response Curves for Bio_1 and Bio_2, second selected model 
+enmpa::response_curve(model = preds$fitted_models$Model_ID_2,
+                      variable = c("bio_1", "bio_12"),
+                      new_data = env_vars)
+```
+
+<img src="man/figures/README-figures-rcurve_model_ID_2-1.png" width="50%" /><img src="man/figures/README-figures-rcurve_model_ID_2-2.png" width="50%" />
+
+``` r
+# Consensus Response Curves for Bio_1 and Bio_2, from both models 
+enmpa::response_curve(model = preds$fitted_models,
+                      variable = c("bio_1", "bio_12"),
+                      new_data = env_vars)
+```
+
+<img src="man/figures/README-figures-rcurve_consensus-1.png" width="50%" /><img src="man/figures/README-figures-rcurve_consensus-2.png" width="50%" />
 
 <br>
 
@@ -356,7 +355,7 @@ anova(preds$fitted_models$Model_ID_1, test = "Chi")
 #> 
 #> Model: binomial, link: logit
 #> 
-#> Response: Pres_abs
+#> Response: Sp
 #> 
 #> Terms added sequentially (first to last)
 #> 
@@ -376,21 +375,35 @@ Using a function from `enmpa` you can explore variable importance in
 terms of contribution.
 
 ``` r
-# Relative contribution of the deviance explained
-varimport <- enmpa::var_importance(preds$fitted_models$Model_ID_1)
-varimport
-#>      predictor contribution cum_contribution
-#> 1        bio_1   0.31901523        0.3190152
-#> 3   I(bio_1^2)   0.28433044        0.6033457
-#> 4  I(bio_12^2)   0.22805823        0.8314039
-#> 5 bio_1:bio_12   0.15250677        0.9839107
-#> 2       bio_12   0.01608933        1.0000000
+# Relative contribution of the deviance explained for the first model
+enmpa::var_importance(preds$fitted_models$Model_ID_1, plot = T)
 ```
 
-Plotting these values can help with interpretations:
+<img src="man/figures/README-unnamed-chunk-12-1.png" width="100%" />
+
+    #>      predictor contribution cum_contribution
+    #> 1        bio_1   0.31901523        0.3190152
+    #> 3   I(bio_1^2)   0.28433044        0.6033457
+    #> 4  I(bio_12^2)   0.22805823        0.8314039
+    #> 5 bio_1:bio_12   0.15250677        0.9839107
+    #> 2       bio_12   0.01608933        1.0000000
+
+The function also allows to plot contributions of the two models
+together which can help with interpretations:
 
 ``` r
-barplot(varimport$contribution, names = varimport$predictor)
+# Relative contribution of the deviance explained
+enmpa::var_importance(preds$fitted_models, plot = T)
+#>      predictor contribution     Models
+#> 1        bio_1   0.31901523 Model_ID_1
+#> 2   I(bio_1^2)   0.28433044 Model_ID_1
+#> 3  I(bio_12^2)   0.22805823 Model_ID_1
+#> 4 bio_1:bio_12   0.15250677 Model_ID_1
+#> 5       bio_12   0.01608933 Model_ID_1
+#> 6  I(bio_12^2)   0.35726725 Model_ID_2
+#> 7        bio_1   0.29195868 Model_ID_2
+#> 8   I(bio_1^2)   0.20317496 Model_ID_2
+#> 9 bio_1:bio_12   0.14759911 Model_ID_2
 ```
 
 <img src="man/figures/README-figures-var_importance-1.png" width="70%" />

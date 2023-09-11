@@ -7,10 +7,10 @@
 #' calibration_glm(data, dependent, independent, weights = NULL,
 #'                 response_type = "l", all_combinations = TRUE,
 #'                 minvar = 1, maxvar = NULL, user_formulas = NULL,
-#'                 cv_kfolds = 5, seed = 1,n_threshold = 100,
-#'                 selection_criterion = "TSS", exclude_bimodal = FALSE,
-#'                 tolerance = 0.01, parallel = FALSE, n_cores = NULL,
-#'                 verbose = TRUE)
+#'                 cv_kfolds = 5, partition_index = NULL, seed = 1,
+#'                 n_threshold = 100, selection_criterion = "TSS",
+#'                 exclude_bimodal = FALSE, tolerance = 0.01, parallel = FALSE,
+#'                 n_cores = NULL, verbose = TRUE)
 #'
 #' @param data data.frame or matrix of independent variables.
 #' @param dependent `character`, name of dependent variable.
@@ -26,8 +26,11 @@
 #' @param maxvar `numeric` maximum number of features.
 #' @param user_formulas a vector of character with the set of formulas to test.
 #' Default = NULL.
+#' @param partition_index list of indices for cross-validation in k-fold. It can
+#' be calculated with enmpa::kfold_partition. Default = NULL.
 #' @param cv_kfolds `numeric`, number of folds to use for k-fold
-#' cross-validation exercises. Default = 5.
+#' cross-validation exercises. Default = 5. Ignored if `partition_index`
+#' is defined.
 #' @param seed a seed for k-fold partitioning.
 #' @param n_threshold `logical`, number of thresholds to use to produce
 #' evaluation metrics. Default = 100,
@@ -69,10 +72,10 @@
 calibration_glm <- function(data, dependent, independent, weights = NULL,
                             response_type = "l", all_combinations = TRUE,
                             minvar=1, maxvar = NULL,  user_formulas = NULL,
-                            cv_kfolds = 5, seed = 1, n_threshold = 100,
-                            selection_criterion = "TSS", exclude_bimodal = FALSE,
-                            tolerance = 0.01, parallel = FALSE, n_cores = NULL,
-                            verbose = TRUE) {
+                            cv_kfolds = 5, partition_index = NULL, seed = 1,
+                            n_threshold = 100, selection_criterion = "TSS",
+                            exclude_bimodal = FALSE,  tolerance = 0.01,
+                            parallel = FALSE, n_cores = NULL, verbose = TRUE) {
 
   # initial tests
   if (missing(data) | missing(dependent) | missing(dependent)) {
@@ -85,8 +88,14 @@ calibration_glm <- function(data, dependent, independent, weights = NULL,
 
 
   ## 1. Data partitioning: k-Fold Cross-Validation
-  k <- cv_kfolds
-  data_partition <- kfold_partition(data, k = k, seed = seed)
+  if (is.null(partition_index)){
+    k <- cv_kfolds
+    data_partition <- kfold_partition(data, k = k, seed = seed)
+
+    } else {
+      k <- length(partition_index)
+      data_partition <- partition_index
+    }
 
   ## 2. Formula combination
 
@@ -208,7 +217,7 @@ calibration_glm <- function(data, dependent, independent, weights = NULL,
   # Summary stats: mean and SD calculation for each model based on folds
   stats <- evaluation_stats(evaluation_results = glm_res,
                             bimodal_toexclude = exclude_bimodal,
-                            cv_kfolds = cv_kfolds)
+                            cv_kfolds = k)
 
   # selected models
   sel <- model_selection(evaluation_stats = stats,
@@ -216,9 +225,22 @@ calibration_glm <- function(data, dependent, independent, weights = NULL,
                          exclude_bimodal = exclude_bimodal,
                          tolerance = 0.01)
 
+
+
+  # add data_partition in the input data.
+  aux_f <- lapply(
+    names(data_partition),
+    function(x){data.frame(obs = data_partition[[x]],kfold_ID = x)}
+    )
+
+  folds <- do.call(rbind, aux_f)
+  folds <- folds[order(folds$obs),]
+  data_final <- data.frame(data, kfold_ID = folds$kfold_ID)
+
   # Final output
   output <- list(selected = sel, summary = stats, calibration_results = glm_res,
-                 data = data, weights = weights)
+                 data = data_final, weights = weights,
+                 kfold_index_partition = data_partition)
 
   return(output)
 }

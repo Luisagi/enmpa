@@ -4,16 +4,14 @@
 \alias{var_importance}
 \title{Variable importance}
 \usage{
-var_importance(x, plot = TRUE)
+var_importance(x)
 }
 \arguments{
 \item{x}{an object of class "glm" or a "list" of them which inherit
 from the class "lm".}
-
-\item{plot}{\code{logical}, whether plot the variable contribution. Default = TRUE.}
 }
 \value{
-data.frame
+\code{data.frame}
 }
 \description{
 The function calculates the relative importance of the predictor variables

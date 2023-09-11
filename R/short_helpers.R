@@ -74,7 +74,9 @@ response <- function(model, variable, n = 100, new_data = NULL,
   }
 
   # It gets only the variable names used in the fitted model
-  vnames <- colSums(sapply(colnames(model$data), grepl, names(coef(model)[-1]))) > 0
+  vnames <- colSums(
+    sapply(colnames(model$data), grepl, names(coef(model)[-1]))
+    ) > 0
 
   if (any(!variable %in% names(vnames))) {
     stop("The name of the 'variable' was not defined correctly.")

@@ -5,11 +5,12 @@
 #'  allows the clamping option to avoid extrapolation in areas outside the
 #'  calibration area.
 #'
-#' @param model a GLM fitted object
-#' @param newdata a data.frame or matrix with the new data to project the
+#' @param model a GLM fitted object.
+#' @param newdata a `data.frame` or `matrix` with the new data to project the
 #' predictions.
-#' @param clamping Clamp values to a minimum and maximum value, that are
-#' establish for the max and min values of the calibration limits. Default = FALSE.
+#' @param clamping `logical`, whether to clamp values to a minimum and maximum
+#' value, that are establish for the max and min values of the calibration
+#' limits. Default = FALSE.
 #' @param type the type of prediction required. For a default binomial model
 #' the default predictions are of log-odds (probabilities on logit scale)
 #' and type = "response" gives the predicted probabilities.

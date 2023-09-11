@@ -9,9 +9,9 @@
 #
 #' @param model an object of class "glm" or a "list" of them which inherit
 #' from the class "lm".
-#' @param variable `character vector`, name or names of the variables to be plotted.
+#' @param variable `character` vector, name or names of the variables to be plotted.
 #' @param n `numeric`, an integer guiding the number of breaks. Default n = 100
-#' @param new_data a `SpatRaster`, data.frame or  matrix of variables
+#' @param new_data a `SpatRaster`, `data.frame` or  `matrix` of variables
 #' representing the range of values for the complete extent of the study area.
 #' Default = NULL
 #' @param new_range `numeric vector`, a numerical vector with the lower and

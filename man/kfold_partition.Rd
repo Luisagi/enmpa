@@ -7,8 +7,8 @@
 kfold_partition(data, k = 2, seed = 1)
 }
 \arguments{
-\item{data}{data.frame or matrix containing at least two columns. The first
-column must contain absence and presence records as 0 and 1.}
+\item{data}{\code{data.frame} or \code{matrix} containing at least two columns. The
+first column must contain absence and presence records as 0 and 1.}
 
 \item{k}{\code{numeric}, the number of groups that the given data is to be split
 into.}

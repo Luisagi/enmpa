@@ -11,11 +11,11 @@ new_range = NULL, rescale = FALSE)
 \item{model}{an object of class "glm" or a "list" of them which inherit
 from the class "lm".}
 
-\item{variable}{\verb{character vector}, name or names of the variables to be plotted.}
+\item{variable}{\code{character} vector, name or names of the variables to be plotted.}
 
 \item{n}{\code{numeric}, an integer guiding the number of breaks. Default n = 100}
 
-\item{new_data}{a \code{SpatRaster}, data.frame or  matrix of variables
+\item{new_data}{a \code{SpatRaster}, \code{data.frame} or  \code{matrix} of variables
 representing the range of values for the complete extent of the study area.
 Default = NULL}
 

@@ -10,10 +10,12 @@ Authors@R: c(
     comment = c(ORCID = "0000-0003-0243-2379"))
     )
 Maintener: Luis F. Arias-Giraldo <lfarias.giraldo@gmail.com>
-Date: 2023-05-15
-Description: A set of tools to perform Ecological Niche Modeling analysis,
-    including data partitioning, model selection, calibration, fitting and
-    evaluation.
+Date: 2023-09-12
+Description: A set of tools to perform Ecological Niche Modeling with
+    presence-abscense data. It includes algorithms for data partitioning, 
+    model fitting, calibration, evaluation, selection, and prediction. 
+    Other functios help to explore model features as such variable response 
+    curves and variable importance.
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -32,7 +34,10 @@ Imports:
     vegan,
     ellipse,
     mgcv,
-    methods
+    methods,
+    Rcpp
 LazyData: true
 Depends:
     R (>= 3.5.0)
+LinkingTo: 
+    Rcpp

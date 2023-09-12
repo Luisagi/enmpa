@@ -4,16 +4,17 @@
 \alias{predict_glm}
 \title{Model Prediction}
 \usage{
-predict_glm(model, newdata, clamping = TRUE, type = "response")
+predict_glm(model, newdata, clamping = FALSE, type = "response")
 }
 \arguments{
-\item{model}{a GLM fitted object}
+\item{model}{a GLM fitted object.}
 
-\item{newdata}{a data.frame or matrix with the new data to project the
+\item{newdata}{a \code{data.frame} or \code{matrix} with the new data to project the
 predictions.}
 
-\item{clamping}{Clamp values to a minimum and maximum value, that are
-establish for the max and min values of the calibration limits.}
+\item{clamping}{\code{logical}, whether to clamp values to a minimum and maximum
+value, that are establish for the max and min values of the calibration
+limits. Default = FALSE.}
 
 \item{type}{the type of prediction required. For a default binomial model
 the default predictions are of log-odds (probabilities on logit scale)

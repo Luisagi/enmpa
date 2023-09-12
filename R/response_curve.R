@@ -9,9 +9,9 @@
 #
 #' @param model an object of class "glm" or a "list" of them which inherit
 #' from the class "lm".
-#' @param variable `character vector`, name or names of the variables to be plotted.
+#' @param variable `character` vector, name or names of the variables to be plotted.
 #' @param n `numeric`, an integer guiding the number of breaks. Default n = 100
-#' @param new_data a `SpatRaster`, data.frame or  matrix of variables
+#' @param new_data a `SpatRaster`, `data.frame` or  `matrix` of variables
 #' representing the range of values for the complete extent of the study area.
 #' Default = NULL
 #' @param new_range `numeric vector`, a numerical vector with the lower and
@@ -40,14 +40,23 @@ response_curve <- function(model, variable, n = 100, new_data = NULL,
     }
   }
 
-  if (check_if_glm_list(model)){
 
-    response_curve_cons(model, variable, n = n, new_data = new_data,
-                        new_range = new_range, rescale = rescale)
-  }
-  else {
-    response_curve_ind(model, variable, n = n, new_data = new_data,
-                        new_range = new_range, rescale = rescale)
+  for (i in variable){
+
+    # Response curve for all selected models
+    if (check_if_glm_list(model)){
+
+      response_curve_cons(model, i, n = n, new_data = new_data,
+                          new_range = new_range, rescale = rescale)
+      Sys.sleep(1)
+    }
+    # Response curve of an individual model
+    else {
+      response_curve_ind(model, i, n = n, new_data = new_data,
+                          new_range = new_range, rescale = rescale)
+      Sys.sleep(1)
+
+    }
   }
 }
 

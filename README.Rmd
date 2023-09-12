@@ -63,9 +63,7 @@ This is a basic example which shows you how to solve a common problem:
 ```{r message=FALSE, cache=TRUE}
 # Load species occurrences and environmental data.
 pa_data  <- read.csv(system.file("extdata", "pa_data.csv", package = "enmpa"))
-env_vars <- terra::rast(system.file("extdata", "raster_vars.tif", 
-                                    package = "enmpa"))
-
+env_vars <- terra::rast(system.file("extdata", "vars.tif", package = "enmpa"))
 
 # Presence-absence data with the values of environmental variables associated
 head(pa_data)
@@ -77,8 +75,8 @@ Check raster layers for the projection area. Obtained from
 -   bio_1 = Annual Mean Temperature
 -   bio_12 = Annual Precipitation
 
-```{r figures-raster_layers, fig.show="hold", out.width="80%", cache=TRUE}
-terra::plot(env_vars, mar=  c(0, 0, 0, 5.1))
+```{r figures-raster_layers, fig.height=2.5, fig.width=8, cache=TRUE}
+terra::plot(env_vars, mar = c(0, 0, 0, 5))
 ```
 
 <br>
@@ -92,15 +90,15 @@ product (p) responses. Product refers to pair interactions of variables.
 Linear responses:
 
 ```{r cache=TRUE}
-enmpa::get_formulas(dependent = "Pres_abs", 
-                    independent = c("bio_1", "bio_12"), 
+enmpa::get_formulas(dependent = "Sp", 
+                    independent = c("bio_1", "bio_12"),
                     type = "l")
 ```
 
 Linear + quadratic responses:
 
 ```{r cache=TRUE}
-enmpa::get_formulas(dependent = "Pres_abs", 
+enmpa::get_formulas(dependent = "Sp", 
                     independent = c("bio_1", "bio_12"), 
                     type = "lq")
 ```
@@ -108,7 +106,7 @@ enmpa::get_formulas(dependent = "Pres_abs",
 Linear + quadratic + products responses:
 
 ```{r cache=TRUE}
-enmpa::get_formulas(dependent = "Pres_abs", 
+enmpa::get_formulas(dependent = "Sp", 
                     independent = c("bio_1", "bio_12"), 
                     type = "lqp")
 ```
@@ -137,8 +135,7 @@ Results are returned as a list containing:
 
 -   selected models `*$selected`
 -   a summary of statistics for all models `*$summary`
--   results obtained from cross-validation for all models
-    `*$calibration_results`
+-   results obtained from cross-validation for all models `*$calibration_results`
 
 <br>
 
@@ -147,11 +144,11 @@ Now lets run an example of model calibration and selection:
 ```{r cache=TRUE}
 # Linear + quadratic + products responses
 cal_res <- enmpa::calibration_glm(data = pa_data,
-                                  dependent = "Pres_abs",
+                                  dependent = "Sp",
                                   independent = c("bio_1", "bio_12"),
                                   response_type = "lpq",
                                   selection_criterion = "TSS",
-                                  cv_kfolds = 5,parallel = T, n_cores = 4)
+                                  cv_kfolds = 5)
 ```
 
 Process results:
@@ -168,12 +165,12 @@ cal_res$selected
 After one or more models are selected, predictions can be made. In this case we
 are projecting the model to the whole area of interest.
 
-```{r warning=FALSE, figures-prediction_selected, fig.show="hold", out.width="80%", cache=TRUE}
+```{r warning=FALSE, cache=TRUE, figures-prediction_selected, fig.height=2.5, fig.width=8, cache=TRUE,fig.show="hold"}
 # Prediction for the two selected models
-preds <- enmpa::predict_selected(x = cal_res, newdata = env_vars)
+preds <- enmpa::predict_selected(x = cal_res, newdata = env_vars, consensus = T)
 
 # Visualization
-terra::plot(preds$predictions,  mar=  c(0, 0, 0, 5.1))
+terra::plot(preds$predictions,  mar = c(0, 0, 0, 5))
 ```
 
 <br>
@@ -188,25 +185,9 @@ Here we describe how to create concordance between these models using techniques
 such as mean, median or weighted mean based on an information criterion
 (Akaike weights).
 
-```{r warning=FALSE, figures-consensus, fig.show="hold", out.width="80%", cache=TRUE}
-# Mean 
-c_mean <- terra::app(preds$predictions, mean)
-
-# Median 
-c_media <- terra::app(preds$predictions, median)
-
-# Weighted average based on Akaike weights (wAIC)
-wAIC <- cal_res$selected$AIC_weight
-c_wmean <- terra::app(preds$predictions*wAIC, sum)
-
-# Variance between the consensus methods
-c_var <- terra::app(c(c_mean, c_media, c_wmean), var)
-
-
-terra::plot(c(c_mean, c_media, c_wmean, c_var), 
-            mar=  c(0, 0, 0, 5.1),
-            main = c("Mean", "Median", "Weighted average (wAIC)", "Variance"))
-
+```{r warning=FALSE, figures-consensus, fig.show="hold", cache=TRUE}
+# Consensus projections
+terra::plot(preds$consensus, mar=  c(0, 0, 0, 5.1))
 ```
 
 <br>
@@ -219,7 +200,6 @@ lines of code help to do so:
 
 ```{r figures-rcurve_model_ID_1, fig.show="hold", out.width="50%", cache=TRUE}
 # Response Curves for Bio_1 and Bio_2, first selected model 
-
 enmpa::response_curve(model = preds$fitted_models$Model_ID_1,
                       variable = c("bio_1", "bio_12"),
                       new_data = env_vars)
@@ -227,6 +207,20 @@ enmpa::response_curve(model = preds$fitted_models$Model_ID_1,
 
 
 ```
+```{r figures-rcurve_model_ID_2, fig.show="hold", out.width="50%", cache=TRUE}
+# Response Curves for Bio_1 and Bio_2, second selected model 
+enmpa::response_curve(model = preds$fitted_models$Model_ID_2,
+                      variable = c("bio_1", "bio_12"),
+                      new_data = env_vars)
+```
+
+```{r figures-rcurve_consensus, fig.show="hold", out.width="50%", cache=TRUE}
+# Consensus Response Curves for Bio_1 and Bio_2, from both models 
+enmpa::response_curve(model = preds$fitted_models,
+                      variable = c("bio_1", "bio_12"),
+                      new_data = env_vars)
+```                                                                                                   
+  
 
 <br>
 
@@ -250,14 +244,16 @@ anova(preds$fitted_models$Model_ID_1, test = "Chi")
 Using a function from `enmpa` you can explore variable importance in terms of
 contribution.
 
-```{r warning=FALSE, cache=TRUE}
-# Relative contribution of the deviance explained
-varimport <- enmpa::var_importance(preds$fitted_models$Model_ID_1)
-varimport
+```{r warning=FALSE, cache=TRUE, out.width="70%"}
+# Relative contribution of the deviance explained for the first model
+enmpa::var_importance(preds$fitted_models$Model_ID_1, plot = T)
+
 ```
 
-Plotting these values can help with interpretations:
+The function also allows to plot the contributions of the variables for the two
+models together which can help with the interpretations:
 
 ```{r warning=FALSE, figures-var_importance, fig.show="hold", out.width="70%", cache=TRUE}
-barplot(varimport$contribution, names = varimport$predictor)
+# Relative contribution of the deviance explained
+enmpa::var_importance(preds$fitted_models, plot = T)
 ```

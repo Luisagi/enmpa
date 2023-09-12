@@ -15,7 +15,7 @@ predict_selected(
 \arguments{
 \item{x}{the object returned by the function "calibration_glm()".}
 
-\item{newdata}{a \code{SpatRaster}, data.frame or matrix with the new data to
+\item{newdata}{a \code{SpatRaster}, \code{data.frame} or \code{matrix} with the new data to
 project the predictions.}
 
 \item{clamping}{\code{logical}, this option mitigates the risk of extreme

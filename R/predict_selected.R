@@ -2,7 +2,7 @@
 #' Predict the selected models
 #'
 #' @param x the object returned by the function "calibration_glm()".
-#' @param newdata a `SpatRaster`, data.frame or matrix with the new data to
+#' @param newdata a `SpatRaster`, `data.frame` or `matrix` with the new data to
 #' project the predictions.
 #' @param clamping `logical`, this option mitigates the risk of extreme
 #' extrapolations when making model predictions for environmental conditions
@@ -36,9 +36,11 @@ predict_selected <- function(x, newdata, clamping = FALSE,
 
   # model fitting
   fits <- lapply(fs, function(y){
-    glm(formula = as.formula(y), family = binomial(link = "logit"),
-        data = x$data,
-        weights = x$weights)
+    suppressWarnings(
+      glm(formula = as.formula(y), family = binomial(link = "logit"),
+          data = x$data,
+          weights = x$weights)
+    )
   })
 
   names(fits) <- paste0("Model_ID_", rownames(x$selected))

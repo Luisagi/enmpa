@@ -32,7 +32,10 @@ Imports:
     vegan,
     ellipse,
     mgcv,
-    methods
+    methods,
+    Rcpp
 LazyData: true
 Depends:
     R (>= 3.5.0)
+LinkingTo: 
+    Rcpp

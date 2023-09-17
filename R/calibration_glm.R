@@ -1,7 +1,8 @@
 #' GLM calibration with presence-absence data
 #'
 #' @description
-#' Model calibration and selection using presence-absence data and GLMs.
+#' Wrapper function for facilitating model calibration and selection using
+#' presence-absence data and GLMs.
 #'
 #' @usage
 #' calibration_glm(data, dependent, independent, weights = NULL,
@@ -9,42 +10,47 @@
 #'                 minvar = 1, maxvar = NULL, user_formulas = NULL,
 #'                 cv_kfolds = 5, partition_index = NULL, seed = 1,
 #'                 n_threshold = 100, selection_criterion = "TSS",
-#'                 exclude_bimodal = FALSE, tolerance = 0.01, parallel = FALSE,
+#'                 exclude_bimodal = FALSE, tolerance = 0.01,
+#'                 out_dir = "enmpa_calibration", parallel = FALSE,
 #'                 n_cores = NULL, verbose = TRUE)
 #'
 #' @param data data.frame or matrix of independent variables.
-#' @param dependent `character`, name of dependent variable.
-#' @param independent `character`, vector of name(s) of independent variable(s).
-#' @param weights a vector with the weights for observations.
-#' @param response_type `character`, a character string that must contain "l",
+#' @param dependent (character) name of dependent variable.
+#' @param independent (character) vector of name(s) of independent variable(s).
+#' @param weights (numeric) a vector with the weights for observations.
+#' @param response_type (character) a character string that must contain "l",
 #' "p", "q" or a combination of them. l = lineal, q = quadratic,
 #' p = interaction between two variables. Default = "l".
-#' @param all_combinations `logical`, whether to produce all combinations of
+#' @param all_combinations (logical) whether to produce all combinations of
 #' formulas according to `response_type`, default = TRUE. FALSE returns only
 #' the most complex formula defined in `response_type`.
-#' @param minvar `numeric` minimum number of features.
-#' @param maxvar `numeric` maximum number of features.
+#' @param minvar (numeric) minimum number of features.
+#' @param maxvar (numeric) maximum number of features.
 #' @param user_formulas a vector of character with the set of formulas to test.
 #' Default = NULL.
 #' @param partition_index list of indices for cross-validation in k-fold. It can
 #' be calculated with enmpa::kfold_partition. Default = NULL.
-#' @param cv_kfolds `numeric`, number of folds to use for k-fold
+#' @param cv_kfolds (numeric) number of folds to use for k-fold
 #' cross-validation exercises. Default = 5. Ignored if `partition_index`
 #' is defined.
-#' @param seed a seed for k-fold partitioning.
-#' @param n_threshold `logical`, number of thresholds to use to produce
+#' @param seed (numeric) a seed for k-fold partitioning.
+#' @param n_threshold (logical) number of thresholds to use to produce
 #' evaluation metrics. Default = 100,
-#' @param selection_criterion `character`, criterion used to select best models,
+#' @param selection_criterion (character) criterion used to select best models,
 #' options are "TSS" and "ESS". Default = "TSS".
-#' @param exclude_bimodal logical, whether to exclude from selected models those
+#' @param exclude_bimodal (logical) whether to exclude from selected models those
 #' with one or more variable presenting concave responses. Default = FALSE.
-#' @param tolerance `numeric`, value to modify the metric used for model filtering
-#' for model selection if no models meet initial the consideration. Default = 0.01
-#' @param parallel `logical`, whether to run on parallel or sequential.
+#' @param tolerance (numeric) value to modify the metric used for model filtering
+#' for model selection if no models meet initial the consideration.
+#' Default = 0.01
+#' @param out_dir (character) output directory name to save the main calibration
+#' table results. To indicate that you do not want to save it, set the directory
+#' name as `NULL`. Default = "enmpa_calibration".
+#' @param parallel (logical) whether to run on parallel or sequential.
 #' Default = FALSE.
-#' @param n_cores `numeric`, number of cores to use. Default = number of free
+#' @param n_cores (numeric) number of cores to use. Default = number of free
 #' processors - 1.
-#' @param verbose `logical`, whether to print messages and show progress bar.
+#' @param verbose (logical) whether to print messages and show progress bar.
 #' Default = TRUE
 #'
 #' @return
@@ -62,7 +68,7 @@
 #'
 #' @export
 #'
-#' @importFrom utils txtProgressBar
+#' @importFrom utils txtProgressBar write.table
 #' @importFrom stats aggregate sd
 #' @importFrom snow makeSOCKcluster stopCluster
 #' @importFrom doSNOW registerDoSNOW
@@ -75,7 +81,8 @@ calibration_glm <- function(data, dependent, independent, weights = NULL,
                             cv_kfolds = 5, partition_index = NULL, seed = 1,
                             n_threshold = 100, selection_criterion = "TSS",
                             exclude_bimodal = FALSE,  tolerance = 0.01,
-                            parallel = FALSE, n_cores = NULL, verbose = TRUE) {
+                            out_dir = "enmpa_calibration", parallel = FALSE,
+                            n_cores = NULL, verbose = TRUE) {
 
   # initial tests
   if (missing(data) | missing(dependent) | missing(dependent)) {
@@ -92,10 +99,10 @@ calibration_glm <- function(data, dependent, independent, weights = NULL,
     k <- cv_kfolds
     data_partition <- kfold_partition(data, k = k, seed = seed)
 
-    } else {
-      k <- length(partition_index)
-      data_partition <- partition_index
-    }
+  } else {
+    k <- length(partition_index)
+    data_partition <- partition_index
+  }
 
   ## 2. Formula combination
 
@@ -231,7 +238,7 @@ calibration_glm <- function(data, dependent, independent, weights = NULL,
   aux_f <- lapply(
     names(data_partition),
     function(x){data.frame(obs = data_partition[[x]],kfold_ID = x)}
-    )
+  )
 
   folds <- do.call(rbind, aux_f)
   folds <- folds[order(folds$obs),]
@@ -241,6 +248,13 @@ calibration_glm <- function(data, dependent, independent, weights = NULL,
   output <- list(selected = sel, summary = stats, calibration_results = glm_res,
                  data = data_final, weights = weights,
                  kfold_index_partition = data_partition)
+
+  # Save calibration tables
+
+  if (!is.null(out_dir)){
+    save_cal(x = output, out_dir = out_dir)
+    }
+
 
   return(output)
 }

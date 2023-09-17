@@ -7,13 +7,13 @@
 kfold_partition(data, k = 2, seed = 1)
 }
 \arguments{
-\item{data}{\code{data.frame} or \code{matrix} containing at least two columns. The
+\item{data}{data.frame or matrix containing at least two columns. The
 first column must contain absence and presence records as 0 and 1.}
 
-\item{k}{\code{numeric}, the number of groups that the given data is to be split
+\item{k}{(numeric) the number of groups that the given data is to be split
 into.}
 
-\item{seed}{\code{numeric}, integer value to specify an initial seed. Default = 1.}
+\item{seed}{(numeric) integer value to specify an initial seed. Default = 1.}
 }
 \value{
 A list of vectors with the indices of rows corresponding to each fold.

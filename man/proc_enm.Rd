@@ -8,10 +8,10 @@ proc_enm(test_prediction, prediction, threshold = 5, sample_percentage = 50,
          iterations = 500)
 }
 \arguments{
-\item{test_prediction}{(numeric) vector of model preodictions for testing
+\item{test_prediction}{(numeric) vector of model predictions for testing
 data.}
 
-\item{prediction}{SpatRaster or numeric vector of model predictions to be
+\item{prediction}{\code{SpatRaster} or numeric vector of model predictions to be
 evaluated.}
 
 \item{threshold}{(numeric) value from 0 to 100 to represent the percentage of

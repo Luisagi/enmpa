@@ -7,21 +7,21 @@
 predict_glm(model, newdata, clamping = FALSE, type = "response")
 }
 \arguments{
-\item{model}{a GLM fitted object.}
+\item{model}{a \code{glm} fitted object.}
 
-\item{newdata}{a \code{data.frame} or \code{matrix} with the new data to project the
+\item{newdata}{a data.frame or matrix with the new data to project the
 predictions.}
 
-\item{clamping}{\code{logical}, whether to clamp values to a minimum and maximum
+\item{clamping}{(logical) whether to clamp values to a minimum and maximum
 value, that are establish for the max and min values of the calibration
 limits. Default = FALSE.}
 
-\item{type}{the type of prediction required. For a default binomial model
-the default predictions are of log-odds (probabilities on logit scale)
-and type = "response" gives the predicted probabilities.}
+\item{type}{(character) the type of prediction required. For a default
+binomial model the default predictions are of log-odds (probabilities on
+logit scale) and type = "response" gives the predicted probabilities.}
 }
 \value{
-a SpatRaster object or a vector o probabilities.
+a \code{SpatRaster} object or a vector of probabilities.
 }
 \description{
 Obtains predictions from a fitted generalized linear model object. It also

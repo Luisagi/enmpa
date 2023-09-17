@@ -10,32 +10,33 @@ model_validation(formula, data, family = binomial(link = "logit"),
                  seed = 1)
 }
 \arguments{
-\item{formula}{\code{character}, “expressions” to return a "formula" object class.}
+\item{formula}{(character) \code{expressions} to return a \code{formula} object class.}
 
-\item{data}{\code{data.frame}, data set to create model}
+\item{data}{data.frame to create model.}
 
-\item{family, }{a family object for models used by functions such as \code{glm}.}
+\item{family}{a \code{family} object for models used by functions such as \code{glm}.}
 
-\item{weights}{\code{numeric} vector with weights for observations.}
+\item{weights}{(numeric) vector with weights for observations.}
 
-\item{cv}{\code{logical}, whether to use a cross-validation apprach}
+\item{cv}{(logical) whether to use a k-fold cross validation.}
 
-\item{partition_index}{\code{list} of indices for cross-validation in k-fold.}
+\item{partition_index}{list of indices for cross validation in k-fold.}
 
-\item{k}{\code{numeric}, number of folds for a new k-fold index preparation. Ignored if
-\code{partition_index} is defined.}
+\item{k}{(numeric) number of folds for a new k-fold index preparation.
+Ignored if \code{partition_index} is defined.}
 
-\item{n_threshold}{\code{numeric}, number of threshold values to be used.
+\item{n_threshold}{(numeric) number of threshold values to be used.
 Default = 100.}
 
-\item{keep_coefficients}{\code{logical}, whether to keep model coefficients.
+\item{keep_coefficients}{(logical) whether to keep model coefficients.
 Default = FALSE.}
 
-\item{seed}{\code{numeric}, seed.}
+\item{seed}{(numeric) a seed number.}
 }
 \value{
 data.frame
 }
 \description{
-Model evaluation using entire set of data or a cross-validation approach.
+Model evaluation using entire set of data or a K-fold cross validation
+approach.
 }

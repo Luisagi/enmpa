@@ -4,26 +4,29 @@
 \alias{response_curve}
 \title{Response curve}
 \usage{
-response_curve(model, variable, n = 100, new_data = NULL,
-new_range = NULL, rescale = FALSE)
+response_curve(model, variable, n = 100, new_data = NULL, new_range = NULL,
+               rescale = FALSE)
 }
 \arguments{
-\item{model}{an object of class "glm" or a "list" of them which inherit
-from the class "lm".}
+\item{model}{an object of class \code{glm} or a list of them which inherit
+from the class \code{lm}.}
 
-\item{variable}{\code{character} vector, name or names of the variables to be plotted.}
+\item{variable}{(character) vector, name or names of the variables to be
+plotted.}
 
-\item{n}{\code{numeric}, an integer guiding the number of breaks. Default n = 100}
+\item{n}{(numeric) an integer guiding the number of breaks. Default n = 100}
 
-\item{new_data}{a \code{SpatRaster}, \code{data.frame} or  \code{matrix} of variables
+\item{new_data}{a \code{SpatRaster}, data.frame or  matrix of variables
 representing the range of values for the complete extent of the study area.
-Default = NULL}
+Default = NULL.}
 
-\item{new_range}{\verb{numeric vector}, a numerical vector with the lower and
-upper limits of the variable. Default = NULL}
+\item{new_range}{(numeric) a numerical vector with the lower and upper limits
+of the variable. Default = NULL.}
 
-\item{rescale}{probability 0-1. Default = FALSE.}
+\item{rescale}{(logical) whether to scale the y-axis to the probability
+range (0-1). Default = FALSE.}
 }
 \description{
-The function evaluates the response of the variable and its limits.
+The function plot the response curve to  evaluates the variable of interest
+and its limits.
 }

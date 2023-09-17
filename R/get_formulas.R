@@ -1,23 +1,24 @@
 #' Get formulas according to types of responses needed
 #'
 #' @description
-#' Produces forms in which independent variables can predict the dependent one,
-#' considering response types required. All possible combinations of these
-#' formulas considering combinations of variables can be calculated if needed.
+#' Generate forms based on independent variables that can predict the dependent
+#' variable, taking into account the required response types. If necessary,
+#' calculate all possible combinations of these formulas considering different
+#' variable combinations.
 #'
 #' @usage
 #' get_formulas(dependent, independent, type = "l", all_combinations = TRUE,
-#' minvar=1, maxvar = NULL)
+#'              minvar=1, maxvar = NULL)
 #'
-#' @param dependent `character`, name of dependent variable.
-#' @param independent `character`, a vector of names of independent variables.
-#' @param type `character`, a character string that must contain "l", "p", "q"
+#' @param dependent (character) name of dependent variable.
+#' @param independent (character) a vector of names of independent variables.
+#' @param type (character) a character string that must contain "l", "p", "q"
 #' or a combination of them. l = lineal, q = quadratic,
 #' p = interaction between two variables. Default = "l".
-#' @param all_combinations `logical`, whether to produce all combinations,
+#' @param all_combinations (logical) whether to produce all combinations,
 #' default = TRUE. FALSE returns only the most complex formula defined in type.
-#' @param minvar `numeric` minimum number of features.
-#' @param maxvar `numeric` maximum number of features.
+#' @param minvar (numeric) minimum number of features.
+#' @param maxvar (numeric) maximum number of features.
 #'
 #' @return
 #' A character vector containing the resulting formula(s).

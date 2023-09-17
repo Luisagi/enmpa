@@ -1,7 +1,8 @@
 #' Model validation options
 #'
 #' @description
-#' Model evaluation using entire set of data or a cross-validation approach.
+#' Model evaluation using entire set of data or a K-fold cross validation
+#' approach.
 #'
 #' @usage
 #' model_validation(formula, data, family = binomial(link = "logit"),
@@ -9,19 +10,19 @@
 #'                  k = NULL, n_threshold = 100, keep_coefficients = FALSE,
 #'                  seed = 1)
 #'
-#' @param formula `character`, “expressions” to return a "formula" object class.
-#' @param data `data.frame`, data set to create model
-#' @param family, a family object for models used by functions such as `glm`.
-#' @param weights `numeric` vector with weights for observations.
-#' @param cv `logical`, whether to use a cross-validation apprach
-#' @param partition_index `list` of indices for cross-validation in k-fold.
-#' @param k `numeric`, number of folds for a new k-fold index preparation. Ignored if
-#' `partition_index` is defined.
-#' @param n_threshold `numeric`, number of threshold values to be used.
+#' @param formula (character) `expressions` to return a `formula` object class.
+#' @param data data.frame to create model.
+#' @param family a `family` object for models used by functions such as `glm`.
+#' @param weights (numeric) vector with weights for observations.
+#' @param cv (logical) whether to use a k-fold cross validation.
+#' @param partition_index list of indices for cross validation in k-fold.
+#' @param k (numeric) number of folds for a new k-fold index preparation.
+#' Ignored if `partition_index` is defined.
+#' @param n_threshold (numeric) number of threshold values to be used.
 #' Default = 100.
-#' @param keep_coefficients `logical`, whether to keep model coefficients.
+#' @param keep_coefficients (logical) whether to keep model coefficients.
 #' Default = FALSE.
-#' @param seed `numeric`, seed.
+#' @param seed (numeric) a seed number.
 #'
 #' @return
 #' data.frame
@@ -52,7 +53,7 @@ model_validation <- function(formula, data, family = binomial(link = "logit"),
   f <- as.formula(formula)
 
   gfit <- suppressWarnings(
-    glm(formula = f, family = family, data = data, weights = weights)
+    stats::glm(formula = f, family = family, data = data, weights = weights)
     )
 
   AIC <- gfit$aic
@@ -67,6 +68,7 @@ model_validation <- function(formula, data, family = binomial(link = "logit"),
     out <- data.frame()
 
     for (x in 1:length(partition_index)) {
+
       # Define the train and test data
       data_test <- data[partition_index[[x]], ]
       data_train <- data[-partition_index[[x]], ]
@@ -80,12 +82,12 @@ model_validation <- function(formula, data, family = binomial(link = "logit"),
 
       # Fit using training data
       kfit <- suppressWarnings(
-        glm(formula = f, family = family, data = data_train,
-                  weights = weights_p)
-        )
+        stats::glm(formula = f, family = family, data = data_train,
+                   weights = weights_p)
+      )
 
       # Evaluation using Test Dependent data
-      pred_k <- predict.glm(kfit, data_test[, -1], type = "response")
+      pred_k <- stats::predict.glm(kfit, data_test[, -1], type = "response")
       eval_k <- optimize_metrics(actual = data_test[, 1], predicted = pred_k,
                                  n_threshold = n_threshold)$optimized
 
@@ -95,7 +97,7 @@ model_validation <- function(formula, data, family = binomial(link = "logit"),
     }
 
   } else {
-    pred_global <- predict.glm(gfit, data[, -1], type = "response")
+    pred_global <- stats::predict.glm(gfit, data[, -1], type = "response")
     eval_global <- optimize_metrics(actual = data[, 1],
                                     predicted = pred_global,
                                     n_threshold = n_threshold)$optimized

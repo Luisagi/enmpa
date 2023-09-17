@@ -1,10 +1,10 @@
 #' K-fold data partitioning
 #'
-#' @param data `data.frame` or `matrix` containing at least two columns. The
+#' @param data data.frame or matrix containing at least two columns. The
 #' first column must contain absence and presence records as 0 and 1.
-#' @param k `numeric`, the number of groups that the given data is to be split
+#' @param k (numeric) the number of groups that the given data is to be split
 #' into.
-#' @param seed `numeric`, integer value to specify an initial seed. Default = 1.
+#' @param seed (numeric) integer value to specify an initial seed. Default = 1.
 #'
 #' @return
 #' A list of vectors with the indices of rows corresponding to each fold.

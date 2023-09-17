@@ -13,22 +13,22 @@ predict_selected(
 )
 }
 \arguments{
-\item{x}{the object returned by the function "calibration_glm()".}
+\item{x}{the list object returned by the function \code{enmpa::calibration_glm()}.}
 
-\item{newdata}{a \code{SpatRaster}, \code{data.frame} or \code{matrix} with the new data to
+\item{newdata}{a \code{SpatRaster}, data.frame or matrix with the new data to
 project the predictions.}
 
-\item{clamping}{\code{logical}, this option mitigates the risk of extreme
+\item{clamping}{(logical) this option mitigates the risk of extreme
 extrapolations when making model predictions for environmental conditions
 beyond the calibrated data range. It employs the marginal values within the
 calibration area to predict outcomes for more extreme conditions in transfer
 areas. Default = FALSE.}
 
-\item{type}{the type of prediction required. For a default binomial model
-the default predictions are of log-odds (probabilities on logit scale)
-and type = "response" gives the predicted probabilities.}
+\item{type}{(character) the type of prediction required. For a default
+binomial model the default predictions are of log-odds (probabilities on
+logit scale) and type = "response" gives the predicted probabilities.}
 
-\item{consensus}{\code{logical}, whether to produce three consensus forecasts
+\item{consensus}{(logical) whether to produce three consensus forecasts
 (or “ensemble”) obtained by combining the forecasts from the collection the
 selected models. Consensuses are calculated from the mean, median and weighted
 mean using the wAIC as the weighting metric. An consensus map of variance
@@ -41,5 +41,7 @@ predictions \code{SpatRaster} object, and a consensus predictions \code{SpatRast
 object.
 }
 \description{
-Predict the selected models
+Wrapper function that facilitates the fitting, prediction of those models
+selected as the most robust. In addition, it allows the calculation of
+consensus models, when more than one model are selected.
 }

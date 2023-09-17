@@ -9,61 +9,67 @@ calibration_glm(data, dependent, independent, weights = NULL,
                 minvar = 1, maxvar = NULL, user_formulas = NULL,
                 cv_kfolds = 5, partition_index = NULL, seed = 1,
                 n_threshold = 100, selection_criterion = "TSS",
-                exclude_bimodal = FALSE, tolerance = 0.01, parallel = FALSE,
+                exclude_bimodal = FALSE, tolerance = 0.01,
+                out_dir = "enmpa_calibration", parallel = FALSE,
                 n_cores = NULL, verbose = TRUE)
 }
 \arguments{
 \item{data}{data.frame or matrix of independent variables.}
 
-\item{dependent}{\code{character}, name of dependent variable.}
+\item{dependent}{(character) name of dependent variable.}
 
-\item{independent}{\code{character}, vector of name(s) of independent variable(s).}
+\item{independent}{(character) vector of name(s) of independent variable(s).}
 
-\item{weights}{a vector with the weights for observations.}
+\item{weights}{(numeric) a vector with the weights for observations.}
 
-\item{response_type}{\code{character}, a character string that must contain "l",
+\item{response_type}{(character) a character string that must contain "l",
 "p", "q" or a combination of them. l = lineal, q = quadratic,
 p = interaction between two variables. Default = "l".}
 
-\item{all_combinations}{\code{logical}, whether to produce all combinations of
+\item{all_combinations}{(logical) whether to produce all combinations of
 formulas according to \code{response_type}, default = TRUE. FALSE returns only
 the most complex formula defined in \code{response_type}.}
 
-\item{minvar}{\code{numeric} minimum number of features.}
+\item{minvar}{(numeric) minimum number of features.}
 
-\item{maxvar}{\code{numeric} maximum number of features.}
+\item{maxvar}{(numeric) maximum number of features.}
 
 \item{user_formulas}{a vector of character with the set of formulas to test.
 Default = NULL.}
 
-\item{cv_kfolds}{\code{numeric}, number of folds to use for k-fold
+\item{cv_kfolds}{(numeric) number of folds to use for k-fold
 cross-validation exercises. Default = 5. Ignored if \code{partition_index}
 is defined.}
 
 \item{partition_index}{list of indices for cross-validation in k-fold. It can
 be calculated with enmpa::kfold_partition. Default = NULL.}
 
-\item{seed}{a seed for k-fold partitioning.}
+\item{seed}{(numeric) a seed for k-fold partitioning.}
 
-\item{n_threshold}{\code{logical}, number of thresholds to use to produce
+\item{n_threshold}{(logical) number of thresholds to use to produce
 evaluation metrics. Default = 100,}
 
-\item{selection_criterion}{\code{character}, criterion used to select best models,
+\item{selection_criterion}{(character) criterion used to select best models,
 options are "TSS" and "ESS". Default = "TSS".}
 
-\item{exclude_bimodal}{logical, whether to exclude from selected models those
+\item{exclude_bimodal}{(logical) whether to exclude from selected models those
 with one or more variable presenting concave responses. Default = FALSE.}
 
-\item{tolerance}{\code{numeric}, value to modify the metric used for model filtering
-for model selection if no models meet initial the consideration. Default = 0.01}
+\item{tolerance}{(numeric) value to modify the metric used for model filtering
+for model selection if no models meet initial the consideration.
+Default = 0.01}
 
-\item{parallel}{\code{logical}, whether to run on parallel or sequential.
+\item{out_dir}{(character) output directory name to save the main calibration
+table results. To indicate that you do not want to save it, set the directory
+name as \code{NULL}. Default = "enmpa_calibration".}
+
+\item{parallel}{(logical) whether to run on parallel or sequential.
 Default = FALSE.}
 
-\item{n_cores}{\code{numeric}, number of cores to use. Default = number of free
+\item{n_cores}{(numeric) number of cores to use. Default = number of free
 processors - 1.}
 
-\item{verbose}{\code{logical}, whether to print messages and show progress bar.
+\item{verbose}{(logical) whether to print messages and show progress bar.
 Default = TRUE}
 }
 \value{
@@ -72,7 +78,8 @@ results obtained in cross-validation for all models, original data used, and
 weights.
 }
 \description{
-Model calibration and selection using presence-absence data and GLMs.
+Wrapper function for facilitating model calibration and selection using
+presence-absence data and GLMs.
 }
 \details{
 Model evaluation is done considering the ability to predict presences and

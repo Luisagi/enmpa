@@ -1,22 +1,25 @@
 #' Response curve
 #'
 #' @description
-#' The function evaluates the response of the variable and its limits.
+#' The function plot the response curve to  evaluates the variable of interest
+#' and its limits.
 #'
 #' @usage
-#' response_curve(model, variable, n = 100, new_data = NULL,
-#' new_range = NULL, rescale = FALSE)
+#' response_curve(model, variable, n = 100, new_data = NULL, new_range = NULL,
+#'                rescale = FALSE)
 #
-#' @param model an object of class "glm" or a "list" of them which inherit
-#' from the class "lm".
-#' @param variable `character` vector, name or names of the variables to be plotted.
-#' @param n `numeric`, an integer guiding the number of breaks. Default n = 100
-#' @param new_data a `SpatRaster`, `data.frame` or  `matrix` of variables
+#' @param model an object of class `glm` or a list of them which inherit
+#' from the class `lm`.
+#' @param variable (character) vector, name or names of the variables to be
+#' plotted.
+#' @param n (numeric) an integer guiding the number of breaks. Default n = 100
+#' @param new_data a `SpatRaster`, data.frame or  matrix of variables
 #' representing the range of values for the complete extent of the study area.
-#' Default = NULL
-#' @param new_range `numeric vector`, a numerical vector with the lower and
-#' upper limits of the variable. Default = NULL
-#' @param rescale probability 0-1. Default = FALSE.
+#' Default = NULL.
+#' @param new_range (numeric) a numerical vector with the lower and upper limits
+#' of the variable. Default = NULL.
+#' @param rescale (logical) whether to scale the y-axis to the probability
+#' range (0-1). Default = FALSE.
 #'
 #' @export
 #'

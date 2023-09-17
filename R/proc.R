@@ -6,9 +6,9 @@
 #' proc_enm(test_prediction, prediction, threshold = 5, sample_percentage = 50,
 #'          iterations = 500)
 #'
-#' @param prediction SpatRaster or numeric vector of model predictions to be
+#' @param prediction `SpatRaster` or numeric vector of model predictions to be
 #' evaluated.
-#' @param test_prediction (numeric) vector of model preodictions for testing
+#' @param test_prediction (numeric) vector of model predictions for testing
 #' data.
 #' @param threshold (numeric) value from 0 to 100 to represent the percentage of
 #' potential error (E) that the data could have due to any source of uncertainty.
@@ -25,6 +25,7 @@
 #' \url{http://dx.doi.org/10.1016/j.ecolmodel.2007.11.008}).
 #'
 #' @importFrom terra as.data.frame minmax
+#' @importFrom stats na.omit
 #' @useDynLib enmpa, .registration = TRUE
 #' @export
 
@@ -54,10 +55,10 @@ proc_enm <- function(test_prediction, prediction, threshold = 5,
     prediction <- unlist(terra::as.data.frame(prediction))
   } else {
     mmx <- range(prediction, na.rm = TRUE)
-    prediction <- na.omit(prediction)
+    prediction <- stats::na.omit(prediction)
   }
 
-  test_prediction <- na.omit(test_prediction)
+  test_prediction <- stats::na.omit(test_prediction)
 
   # analysis
   if(mmx[1] == mmx[2]) {
@@ -131,15 +132,18 @@ proc_enm <- function(test_prediction, prediction, threshold = 5,
 
 
 
-# helper to calculate AUC for partrial ROC
+# helper to calculate AUC for partial ROC
 calc_aucDF <- function(big_classpixels, fractional_area, test_prediction,
                        n_data, n_samp, error_sens) {
+
   rowsID <- sample(x = n_data, size = n_samp, replace = TRUE)
   omssion_matrix <- big_classpixels > test_prediction[rowsID]
   sensibility <- 1 - colSums(omssion_matrix) / n_samp
+
   xyTable <- data.frame(fractional_area, sensibility)
   xyTable <- xyTable[-which(xyTable$sensibility <= error_sens), ]
   xyTable <- xyTable[order(xyTable$fractional_area, decreasing = FALSE), ]
+
   auc_pmodel <- trap_roc(xyTable$fractional_area, xyTable$sensibility)
   auc_prand <- trap_roc(xyTable$fractional_area, xyTable$fractional_area)
   auc_table <- data.frame(auc_pmodel, auc_prand,

@@ -4,25 +4,40 @@
 \alias{indep_evaluation}
 \title{Evaluate final models using an independent dataset.}
 \usage{
-indep_evaluation(indep_data, prediction, crs, occ = "sp", xy = c("lon", "lat"))
+indep_evaluation(
+  data,
+  prediction,
+  threshold = NULL,
+  crs,
+  occ = "sp",
+  xy = c("lon", "lat")
+)
 }
 \arguments{
-\item{indep_data}{\code{data.frame}.}
+\item{data}{data.frame or matrix with the occurrence data and spatial
+coordinates.}
 
-\item{prediction}{\code{SpatRaster} object.}
+\item{prediction}{\code{SpatRaster} object of a model prediction.}
 
-\item{crs}{\code{character}, any Coordinate Reference System (CRS)
+\item{threshold}{(numeric) the lowest predicted probability value for an
+occurrence point. This value must be defined for presences-only data.
+Default = NULL.}
+
+\item{crs}{(character) any Coordinate Reference System (CRS)
 that terra::vect() function accepts.}
 
-\item{occ}{\code{character}, column name with the occurrence data.}
+\item{occ}{(character) column name of the \code{data} containing the
+occurrence data.}
 
-\item{xy}{\code{character} vector, field names associated with the geometry data,
-representing the x and y coordinates.}
+\item{xy}{(character) vector with the field names associated with the
+geometry data, representing the x-y coordinates. Default = c("lon", "lat").}
 }
 \value{
-\code{data.frame}
+data.frame containing evaluation results.
 }
 \description{
 The function enables a final evaluation of model predictions using a dataset
-that is independent of the one used for model calibration.
+that is independent of the one used for model calibration. The function is
+designed to detect and calculate different evaluation metrics depending on
+the type of occurrence data available: presences-only or presences-absences.
 }

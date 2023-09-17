@@ -287,3 +287,26 @@ check_if_glm_list <- function(arg) {
   }
 }
 
+# ------------------------------------------------------------------------------
+# Aux to save calibration result tables
+save_cal <- function(x, out_dir = "enmpa_calibration") {
+
+  if (!dir.exists(out_dir)) {
+    dir.create(out_dir)
+  }
+
+  write.table(x$calibration_results, row.names = FALSE, sep = "\t",
+              file = paste0(out_dir, "/1_Full_report.tsv"))
+
+  write.table(x$summary, row.names = FALSE, sep = "\t",
+              file = paste0(out_dir, "/2_Summary.tsv"))
+
+  write.table(x$selected, row.names = FALSE, sep = "\t",
+              file = paste0(out_dir, "/3_Selected_models.tsv"))
+
+  write.table(x$data, row.names = FALSE, sep = "\t",
+              file = paste0(out_dir, "/4_Data_splitted.tsv"))
+
+
+}
+

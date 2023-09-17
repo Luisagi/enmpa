@@ -1,18 +1,22 @@
-
 #' Predict the selected models
 #'
-#' @param x the object returned by the function "calibration_glm()".
-#' @param newdata a `SpatRaster`, `data.frame` or `matrix` with the new data to
+#' @description
+#' Wrapper function that facilitates the fitting, prediction of those models
+#' selected as the most robust. In addition, it allows the calculation of
+#' consensus models, when more than one model are selected.
+#'
+#' @param x the list object returned by the function `enmpa::calibration_glm()`.
+#' @param newdata a `SpatRaster`, data.frame or matrix with the new data to
 #' project the predictions.
-#' @param clamping `logical`, this option mitigates the risk of extreme
+#' @param clamping (logical) this option mitigates the risk of extreme
 #' extrapolations when making model predictions for environmental conditions
 #' beyond the calibrated data range. It employs the marginal values within the
 #' calibration area to predict outcomes for more extreme conditions in transfer
 #' areas. Default = FALSE.
-#' @param type the type of prediction required. For a default binomial model
-#' the default predictions are of log-odds (probabilities on logit scale)
-#' and type = "response" gives the predicted probabilities.
-#' @param consensus `logical`, whether to produce three consensus forecasts
+#' @param type (character) the type of prediction required. For a default
+#' binomial model the default predictions are of log-odds (probabilities on
+#' logit scale) and type = "response" gives the predicted probabilities.
+#' @param consensus (logical) whether to produce three consensus forecasts
 #' (or “ensemble”) obtained by combining the forecasts from the collection the
 #' selected models. Consensuses are calculated from the mean, median and weighted
 #' mean using the wAIC as the weighting metric. An consensus map of variance
@@ -34,7 +38,7 @@ predict_selected <- function(x, newdata, clamping = FALSE,
 
   fs <- x$selected$Formulas
 
-  # model fitting
+  # Model fitting
   fits <- lapply(fs, function(y){
     suppressWarnings(
       glm(formula = as.formula(y), family = binomial(link = "logit"),
@@ -60,9 +64,9 @@ predict_selected <- function(x, newdata, clamping = FALSE,
     names(p) <- paste0("Model_ID_", row.names(x$selected))
   }
 
-  # Consensus forecasts (or “ensemble”) obtained by combining the forecasts from
-  #  the collection of selected models.
-  if (consensus){
+  # Consensus (or “ensemble”) obtained by combining the forecasts from
+  # the selected models.
+  if (consensus  && length(fs) > 1){
     cons_p <- consensus_p(predictions = p, weights = x$selected$AIC_weight)
 
     out <- list(fitted_models = fits, predictions = p, consensus = cons_p)

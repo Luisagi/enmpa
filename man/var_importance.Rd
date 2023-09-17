@@ -7,13 +7,13 @@
 var_importance(x)
 }
 \arguments{
-\item{x}{an object of class "glm" or a "list" of them which inherit
-from the class "lm".}
+\item{x}{an object of class \code{glm} or a list of them which inherit
+from the class \code{lm}.}
 }
 \value{
-\code{data.frame}
+data.frame containing the relative contribution of each variable.
 }
 \description{
-The function calculates the relative importance of the predictor variables
-based on explained deviance.
+It calculates the relative importance of the predictor variables based on
+explained deviance.
 }

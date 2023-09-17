@@ -8,11 +8,11 @@
 #' @usage
 #' optimize_metrics(actual, predicted, n_threshold = 100)
 #'
-#' @param actual `numeric` vector of actual values (0, 1) to be compared to
+#' @param actual (numeric) vector of actual values (0, 1) to be compared to
 #' `predicted` values after thresholding.
-#' @param predicted `numeric` vector of predicted probability values to be
+#' @param predicted (numeric) vector of predicted probability values to be
 #' thresholded and compared to `actual`.
-#' @param n_threshold `numeric`number of threshold values to be used.
+#' @param n_threshold (numeric) number of threshold values to be used.
 #' Default = 100.
 #'
 #' @return

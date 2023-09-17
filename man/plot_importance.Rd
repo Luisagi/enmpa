@@ -14,15 +14,15 @@ plot_importance(
 )
 }
 \arguments{
-\item{x}{\code{data.frame}, output from enmpa::var_importance().}
+\item{x}{data.frame output from enmpa::var_importance().}
 
-\item{xlab}{a label for the x axis.}
+\item{xlab}{(character) a label for the x axis.}
 
-\item{ylab}{a label for the y axis.}
+\item{ylab}{(character) a label for the y axis.}
 
-\item{main}{main title for the plot.}
+\item{main}{(character) main title for the plot.}
 
-\item{extra_info}{\code{logical}, adds extra details to the plot when there is
+\item{extra_info}{(logical) adds extra details to the plot when there is
 more information from more than one model.}
 
 \item{...}{additional arguments passed to graphics::barplot or

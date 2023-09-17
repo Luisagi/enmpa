@@ -7,13 +7,13 @@
 optimize_metrics(actual, predicted, n_threshold = 100)
 }
 \arguments{
-\item{actual}{\code{numeric} vector of actual values (0, 1) to be compared to
+\item{actual}{(numeric) vector of actual values (0, 1) to be compared to
 \code{predicted} values after thresholding.}
 
-\item{predicted}{\code{numeric} vector of predicted probability values to be
+\item{predicted}{(numeric) vector of predicted probability values to be
 thresholded and compared to \code{actual}.}
 
-\item{n_threshold}{\code{numeric}number of threshold values to be used.
+\item{n_threshold}{(numeric) number of threshold values to be used.
 Default = 100.}
 }
 \value{

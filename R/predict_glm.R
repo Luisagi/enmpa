@@ -5,17 +5,17 @@
 #'  allows the clamping option to avoid extrapolation in areas outside the
 #'  calibration area.
 #'
-#' @param model a GLM fitted object.
-#' @param newdata a `data.frame` or `matrix` with the new data to project the
+#' @param model a `glm` fitted object.
+#' @param newdata a data.frame or matrix with the new data to project the
 #' predictions.
-#' @param clamping `logical`, whether to clamp values to a minimum and maximum
+#' @param clamping (logical) whether to clamp values to a minimum and maximum
 #' value, that are establish for the max and min values of the calibration
 #' limits. Default = FALSE.
-#' @param type the type of prediction required. For a default binomial model
-#' the default predictions are of log-odds (probabilities on logit scale)
-#' and type = "response" gives the predicted probabilities.
+#' @param type (character) the type of prediction required. For a default
+#' binomial model the default predictions are of log-odds (probabilities on
+#' logit scale) and type = "response" gives the predicted probabilities.
 #'
-#' @return a SpatRaster object or a vector o probabilities.
+#' @return a `SpatRaster` object or a vector of probabilities.
 #'
 #' @export
 #' @importFrom terra as.data.frame predict setValues
@@ -44,7 +44,7 @@ predict_glm <- function(model, newdata, clamping = FALSE,
       newdata_clam <- terra::as.data.frame(newdata, na.rm = FALSE)
       } else {
         newdata_clam <- newdata
-        }
+      }
 
     # It gets only the variable names used in the fitted model
     modelp <- sapply(colnames(model$data), grepl, names(coef(model)[-1]))
@@ -61,9 +61,9 @@ predict_glm <- function(model, newdata, clamping = FALSE,
 
 
     if (class(newdata)[1] == "SpatRaster") {
-    newdata <- setValues(newdata, newdata_clam)
+      newdata <- setValues(newdata, newdata_clam)
     } else{
-    newdata <- newdata_clam
+      newdata <- newdata_clam
     }
   }
 

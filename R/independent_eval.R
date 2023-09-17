@@ -19,7 +19,7 @@
 #' @param xy  (character) vector with the field names associated with the
 #' geometry data, representing the x-y coordinates. Default = c("lon", "lat").
 #'
-#' @return data.frame containing evaluation results.
+#' @return data.frame or list containing evaluation results.
 #'
 #' @export
 #'

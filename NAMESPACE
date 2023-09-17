@@ -2,7 +2,7 @@
 
 export(calibration_glm)
 export(get_formulas)
-export(indep_evaluation)
+export(independent_eval)
 export(kfold_partition)
 export(model_validation)
 export(niche_signal)

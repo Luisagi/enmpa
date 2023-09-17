@@ -13,7 +13,7 @@ It includes algorithms for data partitioning, model fitting, calibration,
 evaluation, selection, and prediction. Other functions help to explore model
 features as such variable response curves and variable importance.
 }
-\section{Functions in enmpa}{
+\section{Main functions in \code{enmpa}}{
 
 \code{\link{calibration_glm}}, \code{\link{get_formulas}},
 \code{\link{predict_selected}}, \code{\link{response_curve}},

@@ -33,7 +33,7 @@ occurrence data.}
 geometry data, representing the x-y coordinates. Default = c("lon", "lat").}
 }
 \value{
-data.frame containing evaluation results.
+data.frame or list containing evaluation results.
 }
 \description{
 The function enables a final evaluation of model predictions using a dataset

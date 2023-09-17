@@ -75,12 +75,16 @@ independent_eval <- function(data, prediction, threshold = NULL,
       tp <- sum(obs == 1)                # total real positives
       oe <- fn / tp                      # Omission error
 
-      oe_out <- data.frame(omission_error = oe, threshold = threshold)
-
       # pROC
       proc <- proc_enm(test_prediction = prd, prediction = prediction)
 
-      return(list(omission_error = oe_out, partial_ROC = proc[[1]]))
+
+      oe_out <- data.frame(omission_error = oe,
+                           threshold = threshold,
+                           Mean_AUC_ratio_at_5 = proc$pROC_summary[[1]],
+                           pval_pROC = proc$pROC_summary[[2]])
+
+      return(oe_out)
 
     }
 

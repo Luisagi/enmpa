@@ -1,6 +1,6 @@
 #' Plot variable importance
 #'
-#' @param x data.frame output from \code{\link{enmpa::var_importance}}.
+#' @param x data.frame output from \code{\link{var_importance}}.
 #' @param xlab (character) a label for the x axis.
 #' @param ylab (character) a label for the y axis.
 #' @param main (character) main title for the plot.
@@ -32,9 +32,13 @@ plot_importance <- function(x,
   # Check if single or multiple models
   if ("Models" %in% colnames(x)) {
 
+    # sort predictors by importance
+    sort_p <- with(x, reorder(predictor, contribution, median,
+                               decreasing = TRUE)
+                    )
+
     # Create a list of arguments to pass to boxplot
-    boxplot_args <- list(formula = contribution ~ predictor,
-                         data = x,
+    boxplot_args <- list(formula = x$contribution ~ sort_p,
                          main = main,
                          xlab= xlab,
                          ylab = ylab,
@@ -47,8 +51,8 @@ plot_importance <- function(x,
     if (extra_info){
 
       #Calculate means and counts per group
-      means  <- tapply(x$contribution, x$predictor, mean)
-      counts <- tapply(x$contribution, x$predictor, length)
+      means  <- tapply(x$contribution, x$predictor, mean)[levels(sort_p)]
+      counts <- tapply(x$contribution, x$predictor, length)[levels(sort_p)]
 
       # Common y coordinate for text labels in the upper part of the plot
       text_y <- max(x$contribution) + 0.15

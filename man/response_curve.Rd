@@ -4,27 +4,32 @@
 \alias{response_curve}
 \title{Response curve}
 \usage{
-response_curve(model, variable, n = 100, new_data = NULL, new_range = NULL,
-               rescale = FALSE)
+response_curve(model, variable, n = 100, new_data = NULL, extrapolate = FALSE,
+               xlab = NULL, ylab = "Probability", col = "red", ...)
 }
 \arguments{
 \item{model}{an object of class \code{glm} or a list of them which inherit
 from the class \code{lm}.}
 
-\item{variable}{(character) vector, name or names of the variables to be
-plotted.}
+\item{variable}{(character) name of the variables to be plotted.}
 
 \item{n}{(numeric) an integer guiding the number of breaks. Default n = 100}
 
 \item{new_data}{a \code{SpatRaster}, data.frame or  matrix of variables
-representing the range of values for the complete extent of the study area.
-Default = NULL.}
+representing the range of values for the complete extent in an area of
+interest. Default = NULL.}
 
-\item{new_range}{(numeric) a numerical vector with the lower and upper limits
-of the variable. Default = NULL.}
+\item{extrapolate}{(logical) whether to allow extrapolation to study the
+behavior of the response outside the calibration limits. Ignored if \code{new_data}
+is defined.}
 
-\item{rescale}{(logical) whether to scale the y-axis to the probability
-range (0-1). Default = FALSE.}
+\item{xlab}{(character) a label for the x axis.}
+
+\item{ylab}{(character) a label for the y axis.}
+
+\item{col}{(character) color for lines.}
+
+\item{...}{additional arguments passed to \code{\link[graphics]{plot}}.}
 }
 \description{
 The function plot the response curve to  evaluates the variable of interest

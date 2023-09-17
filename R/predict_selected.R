@@ -5,8 +5,7 @@
 #' selected as the most robust. In addition, it allows the calculation of
 #' consensus models, when more than one model are selected.
 #'
-#' @param x the list object returned by the function
-#' \code{\link{enmpa::calibration_glm}}.
+#' @param x a list of fitting models obtained by \code{\link{fit_glm}}.
 #' @param newdata a `SpatRaster`, data.frame or matrix with the new data to
 #' project the predictions.
 #' @param clamping (logical) this option mitigates the risk of extreme
@@ -19,63 +18,50 @@
 #' logit scale) and type = "response" gives the predicted probabilities.
 #' @param consensus (logical) whether to produce three consensus forecasts
 #' (or “ensemble”) obtained by combining the forecasts from the collection the
-#' selected models. Consensuses are calculated from the mean, median and weighted
-#' mean using the wAIC as the weighting metric. An consensus map of variance
+#' selected models. By deafult consensuses are calculated from the mean and
+#' median. To calculated weighted mean user must provide a weighting metric.
+#' It is recommended the wAIC. Additionally, an consensus map of variance
 #' is also calculated to measure the amount of variability or disagreement among
 #' individuals consensus. Default = TRUE.
+#'@param consensus_weights (numeric) vector with the metric to calculate a
+#'weighted average consensus model. It is recommended the wAIC.
 #'
 #' @return
-#' A list that includes a second list of fitting models, an individual model
-#' predictions `SpatRaster` object, and a consensus predictions `SpatRaster`
-#' object.
+#' An individual model predictions `SpatRaster` object,
+#' and a consensus predictions `SpatRaster` object.
 #'
 #' @export
 #'
-#' @importFrom stats glm var median
 #' @importFrom terra rast
+#' @importFrom stats var median
 
 predict_selected <- function(x, newdata, clamping = FALSE,
-                             type = "response", consensus = TRUE){
+                             type = "response", consensus = TRUE,
+                             consensus_weights = NULL){
 
-  fs <- x$selected$Formulas
-
-  # Model fitting
-  fits <- lapply(fs, function(y){
-    suppressWarnings(
-      glm(formula = as.formula(y), family = binomial(link = "logit"),
-          data = x$data,
-          weights = x$weights)
-    )
-  })
-
-  names(fits) <- paste0("Model_ID_", rownames(x$selected))
 
   # Obtain the predicted values (p) for each selected model
-  p <- lapply( fits, function(y){
+  p <- lapply( x, function(y){
     predict_glm(y, newdata, clamping = clamping, type = type)
     })
 
 
-  # Name models
   if (class(newdata)[1] == "SpatRaster") {
     p <- terra::rast(p)
-    names(p) <- paste0("Model_ID_", row.names(x$selected))
-
-  } else{
-    names(p) <- paste0("Model_ID_", row.names(x$selected))
   }
 
   # Consensus (or “ensemble”) obtained by combining the forecasts from
   # the selected models.
-  if (consensus  && length(fs) > 1){
-    cons_p <- consensus_p(predictions = p, weights = x$selected$AIC_weight)
 
-    out <- list(fitted_models = fits, predictions = p, consensus = cons_p)
+  if (consensus  && length(x) > 1 && class(newdata)[1] == "SpatRaster"){
+
+    cons_p <- consensus_p(predictions = p, weights = consensus_weights)
+    out <- list(predictions = p, consensus = cons_p)
     return(out)
 
   } else {
 
-    out <- list(fitted_models = fits, predictions = p)
+    out <- list(predictions = p)
     return(out)
   }
 }

@@ -60,7 +60,7 @@ var_importance_ind <- function(model){
 # aux function to get the individual response of a variable keeping constant
 # the others predictors
 response <- function(model, variable, n = 100, new_data = NULL,
-                     new_range = NULL) {
+                     extrapolate = FALSE) {
 
   # initial tests
   if (missing(model) | missing(variable)) {
@@ -92,20 +92,31 @@ response <- function(model, variable, n = 100, new_data = NULL,
   # Get the average of all variables
   means <- apply(cal_data, 2, FUN = mean)
 
-  # Range variable in all the extent
-  if (is.null(new_data) & is.null(new_range)) {
-    rangev <- range(cal_data[, variable])
+
+  if (is.null(new_data)) {
+
+    if (extrapolate){
+
+      rr <- range(cal_data[, variable]) # range of the calibration data
+      extension <- 0.11 * diff(rr)
+
+      l_limit <- rr[1] - extension
+      u_limit <- rr[2] + extension
+
+      rangev <- c(l_limit, u_limit)
+
+    } else {
+      rangev <- range(cal_data[, variable])
+    }
 
   } else {
-    if (!is.null(new_range)) {
-      rangev <- new_range
+
+    if (class(new_data)[1] == "SpatRaster") {
+      rangev <- terra::minmax(new_data[[variable]])
     } else {
-      if (class(new_data)[1] == "SpatRaster") {
-        rangev <- terra::minmax(new_data[[variable]])
-      } else {
-        rangev <- range(new_data[, variable])
-      }
+      rangev <- range(new_data[, variable])
     }
+
   }
 
   newvar <- seq(rangev[1], rangev[2], length = n)
@@ -126,7 +137,7 @@ response <- function(model, variable, n = 100, new_data = NULL,
 
 # Response curve for a single model
 response_curve_ind <- function(model, variable, n = 100, new_data = NULL,
-                           new_range = NULL, rescale = FALSE) {
+                               xlab = NULL, ylab = NULL, col = NULL, ...) {
 
   # initial tests
   if (missing(model) | missing(variable)) {
@@ -141,21 +152,22 @@ response_curve_ind <- function(model, variable, n = 100, new_data = NULL,
 
 
   response_out <- response(model = model, variable = variable, n = n,
-                           new_data = new_data, new_range = new_range)
+                           new_data = new_data)
 
   limits <- range(model$data[,variable])
 
-  if (rescale){
-    # Plotting curve
-    plot(response_out[, variable], response_out$predicted,
-         type = "l", ylim = c(0, 1), xlab = variable, ylab = "Probability",
-         col = "red")
+  ## Plotting curve
+  # Create a list of arguments to pass to the plot function
+  plotcurve_args <- list(x = response_out[, variable],
+                         y = response_out$predicted,
+                         type = "l",
+                         xlab= xlab,
+                         ylab = ylab,
+                         col = col,
+                         ...)
 
-  } else{
-    # Plotting curve
-    plot(response_out[, variable], response_out$predicted, type = "l",
-         xlab = variable, ylab = "Probability",  col = "red")
-  }
+  # plot using do.call()
+  do.call(plot, plotcurve_args)
 
   abline(v = limits,
          col = c("black", "black"),
@@ -166,7 +178,7 @@ response_curve_ind <- function(model, variable, n = 100, new_data = NULL,
 
 # Consensus response curve
 response_curve_cons <- function(model, variable, n = 100, new_data = NULL,
-                                new_range = NULL, rescale = FALSE) {
+                                xlab = NULL, ylab = NULL, col = NULL, ...) {
 
   # initial tests
   if (missing(model) | missing(variable)) {
@@ -221,16 +233,18 @@ response_curve_cons <- function(model, variable, n = 100, new_data = NULL,
   lower_ci <- y_pred - 1.96 * pred$se.fit
   upper_ci <- y_pred + 1.96 * pred$se.fit
 
-  # Plot the scatter plot
-  if (rescale){
-    # Plotting curve
-    plot(x, y, xlab = variable, ylab = "Probability", type = "n", ylim = c(0, 1))
 
-  } else{
-    # Plotting curve
-    plot(x, y, xlab = variable, ylab = "Probability", type = "n")
+  ## Plotting curve
+  # Create a list of arguments to pass to the plot function
+  plotcurve_args <- list(x = x,
+                         y = y,
+                         type = "n",
+                         xlab= xlab,
+                         ylab = ylab,
+                         ...)
 
-  }
+  # plot using do.call()
+  do.call(plot, plotcurve_args)
 
   # Create shading interval using polygon
   x_polygon <- c(x_seq, rev(x_seq))
@@ -238,7 +252,7 @@ response_curve_cons <- function(model, variable, n = 100, new_data = NULL,
   polygon(x_polygon, y_polygon, col = "lightgrey", border = NA)
 
   # Add the regression curve
-  lines(x_seq, y_pred, col = "red")
+  lines(x_seq, y_pred, col = col)
 
   # It adds the calibration limits
   abline(v = limits,
@@ -257,24 +271,46 @@ response_curve_cons <- function(model, variable, n = 100, new_data = NULL,
 
 consensus_p <- function(predictions, weights = NULL){
 
-  # By default we use the wAIC to calculate the consensus weighted average map.
 
-  # Mean
-  c_mean <- terra::app(predictions, mean)
+  if (!is.null(weights)) {
 
-  # Median
-  c_media <- terra::app(predictions, median)
+    if (sum(weights) != 1){
+      stop("The sum of the entered weights must be equal to 1 to calculate the weighted average.")
 
-  # Weighted average
-  c_wmean <- terra::app(predictions*weights, sum)
+      } else {
+        # Mean
+        c_mean <- terra::app(predictions, mean)
 
-  # Variance between the consensus predictions
-  c_var <- terra::app(c(c_mean, c_media, c_wmean), var)
+        # Median
+        c_media <- terra::app(predictions, median)
 
-  cons <- c(c_mean, c_media, c_wmean, c_var)
-  names(cons) <- c("Mean", "Median", "Weighted_average",
-                   "Consensus_variance")
+        # Weighted average
+        c_wmean <- terra::app(predictions*weights, sum)
+
+        # Variance between the consensus predictions
+        c_var <- terra::app(c(c_mean, c_media, c_wmean), var)
+
+        cons <- c(c_mean, c_media, c_wmean, c_var)
+        names(cons) <- c("Mean", "Median", "Weighted_average",
+                         "Consensus_variance")
+    }
+  } else {
+
+    # Mean
+    c_mean <- terra::app(predictions, mean)
+
+    # Median
+    c_media <- terra::app(predictions, median)
+
+    # Variance between the consensus predictions
+    c_var <- terra::app(c(c_mean, c_media), var)
+
+    cons <- c(c_mean, c_media, c_var)
+    names(cons) <- c("Mean", "Median", "Consensus_variance")
+    }
+
   return(cons)
+
 }
 
 # ------------------------------------------------------------------------------
@@ -295,17 +331,17 @@ save_cal <- function(x, out_dir = "enmpa_calibration") {
     dir.create(out_dir)
   }
 
-  write.table(x$calibration_results, row.names = FALSE, sep = "\t",
-              file = paste0(out_dir, "/1_Full_report.tsv"))
+  write.table(x$calibration_results, row.names = FALSE, sep = ",",
+              file = paste0(out_dir, "/1_Full_report.csv"))
 
-  write.table(x$summary, row.names = FALSE, sep = "\t",
-              file = paste0(out_dir, "/2_Summary.tsv"))
+  write.table(x$summary, row.names = FALSE, sep = ",",
+              file = paste0(out_dir, "/2_Summary.csv"))
 
-  write.table(x$selected, row.names = FALSE, sep = "\t",
-              file = paste0(out_dir, "/3_Selected_models.tsv"))
+  write.table(x$selected, row.names = FALSE, sep = ";",
+              file = paste0(out_dir, "/3_Selected_models.csv"))
 
-  write.table(x$data, row.names = FALSE, sep = "\t",
-              file = paste0(out_dir, "/4_Data_splitted.tsv"))
+  write.table(x$data, row.names = FALSE, sep = ",",
+              file = paste0(out_dir, "/4_Data_splitted.csv"))
 
 
 }

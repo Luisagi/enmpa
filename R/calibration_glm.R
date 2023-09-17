@@ -11,7 +11,7 @@
 #'                 cv_kfolds = 5, partition_index = NULL, seed = 1,
 #'                 n_threshold = 100, selection_criterion = "TSS",
 #'                 exclude_bimodal = FALSE, tolerance = 0.01,
-#'                 out_dir = "enmpa_calibration", parallel = FALSE,
+#'                 out_dir = NULL, parallel = FALSE,
 #'                 n_cores = NULL, verbose = TRUE)
 #'
 #' @param data data.frame or matrix of independent variables.
@@ -44,8 +44,7 @@
 #' for model selection if no models meet initial the consideration.
 #' Default = 0.01
 #' @param out_dir (character) output directory name to save the main calibration
-#' table results. To indicate that you do not want to save it, set the directory
-#' name as `NULL`. Default = "enmpa_calibration".
+#' table results. Default = `NULL`.
 #' @param parallel (logical) whether to run on parallel or sequential.
 #' Default = FALSE.
 #' @param n_cores (numeric) number of cores to use. Default = number of free
@@ -81,7 +80,7 @@ calibration_glm <- function(data, dependent, independent, weights = NULL,
                             cv_kfolds = 5, partition_index = NULL, seed = 1,
                             n_threshold = 100, selection_criterion = "TSS",
                             exclude_bimodal = FALSE,  tolerance = 0.01,
-                            out_dir = "enmpa_calibration", parallel = FALSE,
+                            out_dir = NULL, parallel = FALSE,
                             n_cores = NULL, verbose = TRUE) {
 
   # initial tests
@@ -249,9 +248,9 @@ calibration_glm <- function(data, dependent, independent, weights = NULL,
                  data = data_final, weights = weights,
                  kfold_index_partition = data_partition)
 
-  # Save calibration tables
 
-  if (!is.null(out_dir)){
+  # Save calibration tables
+  if (!is.null(out_dir) && is.character(out_dir)){
     save_cal(x = output, out_dir = out_dir)
     }
 

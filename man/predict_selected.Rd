@@ -9,12 +9,12 @@ predict_selected(
   newdata,
   clamping = FALSE,
   type = "response",
-  consensus = TRUE
+  consensus = TRUE,
+  consensus_weights = NULL
 )
 }
 \arguments{
-\item{x}{the list object returned by the function
-\code{\link{enmpa::calibration_glm}}.}
+\item{x}{a list of fitting models obtained by \code{\link{fit_glm}}.}
 
 \item{newdata}{a \code{SpatRaster}, data.frame or matrix with the new data to
 project the predictions.}
@@ -31,15 +31,18 @@ logit scale) and type = "response" gives the predicted probabilities.}
 
 \item{consensus}{(logical) whether to produce three consensus forecasts
 (or “ensemble”) obtained by combining the forecasts from the collection the
-selected models. Consensuses are calculated from the mean, median and weighted
-mean using the wAIC as the weighting metric. An consensus map of variance
+selected models. By deafult consensuses are calculated from the mean and
+median. To calculated weighted mean user must provide a weighting metric.
+It is recommended the wAIC. Additionally, an consensus map of variance
 is also calculated to measure the amount of variability or disagreement among
 individuals consensus. Default = TRUE.}
+
+\item{consensus_weights}{(numeric) vector with the metric to calculate a
+weighted average consensus model. It is recommended the wAIC.}
 }
 \value{
-A list that includes a second list of fitting models, an individual model
-predictions \code{SpatRaster} object, and a consensus predictions \code{SpatRaster}
-object.
+An individual model predictions \code{SpatRaster} object,
+and a consensus predictions \code{SpatRaster} object.
 }
 \description{
 Wrapper function that facilitates the fitting, prediction of those models

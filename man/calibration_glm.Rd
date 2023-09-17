@@ -10,7 +10,7 @@ calibration_glm(data, dependent, independent, weights = NULL,
                 cv_kfolds = 5, partition_index = NULL, seed = 1,
                 n_threshold = 100, selection_criterion = "TSS",
                 exclude_bimodal = FALSE, tolerance = 0.01,
-                out_dir = "enmpa_calibration", parallel = FALSE,
+                out_dir = NULL, parallel = FALSE,
                 n_cores = NULL, verbose = TRUE)
 }
 \arguments{
@@ -60,8 +60,7 @@ for model selection if no models meet initial the consideration.
 Default = 0.01}
 
 \item{out_dir}{(character) output directory name to save the main calibration
-table results. To indicate that you do not want to save it, set the directory
-name as \code{NULL}. Default = "enmpa_calibration".}
+table results. Default = \code{NULL}.}
 
 \item{parallel}{(logical) whether to run on parallel or sequential.
 Default = FALSE.}

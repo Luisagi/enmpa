@@ -14,7 +14,7 @@ plot_importance(
 )
 }
 \arguments{
-\item{x}{data.frame output from \code{\link{enmpa::var_importance}}.}
+\item{x}{data.frame output from \code{\link{var_importance}}.}
 
 \item{xlab}{(character) a label for the x axis.}
 

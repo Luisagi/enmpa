@@ -136,6 +136,7 @@ Results are returned as a list containing:
 -   selected models `*$selected`
 -   a summary of statistics for all models `*$summary`
 -   results obtained from cross-validation for all models `*$calibration_results`
+-   input data with k-fold partition used `*$data`
 
 <br>
 
@@ -150,6 +151,7 @@ cal_res <- enmpa::calibration_glm(data = pa_data,
                                   selection_criterion = "TSS",
                                   cv_kfolds = 5)
 ```
+
 
 Process results:
 
@@ -207,6 +209,7 @@ enmpa::response_curve(model = preds$fitted_models$Model_ID_1,
 
 
 ```
+
 ```{r figures-rcurve_model_ID_2, fig.show="hold", out.width="50%", cache=TRUE}
 # Response Curves for Bio_1 and Bio_2, second selected model 
 enmpa::response_curve(model = preds$fitted_models$Model_ID_2,
@@ -229,12 +232,6 @@ enmpa::response_curve(model = preds$fitted_models,
 The variable importance or contribution to models can be calculated as a
 function of the relative deviance explained by each predictor.
 
-Model summary:
-
-```{r cache=TRUE}
-summary(preds$fitted_models$Model_ID_1)
-```
-
 Analysis of Deviance for the first selected model:
 
 ```{r warning=FALSE, cache=TRUE}
@@ -244,16 +241,71 @@ anova(preds$fitted_models$Model_ID_1, test = "Chi")
 Using a function from `enmpa` you can explore variable importance in terms of
 contribution.
 
-```{r warning=FALSE, cache=TRUE, out.width="70%"}
+```{r warning=FALSE}
 # Relative contribution of the deviance explained for the first model
-enmpa::var_importance(preds$fitted_models$Model_ID_1, plot = T)
+enmpa::var_importance(preds$fitted_models$Model_ID_1)
 
 ```
 
 The function also allows to plot the contributions of the variables for the two
 models together which can help with the interpretations:
 
-```{r warning=FALSE, figures-var_importance, fig.show="hold", out.width="70%", cache=TRUE}
+```{r warning=FALSE}
 # Relative contribution of the deviance explained
-enmpa::var_importance(preds$fitted_models, plot = T)
+(vi_both_models <- enmpa::var_importance(preds$fitted_models))
 ```
+
+```{r warning=FALSE, figures-var_importance, fig.show="hold", out.width="70%", cache=TRUE}
+# Plot
+enmpa::plot_importance(vi_both_models, extra_info = TRUE)
+```
+
+### Final model evaluation 
+
+Finally, we will evaluate the final models using the "independent_eval" function.
+Ideally, the model should be validated with an independent data set, but if
+unavailable, the entire initial data set used in the calibration process can be
+used instead.
+
+
+```{r}
+# Load species occurrences of an indepedent dataset
+id_data  <- read.csv(system.file("extdata", "test_data.csv", package = "enmpa"))
+head(id_data)
+```
+
+#####  Evaluation using presence-absence data.
+
+```{r}
+# In this example, we will use the final model calculated as the weighted 
+# average of the two selected models.
+wmean <- preds$consensus$Weighted_average
+
+eval <- independent_eval(data = id_data, prediction = wmean, occ = "Sp", 
+                         crs = "EPSG:4326", xy = c("lon", "lat"))
+
+eval
+```
+
+
+##### Evaluation using presence-only data.
+
+When only presence data is available, the evaluation metrics are based on 
+calculating the omission error and using a partial ROC analysis.
+
+To do this we will have to define a threshold value, which will be the minimum 
+probability of a presence. We can use any of the three threshold values obtained 
+above: ESS, maxTSS or SEN90. 
+
+```{r}
+id_data_po <- id_data[id_data$Sp == 1, ] # presence-only data
+th <- eval[, "Threshold"][3]             # Threshold based in criteria: SEN90
+
+eval2 <- independent_eval(data = id_data_po, prediction = wmean, occ = "Sp",
+                          threshold = th, crs = "EPSG:4326", 
+                          xy = c("lon", "lat"))
+
+eval2
+```
+
+

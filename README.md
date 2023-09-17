@@ -12,6 +12,7 @@ Luis F. Arias-Giraldo, Marlon E. Cobos, A. Townsend Peterson
   - [Consensus models](#consensus-models)
   - [Response Curves](#response-curves)
   - [Variable importance](#variable-importance)
+  - [Final model evaluation](#final-model-evaluation)
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 <!-- badges: start -->
@@ -190,6 +191,7 @@ Results are returned as a list containing:
 - a summary of statistics for all models `*$summary`
 - results obtained from cross-validation for all models
   `*$calibration_results`
+- input data with k-fold partition used `*$data`
 
 <br>
 
@@ -209,7 +211,7 @@ cal_res <- enmpa::calibration_glm(data = pa_data,
 #> Running in Sequential.
 #>   |                                                                              |                                                                      |   0%  |                                                                              |==                                                                    |   3%  |                                                                              |=====                                                                 |   7%  |                                                                              |=======                                                               |  10%  |                                                                              |=========                                                             |  13%  |                                                                              |============                                                          |  17%  |                                                                              |==============                                                        |  20%  |                                                                              |================                                                      |  23%  |                                                                              |===================                                                   |  27%  |                                                                              |=====================                                                 |  30%  |                                                                              |=======================                                               |  33%  |                                                                              |==========================                                            |  37%  |                                                                              |============================                                          |  40%  |                                                                              |==============================                                        |  43%  |                                                                              |=================================                                     |  47%  |                                                                              |===================================                                   |  50%  |                                                                              |=====================================                                 |  53%  |                                                                              |========================================                              |  57%  |                                                                              |==========================================                            |  60%  |                                                                              |============================================                          |  63%  |                                                                              |===============================================                       |  67%  |                                                                              |=================================================                     |  70%  |                                                                              |===================================================                   |  73%  |                                                                              |======================================================                |  77%  |                                                                              |========================================================              |  80%  |                                                                              |==========================================================            |  83%  |                                                                              |=============================================================         |  87%  |                                                                              |===============================================================       |  90%  |                                                                              |=================================================================     |  93%  |                                                                              |====================================================================  |  97%  |                                                                              |======================================================================| 100%
 #> 
-#> Running time: 2.15913414955139
+#> Running time: 1.85819411277771
 #> 
 #> Preparing results...
 ```
@@ -314,39 +316,6 @@ enmpa::response_curve(model = preds$fitted_models,
 The variable importance or contribution to models can be calculated as a
 function of the relative deviance explained by each predictor.
 
-Model summary:
-
-``` r
-summary(preds$fitted_models$Model_ID_1)
-#> 
-#> Call:
-#> glm(formula = as.formula(y), family = binomial(link = "logit"), 
-#>     data = x$data, weights = x$weights)
-#> 
-#> Deviance Residuals: 
-#>     Min       1Q   Median       3Q      Max  
-#> -1.5537  -0.3876  -0.1032  -0.0140   3.4559  
-#> 
-#> Coefficients:
-#>                Estimate Std. Error z value Pr(>|z|)    
-#> (Intercept)  -8.032e+00  9.756e-01  -8.232  < 2e-16 ***
-#> bio_1         9.336e-01  1.276e-01   7.318 2.52e-13 ***
-#> bio_12       -3.322e-03  1.905e-03  -1.744   0.0811 .  
-#> I(bio_1^2)   -3.076e-02  4.576e-03  -6.721 1.81e-11 ***
-#> I(bio_12^2)  -6.626e-06  1.219e-06  -5.434 5.50e-08 ***
-#> bio_1:bio_12  5.988e-04  1.178e-04   5.086 3.66e-07 ***
-#> ---
-#> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-#> 
-#> (Dispersion parameter for binomial family taken to be 1)
-#> 
-#>     Null deviance: 3374.9  on 5626  degrees of freedom
-#> Residual deviance: 2173.7  on 5621  degrees of freedom
-#> AIC: 2185.7
-#> 
-#> Number of Fisher Scoring iterations: 9
-```
-
 Analysis of Deviance for the first selected model:
 
 ``` r
@@ -376,24 +345,21 @@ terms of contribution.
 
 ``` r
 # Relative contribution of the deviance explained for the first model
-enmpa::var_importance(preds$fitted_models$Model_ID_1, plot = T)
+enmpa::var_importance(preds$fitted_models$Model_ID_1)
+#>      predictor contribution cum_contribution
+#> 1        bio_1   0.31901523        0.3190152
+#> 3   I(bio_1^2)   0.28433044        0.6033457
+#> 4  I(bio_12^2)   0.22805823        0.8314039
+#> 5 bio_1:bio_12   0.15250677        0.9839107
+#> 2       bio_12   0.01608933        1.0000000
 ```
 
-<img src="man/figures/README-unnamed-chunk-12-1.png" width="100%" />
-
-    #>      predictor contribution cum_contribution
-    #> 1        bio_1   0.31901523        0.3190152
-    #> 3   I(bio_1^2)   0.28433044        0.6033457
-    #> 4  I(bio_12^2)   0.22805823        0.8314039
-    #> 5 bio_1:bio_12   0.15250677        0.9839107
-    #> 2       bio_12   0.01608933        1.0000000
-
-The function also allows to plot contributions of the two models
-together which can help with interpretations:
+The function also allows to plot the contributions of the variables for
+the two models together which can help with the interpretations:
 
 ``` r
 # Relative contribution of the deviance explained
-enmpa::var_importance(preds$fitted_models, plot = T)
+(vi_both_models <- enmpa::var_importance(preds$fitted_models))
 #>      predictor contribution     Models
 #> 1        bio_1   0.31901523 Model_ID_1
 #> 2   I(bio_1^2)   0.28433044 Model_ID_1
@@ -406,4 +372,79 @@ enmpa::var_importance(preds$fitted_models, plot = T)
 #> 9 bio_1:bio_12   0.14759911 Model_ID_2
 ```
 
+``` r
+# Plot
+enmpa::plot_importance(vi_both_models, extra_info = TRUE)
+```
+
 <img src="man/figures/README-figures-var_importance-1.png" width="70%" />
+
+### Final model evaluation
+
+Finally, we will evaluate the final models using the “independent_eval”
+function. Ideally, the model should be validated with an independent
+data set, but if unavailable, the entire initial data set used in the
+calibration process can be used instead.
+
+``` r
+# Load species occurrences of an indepedent dataset
+id_data  <- read.csv(system.file("extdata", "test_data.csv", package = "enmpa"))
+head(id_data)
+#>   Sp       lon      lat
+#> 1  0 -105.6639 35.81247
+#> 2  0 -107.9354 33.37200
+#> 3  0 -100.3134 48.96018
+#> 4  1 -117.5543 33.62975
+#> 5  0 -120.6168 36.59670
+#> 6  0 -105.3379 40.08928
+```
+
+##### Evaluation using presence-absence data.
+
+``` r
+# In this example, we will use the final model calculated as the weighted 
+# average of the two selected models.
+wmean <- preds$consensus$Weighted_average
+
+eval <- independent_eval(data = id_data, prediction = wmean, occ = "Sp", 
+                         crs = "EPSG:4326", xy = c("lon", "lat"))
+#> The occurrence data contains both presences and absences.
+
+eval
+#>     Threshold_criteria Threshold   ROC_AUC False_positive_rate Accuracy
+#> 226                ESS 0.1500930 0.9570991          0.08988764     0.91
+#> 192             maxTSS 0.1274123 0.9570991          0.10112360     0.91
+#> 210              SEN90 0.1394197 0.9570991          0.10112360     0.90
+#>     Sensitivity Specificity       TSS
+#> 226   0.9090909   0.9101124 0.8192033
+#> 192   1.0000000   0.8988764 0.8988764
+#> 210   0.9090909   0.8988764 0.8079673
+```
+
+##### Evaluation using presence-only data.
+
+When only presence data is available, the evaluation metrics are based
+on calculating the omission error and using a partial ROC analysis.
+
+To do this we will have to define a threshold value, which will be the
+minimum probability of a presence. We can use any of the three threshold
+values obtained above: ESS, maxTSS or SEN90.
+
+``` r
+id_data_po <- id_data[id_data$Sp == 1, ] # presence-only data
+th <- eval[, "Threshold"][3]             # Threshold based in criteria: SEN90
+
+eval2 <- independent_eval(data = id_data_po, prediction = wmean, occ = "Sp",
+                          threshold = th, crs = "EPSG:4326", 
+                          xy = c("lon", "lat"))
+#> The occurrence data contains only presences.
+
+eval2
+#> $omission_error
+#>   omission_error threshold
+#> 1     0.09090909 0.1394197
+#> 
+#> $partial_ROC
+#> Mean_AUC_ratio_at_5%            pval_pROC 
+#>             1.634595             0.000000
+```

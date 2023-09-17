@@ -5,7 +5,8 @@
 #' selected as the most robust. In addition, it allows the calculation of
 #' consensus models, when more than one model are selected.
 #'
-#' @param x the list object returned by the function `enmpa::calibration_glm()`.
+#' @param x the list object returned by the function
+#' \code{\link{enmpa::calibration_glm}}.
 #' @param newdata a `SpatRaster`, data.frame or matrix with the new data to
 #' project the predictions.
 #' @param clamping (logical) this option mitigates the risk of extreme

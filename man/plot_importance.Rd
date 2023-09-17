@@ -14,7 +14,7 @@ plot_importance(
 )
 }
 \arguments{
-\item{x}{data.frame output from enmpa::var_importance().}
+\item{x}{data.frame output from \code{\link{enmpa::var_importance}}.}
 
 \item{xlab}{(character) a label for the x axis.}
 
@@ -25,8 +25,8 @@ plot_importance(
 \item{extra_info}{(logical) adds extra details to the plot when there is
 more information from more than one model.}
 
-\item{...}{additional arguments passed to graphics::barplot or
-graphics::boxplot.}
+\item{...}{additional arguments passed to \code{\link[graphics]{barplot}} or
+\code{\link[graphics]{boxplot}}.}
 }
 \description{
 Plot variable importance

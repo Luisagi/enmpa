@@ -13,7 +13,7 @@
 #' occurrence point. This value must be defined for presences-only data.
 #' Default = NULL.
 #' @param crs (character) any Coordinate Reference System (CRS)
-#' that terra::vect() function accepts.
+#' that \code{\link[terra]{vect}} function from `terra` accepts.
 #' @param occ (character) column name of the `data` containing the
 #' occurrence data.
 #' @param xy  (character) vector with the field names associated with the

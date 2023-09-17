@@ -24,7 +24,7 @@ occurrence point. This value must be defined for presences-only data.
 Default = NULL.}
 
 \item{crs}{(character) any Coordinate Reference System (CRS)
-that terra::vect() function accepts.}
+that \code{\link[terra]{vect}} function from \code{terra} accepts.}
 
 \item{occ}{(character) column name of the \code{data} containing the
 occurrence data.}

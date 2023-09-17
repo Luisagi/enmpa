@@ -13,7 +13,8 @@ predict_selected(
 )
 }
 \arguments{
-\item{x}{the list object returned by the function \code{enmpa::calibration_glm()}.}
+\item{x}{the list object returned by the function
+\code{\link{enmpa::calibration_glm}}.}
 
 \item{newdata}{a \code{SpatRaster}, data.frame or matrix with the new data to
 project the predictions.}

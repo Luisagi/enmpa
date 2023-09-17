@@ -1,13 +1,13 @@
 #' Plot variable importance
 #'
-#' @param x data.frame output from enmpa::var_importance().
+#' @param x data.frame output from \code{\link{enmpa::var_importance}}.
 #' @param xlab (character) a label for the x axis.
 #' @param ylab (character) a label for the y axis.
 #' @param main (character) main title for the plot.
 #' @param extra_info (logical) adds extra details to the plot when there is
 #' more information from more than one model.
-#' @param ... additional arguments passed to graphics::barplot or
-#' graphics::boxplot.
+#' @param ... additional arguments passed to \code{\link[graphics]{barplot}} or
+#' \code{\link[graphics]{boxplot}}.
 #'
 #' @export
 #'

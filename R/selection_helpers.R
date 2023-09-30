@@ -41,18 +41,27 @@ evaluation_stats <- function(evaluation_results, bimodal_toexclude = FALSE,
   colnames(stats)[c(17, 18)] <- c("Parameters", "AIC")
   colnames(stats) <- gsub(".", "_", colnames(stats), fixed = TRUE)
 
+  # sort data by formula (more simple to complex)
+  ii <- order(factor(stats$Formulas,
+                     levels = unique(evaluation_results$Formulas)))
+  stats <- stats[ii,]
+  rownames(stats) <- 1:nrow(stats)
+
   # delta and weight of AIC for the aggregated data
-  stats$Delta_AIC <- stats$AIC - min(stats$AIC, na.rm = TRUE)
-  stats$AIC_weight <- exp(-0.5 * stats$Delta_AIC)
-  stats$AIC_weight <- stats$AIC_weight / sum(stats$AIC_weight, na.rm = TRUE)
+  AICs <- stats[!duplicated(stats$Formulas), "AIC"] # per individual model
+  Delta_AIC <- AICs - min(AICs, na.rm = TRUE)
+  AIC_weight <- exp(-0.5 * Delta_AIC)
+  AIC_weight <- AIC_weight / sum(AIC_weight, na.rm = TRUE)
+
+  stats$Delta_AIC <- rep(Delta_AIC,
+                         each = length(unique(stats$Threshold_criteria)))
+
+  stats$AIC_weight <- rep(AIC_weight,
+                          each = length(unique(stats$Threshold_criteria)))
 
   if (bimodal_toexclude) {
     stats$Concave_responses <- xy[[1]][, 3]
   }
-
-  # sort by formula
-  stats <- stats[order(stats$Formulas), ]
-  rownames(stats) <- 1:nrow(stats)
 
   return(stats)
 }

@@ -30,7 +30,6 @@
 #' @importFrom terra minmax
 #' @importFrom mgcv gam
 
-
 response_curve <- function(model, variable, n = 100, new_data = NULL,
                            extrapolate = FALSE, xlab = NULL,
                            ylab = "Probability", col = "red", ...) {

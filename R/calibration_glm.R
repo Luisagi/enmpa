@@ -106,14 +106,21 @@ calibration_glm <- function(data, dependent, independent, weights = NULL,
   ## 2. Formula combination
 
   if (is.null(user_formulas)) {
-    message("\nEstimating formulas combinations for evaluation.")
+
+    if (verbose == TRUE) {
+      message("\nEstimating formulas combinations for evaluation.")
+    }
 
     user_formulas <- get_formulas(dependent = dependent, independent = independent,
                                   type = response_type, minvar=minvar, maxvar = maxvar,
                                   all_combinations = all_combinations)
 
   } else {
+
+    if (verbose == TRUE) {
     message("\nUsing user-defined formulas.")
+    }
+
   }
 
   if (verbose == TRUE) {

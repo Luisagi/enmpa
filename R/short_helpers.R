@@ -137,7 +137,8 @@ response <- function(model, variable, n = 100, new_data = NULL,
 
 # Response curve for a single model
 response_curve_ind <- function(model, variable, n = 100, new_data = NULL,
-                               xlab = NULL, ylab = NULL, col = NULL, ...) {
+                               extrapolate = FALSE, xlab = NULL, ylab = NULL,
+                               col = NULL, ...) {
 
   # initial tests
   if (missing(model) | missing(variable)) {
@@ -152,7 +153,7 @@ response_curve_ind <- function(model, variable, n = 100, new_data = NULL,
 
 
   response_out <- response(model = model, variable = variable, n = n,
-                           new_data = new_data)
+                           extrapolate = extrapolate, new_data = new_data)
 
   limits <- range(model$data[,variable])
 
@@ -177,8 +178,9 @@ response_curve_ind <- function(model, variable, n = 100, new_data = NULL,
 }
 
 # Consensus response curve
-response_curve_cons <- function(model, variable, n = 100, new_data = NULL,
-                                xlab = NULL, ylab = NULL, col = NULL, ...) {
+response_curve_cons <- function(model, variable, n = 100, extrapolate = FALSE,
+                                new_data = NULL, xlab = NULL, ylab = NULL,
+                                col = NULL, ...) {
 
   # initial tests
   if (missing(model) | missing(variable)) {
@@ -207,7 +209,7 @@ response_curve_cons <- function(model, variable, n = 100, new_data = NULL,
       variable_q <- c(variable, paste0("I(", variable,"^2)")) # find the quadratic too
 
       if ( sum(variable_q %in% names(coefs))){
-        x <- response(x, variable, new_data = new_data)
+        x <- response(x, variable, new_data = new_data, extrapolate = extrapolate)
         return(x)
       } else{
         return(NULL)

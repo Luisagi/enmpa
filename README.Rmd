@@ -8,6 +8,8 @@ output:
 editor_options: 
   markdown: 
     wrap: 80
+link-citations: true
+bibliography: references.bib
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -81,34 +83,59 @@ terra::plot(env_vars, mar = c(0, 0, 0, 5))
 
 <br>
 
+### Detecting niche signals
+
+To assure the precision of the variables utilized in our niche models, we
+implemented in this package the methodology developed by [@cobos2022] that 
+focuses on identifying niche signals in presence-absence data. By characterizing
+the sampling universe, this approach can determine whether pathogen detection
+is random or linked to particular environmental factors.
+
+```{r message=FALSE}
+sn_bio1  <- enmpa::niche_signal(data = pa_data, variables = "bio_1", 
+                               condition = "Sp", method = "univariate")
+
+sn_bio12 <- enmpa::niche_signal(data = pa_data, variables = "bio_12",
+                                condition = "Sp", method = "univariate")
+```
+
+
+```{r figures-niche_signal, fig.show="hold", out.width="50%", cache=TRUE}
+
+enmpa::plot_niche_signal(sn_bio1, variables = "bio_1")
+enmpa::plot_niche_signal(sn_bio12, variables = "bio_12")
+```
+
+Based on the univariate test results of the variables bio_1 and bio_12, there
+appears to be a distinct pattern or response to environmental gradients that 
+determines the presence of the species, rather than random occurrences. For
+instance, in our example, the species tends to occur in areas with higher annual
+mean temperature values (bio_1) as evidenced by the observed value (blue vertical
+dotted line) falling within the higher tail of the null distribution (H0). 
+Conversely, the observed values for annual precipitation (bio_12) were found in
+the lower tail of the null distribution, indicating a preference for areas with
+lower precipitation. Notably, the observed values were outside the confidence 
+limits of the null distribution in both cases. Therefore, it can be concluded
+that both variables are useful in modeling the species' niche. For more 
+information, see [@cobos2022].
+
+
+
+
+<br>
+
 ### Model formulas
 
 With `enmpa` you have the possibility to explore multiple model formulas derived
 from combinations of variables considering linear (l), quadratic (q), and
 product (p) responses. Product refers to pair interactions of variables.
 
-Linear responses:
-
-```{r cache=TRUE}
-enmpa::get_formulas(dependent = "Sp", 
-                    independent = c("bio_1", "bio_12"),
-                    type = "l")
-```
-
 Linear + quadratic responses:
 
 ```{r cache=TRUE}
 enmpa::get_formulas(dependent = "Sp", 
-                    independent = c("bio_1", "bio_12"), 
+                    independent = c("bio_1", "bio_12"),  
                     type = "lq")
-```
-
-Linear + quadratic + products responses:
-
-```{r cache=TRUE}
-enmpa::get_formulas(dependent = "Sp", 
-                    independent = c("bio_1", "bio_12"), 
-                    type = "lqp")
 ```
 
 <br>
@@ -135,7 +162,8 @@ Results are returned as a list containing:
 
 -   selected models `*$selected`
 -   a summary of statistics for all models `*$summary`
--   results obtained from cross-validation for all models `*$calibration_results`
+-   results obtained from cross-validation for all models
+    `*$calibration_results`
 -   input data with k-fold partition used `*$data`
 
 <br>
@@ -149,27 +177,38 @@ cal_res <- enmpa::calibration_glm(data = pa_data,
                                   independent = c("bio_1", "bio_12"),
                                   response_type = "lpq",
                                   selection_criterion = "TSS",
-                                  cv_kfolds = 5)
+                                  cv_kfolds = 5, verbose = F)
 ```
-
 
 Process results:
 
-```{r cache=TRUE}
-# Two models were selected out of 31 models evaluated
-cal_res$selected
+```{r cache=TRUE, paged.print=TRUE}
+## Two models were selected out of 31 models evaluated
+
+cal_res$selected[,1]    # Selected models
+
+cal_res$selected[,2:20] # Metrics of evaluation
 ```
 
 <br>
 
-### Predictions (projections)
+### Fitting and predictions of the most robust candidates models
 
-After one or more models are selected, predictions can be made. In this case we
-are projecting the model to the whole area of interest.
+After one or more models are selected, the next steps are the fitting and
+projection of the models. In this case we are projecting the model to the whole
+area of interest.
 
-```{r warning=FALSE, cache=TRUE, figures-prediction_selected, fig.height=2.5, fig.width=8, cache=TRUE,fig.show="hold"}
-# Prediction for the two selected models
-preds <- enmpa::predict_selected(x = cal_res, newdata = env_vars, consensus = T)
+```{r warning=FALSE, cache=TRUE, figures-prediction_selected, fig.height=2.5,fig.width=8, cache=TRUE,fig.show="hold"}
+# Extract model formulas and AIC weights. 
+models <- cal_res$selected$Formulas
+wIACs <- cal_res$selected$AIC_weight
+
+# Fitting
+f_models <- fit_glm(models, data = pa_data)
+
+# Prediction for the two selected models and their consensus
+preds <- enmpa::predict_selected(x = f_models, newdata = env_vars,
+                                 consensus = T, consensus_weights = wIACs)
 
 # Visualization
 terra::plot(preds$predictions,  mar = c(0, 0, 0, 5))
@@ -181,15 +220,15 @@ terra::plot(preds$predictions,  mar = c(0, 0, 0, 5))
 
 An alternative to strict selection of a single model is to use an ensemble of
 models. The main idea is to avoid selecting the best model and instead rely on
-multiple candidate models that prove to be robust. 
+multiple candidate models that prove to be robust.
 
 Here we describe how to create concordance between these models using techniques
-such as mean, median or weighted mean based on an information criterion
-(Akaike weights).
+such as mean, median or weighted mean based on an information criterion (Akaike
+weights)[@akaike1973; @wagenmakers2004].
 
 ```{r warning=FALSE, figures-consensus, fig.show="hold", cache=TRUE}
 # Consensus projections
-terra::plot(preds$consensus, mar=  c(0, 0, 0, 5.1))
+terra::plot(preds$consensus, mar = c(0, 0, 0, 5.1))
 ```
 
 <br>
@@ -202,28 +241,22 @@ lines of code help to do so:
 
 ```{r figures-rcurve_model_ID_1, fig.show="hold", out.width="50%", cache=TRUE}
 # Response Curves for Bio_1 and Bio_2, first selected model 
-enmpa::response_curve(model = preds$fitted_models$Model_ID_1,
-                      variable = c("bio_1", "bio_12"),
+enmpa::response_curve(model = f_models$Model_ID_1, variable = "bio_1",
                       new_data = env_vars)
 
-
-
-```
-
-```{r figures-rcurve_model_ID_2, fig.show="hold", out.width="50%", cache=TRUE}
-# Response Curves for Bio_1 and Bio_2, second selected model 
-enmpa::response_curve(model = preds$fitted_models$Model_ID_2,
-                      variable = c("bio_1", "bio_12"),
+enmpa::response_curve(model = f_models$Model_ID_1, variable = "bio_12",
                       new_data = env_vars)
+
 ```
 
 ```{r figures-rcurve_consensus, fig.show="hold", out.width="50%", cache=TRUE}
 # Consensus Response Curves for Bio_1 and Bio_2, from both models 
-enmpa::response_curve(model = preds$fitted_models,
-                      variable = c("bio_1", "bio_12"),
+enmpa::response_curve(model = f_models, variable = "bio_1",
                       new_data = env_vars)
-```                                                                                                   
-  
+
+enmpa::response_curve(model = f_models, variable = "bio_12",
+                      new_data = env_vars)
+```
 
 <br>
 
@@ -235,7 +268,7 @@ function of the relative deviance explained by each predictor.
 Analysis of Deviance for the first selected model:
 
 ```{r warning=FALSE, cache=TRUE}
-anova(preds$fitted_models$Model_ID_1, test = "Chi")
+anova(f_models$Model_ID_1, test = "Chi")
 ```
 
 Using a function from `enmpa` you can explore variable importance in terms of
@@ -243,8 +276,7 @@ contribution.
 
 ```{r warning=FALSE}
 # Relative contribution of the deviance explained for the first model
-enmpa::var_importance(preds$fitted_models$Model_ID_1)
-
+enmpa::var_importance(f_models$Model_ID_1)
 ```
 
 The function also allows to plot the contributions of the variables for the two
@@ -252,7 +284,7 @@ models together which can help with the interpretations:
 
 ```{r warning=FALSE}
 # Relative contribution of the deviance explained
-(vi_both_models <- enmpa::var_importance(preds$fitted_models))
+(vi_both_models <- enmpa::var_importance(f_models))
 ```
 
 ```{r warning=FALSE, figures-var_importance, fig.show="hold", out.width="70%", cache=TRUE}
@@ -260,13 +292,12 @@ models together which can help with the interpretations:
 enmpa::plot_importance(vi_both_models, extra_info = TRUE)
 ```
 
-### Final model evaluation 
+### Final model evaluation
 
-Finally, we will evaluate the final models using the "independent_eval" function.
-Ideally, the model should be validated with an independent data set, but if
-unavailable, the entire initial data set used in the calibration process can be
-used instead.
-
+Finally, we will evaluate the final models using the "independent_eval"
+function. Ideally, the model should be validated with an independent data set,
+but if unavailable, the entire initial data set used in the calibration process
+can be used instead.
 
 ```{r}
 # Load species occurrences of an indepedent dataset
@@ -274,7 +305,7 @@ id_data  <- read.csv(system.file("extdata", "test_data.csv", package = "enmpa"))
 head(id_data)
 ```
 
-#####  Evaluation using presence-absence data.
+##### Evaluation using presence-absence data.
 
 ```{r}
 # In this example, we will use the final model calculated as the weighted 
@@ -287,15 +318,14 @@ eval <- independent_eval(data = id_data, prediction = wmean, occ = "Sp",
 eval
 ```
 
-
 ##### Evaluation using presence-only data.
 
-When only presence data is available, the evaluation metrics are based on 
+When only presence data is available, the evaluation metrics are based on
 calculating the omission error and using a partial ROC analysis.
 
-To do this we will have to define a threshold value, which will be the minimum 
-probability of a presence. We can use any of the three threshold values obtained 
-above: ESS, maxTSS or SEN90. 
+To do this we will have to define a threshold value, which will be the minimum
+probability of a presence. We can use any of the three threshold values obtained
+above: ESS, maxTSS or SEN90.
 
 ```{r}
 id_data_po <- id_data[id_data$Sp == 1, ] # presence-only data
@@ -308,4 +338,4 @@ eval2 <- independent_eval(data = id_data_po, prediction = wmean, occ = "Sp",
 eval2
 ```
 
-
+### Literature

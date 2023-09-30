@@ -6,13 +6,16 @@ Luis F. Arias-Giraldo, Marlon E. Cobos, A. Townsend Peterson
 - [Example](#example)
   - [Loading packages needed](#loading-packages-needed)
   - [Example data](#example-data)
+  - [Detecting niche signals](#detecting-niche-signals)
   - [Model formulas](#model-formulas)
   - [Model calibration and selection](#model-calibration-and-selection)
-  - [Predictions (projections)](#predictions-projections)
+  - [Fitting and predictions of the most robust candidates
+    models](#fitting-and-predictions-of-the-most-robust-candidates-models)
   - [Consensus models](#consensus-models)
   - [Response Curves](#response-curves)
   - [Variable importance](#variable-importance)
   - [Final model evaluation](#final-model-evaluation)
+  - [Literature](#literature)
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 <!-- badges: start -->
@@ -86,6 +89,48 @@ terra::plot(env_vars, mar = c(0, 0, 0, 5))
 
 <br>
 
+### Detecting niche signals
+
+To assure the precision of the variables utilized in our niche models,
+we implemented in this package the methodology developed by ([Cobos and
+Peterson 2022](#ref-cobos2022)) that focuses on identifying niche
+signals in presence-absence data. By characterizing the sampling
+universe, this approach can determine whether pathogen detection is
+random or linked to particular environmental factors.
+
+``` r
+sn_bio1  <- enmpa::niche_signal(data = pa_data, variables = "bio_1", 
+                               condition = "Sp", method = "univariate")
+
+sn_bio12 <- enmpa::niche_signal(data = pa_data, variables = "bio_12",
+                                condition = "Sp", method = "univariate")
+```
+
+``` r
+
+enmpa::plot_niche_signal(sn_bio1, variables = "bio_1")
+enmpa::plot_niche_signal(sn_bio12, variables = "bio_12")
+```
+
+<img src="man/figures/README-figures-niche_signal-1.png" width="50%" /><img src="man/figures/README-figures-niche_signal-2.png" width="50%" />
+
+Based on the univariate test results of the variables bio_1 and bio_12,
+there appears to be a distinct pattern or response to environmental
+gradients that determines the presence of the species, rather than
+random occurrences. For instance, in our example, the species tends to
+occur in areas with higher annual mean temperature values (bio_1) as
+evidenced by the observed value (blue vertical dotted line) falling
+within the higher tail of the null distribution (H0). Conversely, the
+observed values for annual precipitation (bio_12) were found in the
+lower tail of the null distribution, indicating a preference for areas
+with lower precipitation. Notably, the observed values were outside the
+confidence limits of the null distribution in both cases. Therefore, it
+can be concluded that both variables are useful in modeling the species’
+niche. For more information, see ([Cobos and Peterson
+2022](#ref-cobos2022)).
+
+<br>
+
 ### Model formulas
 
 With `enmpa` you have the possibility to explore multiple model formulas
@@ -93,20 +138,11 @@ derived from combinations of variables considering linear (l), quadratic
 (q), and product (p) responses. Product refers to pair interactions of
 variables.
 
-Linear responses:
-
-``` r
-enmpa::get_formulas(dependent = "Sp", 
-                    independent = c("bio_1", "bio_12"),
-                    type = "l")
-#> [1] "Sp ~ bio_1"          "Sp ~ bio_12"         "Sp ~ bio_1 + bio_12"
-```
-
 Linear + quadratic responses:
 
 ``` r
 enmpa::get_formulas(dependent = "Sp", 
-                    independent = c("bio_1", "bio_12"), 
+                    independent = c("bio_1", "bio_12"),  
                     type = "lq")
 #>  [1] "Sp ~ bio_1"                                    
 #>  [2] "Sp ~ bio_12"                                   
@@ -123,45 +159,6 @@ enmpa::get_formulas(dependent = "Sp",
 #> [13] "Sp ~ bio_1 + I(bio_1^2) + I(bio_12^2)"         
 #> [14] "Sp ~ bio_12 + I(bio_1^2) + I(bio_12^2)"        
 #> [15] "Sp ~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2)"
-```
-
-Linear + quadratic + products responses:
-
-``` r
-enmpa::get_formulas(dependent = "Sp", 
-                    independent = c("bio_1", "bio_12"), 
-                    type = "lqp")
-#>  [1] "Sp ~ bio_1"                                                   
-#>  [2] "Sp ~ bio_12"                                                  
-#>  [3] "Sp ~ I(bio_1^2)"                                              
-#>  [4] "Sp ~ I(bio_12^2)"                                             
-#>  [5] "Sp ~ bio_1:bio_12"                                            
-#>  [6] "Sp ~ bio_1 + bio_12"                                          
-#>  [7] "Sp ~ bio_1 + I(bio_1^2)"                                      
-#>  [8] "Sp ~ bio_1 + I(bio_12^2)"                                     
-#>  [9] "Sp ~ bio_1 + bio_1:bio_12"                                    
-#> [10] "Sp ~ bio_12 + I(bio_1^2)"                                     
-#> [11] "Sp ~ bio_12 + I(bio_12^2)"                                    
-#> [12] "Sp ~ bio_12 + bio_1:bio_12"                                   
-#> [13] "Sp ~ I(bio_1^2) + I(bio_12^2)"                                
-#> [14] "Sp ~ I(bio_1^2) + bio_1:bio_12"                               
-#> [15] "Sp ~ I(bio_12^2) + bio_1:bio_12"                              
-#> [16] "Sp ~ bio_1 + bio_12 + I(bio_1^2)"                             
-#> [17] "Sp ~ bio_1 + bio_12 + I(bio_12^2)"                            
-#> [18] "Sp ~ bio_1 + bio_12 + bio_1:bio_12"                           
-#> [19] "Sp ~ bio_1 + I(bio_1^2) + I(bio_12^2)"                        
-#> [20] "Sp ~ bio_1 + I(bio_1^2) + bio_1:bio_12"                       
-#> [21] "Sp ~ bio_1 + I(bio_12^2) + bio_1:bio_12"                      
-#> [22] "Sp ~ bio_12 + I(bio_1^2) + I(bio_12^2)"                       
-#> [23] "Sp ~ bio_12 + I(bio_1^2) + bio_1:bio_12"                      
-#> [24] "Sp ~ bio_12 + I(bio_12^2) + bio_1:bio_12"                     
-#> [25] "Sp ~ I(bio_1^2) + I(bio_12^2) + bio_1:bio_12"                 
-#> [26] "Sp ~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2)"               
-#> [27] "Sp ~ bio_1 + bio_12 + I(bio_1^2) + bio_1:bio_12"              
-#> [28] "Sp ~ bio_1 + bio_12 + I(bio_12^2) + bio_1:bio_12"             
-#> [29] "Sp ~ bio_1 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12"         
-#> [30] "Sp ~ bio_12 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12"        
-#> [31] "Sp ~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12"
 ```
 
 <br>
@@ -204,26 +201,19 @@ cal_res <- enmpa::calibration_glm(data = pa_data,
                                   independent = c("bio_1", "bio_12"),
                                   response_type = "lpq",
                                   selection_criterion = "TSS",
-                                  cv_kfolds = 5)
-#> 
-#> Estimating formulas combinations for evaluation.
-#> Evaluating a total of 31 models.
-#> Running in Sequential.
-#>   |                                                                              |                                                                      |   0%  |                                                                              |==                                                                    |   3%  |                                                                              |=====                                                                 |   7%  |                                                                              |=======                                                               |  10%  |                                                                              |=========                                                             |  13%  |                                                                              |============                                                          |  17%  |                                                                              |==============                                                        |  20%  |                                                                              |================                                                      |  23%  |                                                                              |===================                                                   |  27%  |                                                                              |=====================                                                 |  30%  |                                                                              |=======================                                               |  33%  |                                                                              |==========================                                            |  37%  |                                                                              |============================                                          |  40%  |                                                                              |==============================                                        |  43%  |                                                                              |=================================                                     |  47%  |                                                                              |===================================                                   |  50%  |                                                                              |=====================================                                 |  53%  |                                                                              |========================================                              |  57%  |                                                                              |==========================================                            |  60%  |                                                                              |============================================                          |  63%  |                                                                              |===============================================                       |  67%  |                                                                              |=================================================                     |  70%  |                                                                              |===================================================                   |  73%  |                                                                              |======================================================                |  77%  |                                                                              |========================================================              |  80%  |                                                                              |==========================================================            |  83%  |                                                                              |=============================================================         |  87%  |                                                                              |===============================================================       |  90%  |                                                                              |=================================================================     |  93%  |                                                                              |====================================================================  |  97%  |                                                                              |======================================================================| 100%
-#> 
-#> Running time: 1.85819411277771
-#> 
-#> Preparing results...
+                                  cv_kfolds = 5, verbose = F)
 ```
 
 Process results:
 
 ``` r
-# Two models were selected out of 31 models evaluated
-cal_res$selected
-#>                                                        Formulas
-#> 1 Sp ~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12
-#> 2          Sp ~ bio_1 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12
+## Two models were selected out of 31 models evaluated
+
+cal_res$selected[,1]    # Selected models
+#> [1] "Sp ~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12"
+#> [2] "Sp ~ bio_1 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12"
+
+cal_res$selected[,2:20] # Metrics of evaluation
 #>   Threshold_criteria Threshold_mean Threshold_sd ROC_AUC_mean ROC_AUC_sd
 #> 1             maxTSS         0.0991       0.0154       0.9002     0.0192
 #> 2             maxTSS         0.0951       0.0166       0.9003     0.0190
@@ -240,14 +230,23 @@ cal_res$selected
 
 <br>
 
-### Predictions (projections)
+### Fitting and predictions of the most robust candidates models
 
-After one or more models are selected, predictions can be made. In this
-case we are projecting the model to the whole area of interest.
+After one or more models are selected, the next steps are the fitting
+and projection of the models. In this case we are projecting the model
+to the whole area of interest.
 
 ``` r
-# Prediction for the two selected models
-preds <- enmpa::predict_selected(x = cal_res, newdata = env_vars, consensus = T)
+# Extract model formulas and AIC weights. 
+models <- cal_res$selected$Formulas
+wIACs <- cal_res$selected$AIC_weight
+
+# Fitting
+f_models <- fit_glm(models, data = pa_data)
+
+# Prediction for the two selected models and their consensus
+preds <- enmpa::predict_selected(x = f_models, newdata = env_vars,
+                                 consensus = T, consensus_weights = wIACs)
 
 # Visualization
 terra::plot(preds$predictions,  mar = c(0, 0, 0, 5))
@@ -265,11 +264,12 @@ and instead rely on multiple candidate models that prove to be robust.
 
 Here we describe how to create concordance between these models using
 techniques such as mean, median or weighted mean based on an information
-criterion (Akaike weights).
+criterion (Akaike weights)([Akaikei 1973](#ref-akaike1973); [Wagenmakers
+and Farrell 2004](#ref-wagenmakers2004)).
 
 ``` r
 # Consensus projections
-terra::plot(preds$consensus, mar=  c(0, 0, 0, 5.1))
+terra::plot(preds$consensus, mar = c(0, 0, 0, 5.1))
 ```
 
 <img src="man/figures/README-figures-consensus-1.png" width="100%" />
@@ -284,26 +284,21 @@ following lines of code help to do so:
 
 ``` r
 # Response Curves for Bio_1 and Bio_2, first selected model 
-enmpa::response_curve(model = preds$fitted_models$Model_ID_1,
-                      variable = c("bio_1", "bio_12"),
+enmpa::response_curve(model = f_models$Model_ID_1, variable = "bio_1",
+                      new_data = env_vars)
+
+enmpa::response_curve(model = f_models$Model_ID_1, variable = "bio_12",
                       new_data = env_vars)
 ```
 
 <img src="man/figures/README-figures-rcurve_model_ID_1-1.png" width="50%" /><img src="man/figures/README-figures-rcurve_model_ID_1-2.png" width="50%" />
 
 ``` r
-# Response Curves for Bio_1 and Bio_2, second selected model 
-enmpa::response_curve(model = preds$fitted_models$Model_ID_2,
-                      variable = c("bio_1", "bio_12"),
-                      new_data = env_vars)
-```
-
-<img src="man/figures/README-figures-rcurve_model_ID_2-1.png" width="50%" /><img src="man/figures/README-figures-rcurve_model_ID_2-2.png" width="50%" />
-
-``` r
 # Consensus Response Curves for Bio_1 and Bio_2, from both models 
-enmpa::response_curve(model = preds$fitted_models,
-                      variable = c("bio_1", "bio_12"),
+enmpa::response_curve(model = f_models, variable = "bio_1",
+                      new_data = env_vars)
+
+enmpa::response_curve(model = f_models, variable = "bio_12",
                       new_data = env_vars)
 ```
 
@@ -319,7 +314,7 @@ function of the relative deviance explained by each predictor.
 Analysis of Deviance for the first selected model:
 
 ``` r
-anova(preds$fitted_models$Model_ID_1, test = "Chi")
+anova(f_models$Model_ID_1, test = "Chi")
 #> Analysis of Deviance Table
 #> 
 #> Model: binomial, link: logit
@@ -345,7 +340,7 @@ terms of contribution.
 
 ``` r
 # Relative contribution of the deviance explained for the first model
-enmpa::var_importance(preds$fitted_models$Model_ID_1)
+enmpa::var_importance(f_models$Model_ID_1)
 #>      predictor contribution cum_contribution
 #> 1        bio_1   0.31901523        0.3190152
 #> 3   I(bio_1^2)   0.28433044        0.6033457
@@ -359,7 +354,7 @@ the two models together which can help with the interpretations:
 
 ``` r
 # Relative contribution of the deviance explained
-(vi_both_models <- enmpa::var_importance(preds$fitted_models))
+(vi_both_models <- enmpa::var_importance(f_models))
 #>      predictor contribution     Models
 #> 1        bio_1   0.31901523 Model_ID_1
 #> 2   I(bio_1^2)   0.28433044 Model_ID_1
@@ -440,11 +435,37 @@ eval2 <- independent_eval(data = id_data_po, prediction = wmean, occ = "Sp",
 #> The occurrence data contains only presences.
 
 eval2
-#> $omission_error
-#>   omission_error threshold
-#> 1     0.09090909 0.1394197
-#> 
-#> $partial_ROC
-#> Mean_AUC_ratio_at_5%            pval_pROC 
-#>             1.634595             0.000000
+#>   omission_error threshold Mean_AUC_ratio_at_5 pval_pROC
+#> 1     0.09090909 0.1394197            1.634595         0
 ```
+
+### Literature
+
+<div id="refs" class="references csl-bib-body hanging-indent">
+
+<div id="ref-akaike1973" class="csl-entry">
+
+Akaikei, H. 1973. “Information Theory and an Extension of Maximum
+Likelihood Principle.” In *Proc. 2nd Int. Symp. On Information Theory*,
+267–81.
+
+</div>
+
+<div id="ref-cobos2022" class="csl-entry">
+
+Cobos, Marlon E., and A. Townsend Peterson. 2022. “Detecting Signals of
+Species’ Ecological Niches in Results of Studies with Defined Sampling
+Protocols: Example Application to Pathogen Niches.” *Biodiversity
+Informatics* 17 (May): 50–58. <https://doi.org/10.17161/bi.v17i.15985>.
+
+</div>
+
+<div id="ref-wagenmakers2004" class="csl-entry">
+
+Wagenmakers, Eric-Jan, and Simon Farrell. 2004. “AIC Model Selection
+Using Akaike Weights.” *Psychonomic Bulletin & Review* 11 (1): 192–96.
+<https://doi.org/10.3758/BF03206482>.
+
+</div>
+
+</div>

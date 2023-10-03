@@ -36,12 +36,21 @@ evaluation_stats <- function(evaluation_results, bimodal_toexclude = FALSE,
   stats <- do.call(data.frame, lapply(xy, function(y) {y[, msd]}))
   colnames(stats) <- unlist(lapply(xy, function(y) {colnames(y[, msd])}))
 
-  # remove sd for AIC and paramenters
+  # remove sd for AIC and parameters
   stats <- cbind(xy[[1]][, 1:2] , stats[, -c(16, 18)])
   colnames(stats)[c(17, 18)] <- c("Parameters", "AIC")
   colnames(stats) <- gsub(".", "_", colnames(stats), fixed = TRUE)
 
 
+  if (bimodal_toexclude) {
+    stats$Concave_responses <- xy[[1]][, 3]
+  }
+
+  # sort data by formula (more simple to complex)
+  ii <- order(factor(stats$Formulas,
+                     levels = unique(evaluation_results$Formulas)))
+  stats <- stats[ii,]
+  rownames(stats) <- 1:nrow(stats)
 
   # delta and weight of AIC for the aggregated data
   AICs <- stats[!duplicated(stats$Formulas), "AIC"] # per individual model
@@ -55,16 +64,8 @@ evaluation_stats <- function(evaluation_results, bimodal_toexclude = FALSE,
   stats$AIC_weight <- rep(AIC_weight,
                           each = length(unique(stats$Threshold_criteria)))
 
-  if (bimodal_toexclude) {
-    stats$Concave_responses <- xy[[1]][, 3]
-  }
 
-  # sort data by formula (more simple to complex)
-  ii <- order(factor(stats$Formulas,
-                     levels = unique(evaluation_results$Formulas)))
-  stats <- stats[ii,]
-  rownames(stats) <- 1:nrow(stats)
-
+  stats <- data.frame(stats[,c(1:18, 20,21, 19)])
 
   return(stats)
 }

@@ -41,11 +41,7 @@ evaluation_stats <- function(evaluation_results, bimodal_toexclude = FALSE,
   colnames(stats)[c(17, 18)] <- c("Parameters", "AIC")
   colnames(stats) <- gsub(".", "_", colnames(stats), fixed = TRUE)
 
-  # sort data by formula (more simple to complex)
-  ii <- order(factor(stats$Formulas,
-                     levels = unique(evaluation_results$Formulas)))
-  stats <- stats[ii,]
-  rownames(stats) <- 1:nrow(stats)
+
 
   # delta and weight of AIC for the aggregated data
   AICs <- stats[!duplicated(stats$Formulas), "AIC"] # per individual model
@@ -62,6 +58,13 @@ evaluation_stats <- function(evaluation_results, bimodal_toexclude = FALSE,
   if (bimodal_toexclude) {
     stats$Concave_responses <- xy[[1]][, 3]
   }
+
+  # sort data by formula (more simple to complex)
+  ii <- order(factor(stats$Formulas,
+                     levels = unique(evaluation_results$Formulas)))
+  stats <- stats[ii,]
+  rownames(stats) <- 1:nrow(stats)
+
 
   return(stats)
 }

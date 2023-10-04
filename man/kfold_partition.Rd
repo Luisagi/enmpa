@@ -4,11 +4,13 @@
 \alias{kfold_partition}
 \title{K-fold data partitioning}
 \usage{
-kfold_partition(data, k = 2, seed = 1)
+kfold_partition(data, occ, k = 2, seed = 1)
 }
 \arguments{
-\item{data}{data.frame or matrix containing at least two columns. The
-first column must contain absence and presence records as 0 and 1.}
+\item{data}{data.frame or matrix containing at least two columns.}
+
+\item{occ}{Column name that contains the absence and presence records as 0
+and 1.}
 
 \item{k}{(numeric) the number of groups that the given data is to be split
 into.}

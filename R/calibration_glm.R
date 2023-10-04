@@ -96,7 +96,7 @@ calibration_glm <- function(data, dependent, independent, weights = NULL,
   ## 1. Data partitioning: k-Fold Cross-Validation
   if (is.null(partition_index)){
     k <- cv_kfolds
-    data_partition <- kfold_partition(data, k = k, seed = seed)
+    data_partition <- kfold_partition(data, occ = dependent, k = k, seed = seed)
 
   } else {
     k <- length(partition_index)

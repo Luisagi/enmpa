@@ -7,8 +7,8 @@
 #' @usage
 #' model_validation(formula, data, family = binomial(link = "logit"),
 #'                  weights = NULL, cv = FALSE, partition_index = NULL,
-#'                  k = NULL, n_threshold = 100, keep_coefficients = FALSE,
-#'                  seed = 1)
+#'                  k = NULL, dependent = NULL, n_threshold = 100,
+#'                  keep_coefficients = FALSE, seed = 1)
 #'
 #' @param formula (character) `expressions` to return a `formula` object class.
 #' @param data data.frame to create model.
@@ -18,6 +18,8 @@
 #' @param partition_index list of indices for cross validation in k-fold.
 #' @param k (numeric) number of folds for a new k-fold index preparation.
 #' Ignored if `partition_index` is defined.
+#' @param dependent (character) name of dependent variable. Ignore if
+#' `cv` = FALSE.
 #' @param n_threshold (numeric) number of threshold values to be used.
 #' Default = 100.
 #' @param keep_coefficients (logical) whether to keep model coefficients.
@@ -34,7 +36,7 @@
 
 model_validation <- function(formula, data, family = binomial(link = "logit"),
                              weights = NULL, cv = FALSE, partition_index = NULL,
-                             k = NULL, n_threshold = 100,
+                             k = NULL, dependent = NULL, n_threshold = 100,
                              keep_coefficients = FALSE, seed = 1) {
 
   # initial test
@@ -43,8 +45,8 @@ model_validation <- function(formula, data, family = binomial(link = "logit"),
   }
   if (is.logical(cv)) {
     if (cv) {
-      if (is.null(partition_index) & is.null(k)) {
-        stop("'partition_index' or 'k' must be defined if 'cv' = TRUE.")
+      if (is.null(partition_index) & (is.null(k) | is.null(dependent))) {
+        stop(" If 'partition_index' = NULL, then 'k' and 'dependent' must be defined if 'cv' = TRUE.")
       }
     }
   } else {
@@ -61,8 +63,9 @@ model_validation <- function(formula, data, family = binomial(link = "logit"),
 
   if (cv) {
     ## Cross-validation
-    if (is.null(partition_index) & !is.null(k)) {
-      partition_index <- kfold_partition(data, k = k, seed = seed)
+    if (is.null(partition_index) & !is.null(k) & !is.null(dependent)) {
+      partition_index <- kfold_partition(data, occ = dependent, k = k,
+                                         seed = seed)
     }
 
     out <- data.frame()

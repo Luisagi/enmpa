@@ -6,8 +6,8 @@
 \usage{
 model_validation(formula, data, family = binomial(link = "logit"),
                  weights = NULL, cv = FALSE, partition_index = NULL,
-                 k = NULL, n_threshold = 100, keep_coefficients = FALSE,
-                 seed = 1)
+                 k = NULL, dependent = NULL, n_threshold = 100,
+                 keep_coefficients = FALSE, seed = 1)
 }
 \arguments{
 \item{formula}{(character) \code{expressions} to return a \code{formula} object class.}
@@ -24,6 +24,9 @@ model_validation(formula, data, family = binomial(link = "logit"),
 
 \item{k}{(numeric) number of folds for a new k-fold index preparation.
 Ignored if \code{partition_index} is defined.}
+
+\item{dependent}{(character) name of dependent variable. Ignore if
+\code{cv} = FALSE.}
 
 \item{n_threshold}{(numeric) number of threshold values to be used.
 Default = 100.}

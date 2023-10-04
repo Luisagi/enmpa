@@ -1,7 +1,8 @@
 #' K-fold data partitioning
 #'
-#' @param data data.frame or matrix containing at least two columns. The
-#' first column must contain absence and presence records as 0 and 1.
+#' @param data data.frame or matrix containing at least two columns.
+#' @param occ Column name that contains the absence and presence records as 0
+#' and 1.
 #' @param k (numeric) the number of groups that the given data is to be split
 #' into.
 #' @param seed (numeric) integer value to specify an initial seed. Default = 1.
@@ -12,21 +13,21 @@
 #' @export
 #'
 
-kfold_partition <- function(data, k = 2,  seed = 1){
+kfold_partition <- function(data, occ, k = 2,  seed = 1){
 
   # initial tests
-  if(missing(data)) {
-    stop("Argument 'data' must be defined.")
+  if(missing(data) | missing(occ)) {
+    stop("Argument 'data' or 'occ' must be defined.")
   }
 
   if (k < 2) {
-    stop("Number of k-folds must be equal or graeter than 2.")
+    stop("Number of k-folds must be equal or greater than 2.")
   }
 
   # We extract the positions for presences and absences then to keep the original
   # ratio presences/absences we do it for each set separately
-  pre <- which(data[, 1] == 1)
-  aus <- which(data[, 1] == 0)
+  pre <- which(data[, occ] == 1)
+  aus <- which(data[, occ] == 0)
 
   #To each original position we assign a value from 1:k and the is randomly shuffled
   set.seed(seed)

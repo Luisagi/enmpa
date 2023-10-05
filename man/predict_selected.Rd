@@ -31,7 +31,7 @@ logit scale) and type = "response" gives the predicted probabilities.}
 
 \item{consensus}{(logical) whether to produce three consensus forecasts
 (or “ensemble”) obtained by combining the forecasts from the collection the
-selected models. By deafult consensuses are calculated from the mean and
+selected models. By default consensuses are calculated from the mean and
 median. To calculated weighted mean user must provide a weighting metric.
 It is recommended the wAIC. Additionally, an consensus map of variance
 is also calculated to measure the amount of variability or disagreement among
@@ -45,7 +45,36 @@ An individual model predictions \code{SpatRaster} object,
 and a consensus predictions \code{SpatRaster} object.
 }
 \description{
-Wrapper function that facilitates the fitting, prediction of those models
+Wrapper function that facilitates the prediction of those models
 selected as the most robust. In addition, it allows the calculation of
 consensus models, when more than one model are selected.
+}
+\examples{
+# Load species occurrences and environmental data.
+enm_data <- read.csv(system.file("extdata", "pa_data.csv", package = "enmpa"))
+head(enm_data)
+
+# Load raster layers to be projected
+env_vars <- terra::rast(system.file("extdata", "vars.tif", package = "enmpa"))
+terra::plot(env_vars)
+
+# Selected models
+forms <- c("Sp ~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12",
+           "Sp ~ bio_1 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12")
+
+wAICs <- c(0.6248182, 0.3751818) # Akaike weights
+
+# Fitting models
+fits <- fit_glm(forms, data = enm_data )
+
+# Predictions
+preds <- predict_selected(x = fits, newdata = env_vars, consensus = TRUE,
+                          consensus_weights = wAICs)
+
+# Predictions of the two selected models in the area of interest
+terra::plot(preds$predictions)
+
+# Predictions of the consensus models using averaging approaches
+terra::plot(preds$consensus,  mar = c(0, 0, 0, 5))
+
 }

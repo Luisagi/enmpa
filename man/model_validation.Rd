@@ -41,5 +41,24 @@ data.frame
 }
 \description{
 Model evaluation using entire set of data or a K-fold cross validation
-approach.
+approach. Models are assessed based on discrimination power (ROC-AUC),
+classification capability (FPR, accuracy, sensitivity, specificity, and TSS ),
+and the balance between goodness-of-fit and complexity (number of parameters
+and AICc).
+}
+\examples{
+# Load species occurrences and environmental data.
+enm_data <- read.csv(system.file("extdata", "pa_data.csv", package = "enmpa"))
+head(enm_data)
+
+# Custom formula
+form <- c("Sp ~ bio_1 + I(bio_1^2) + I(bio_12^2)")
+
+# Model evaluation using the entire set of records
+model_validation(form, data = enm_data)
+
+# Model evaluation using a k-fold cross-validation (k = 3)
+model_validation(form, data = enm_data, cv = TRUE, k = 3, dependent = "Sp")
+
+
 }

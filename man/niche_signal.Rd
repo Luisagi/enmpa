@@ -53,6 +53,26 @@ as environmental variable.}
 \item{permutations}{number of permutations to be performed.}
 }
 \description{
-Detection of niche signal with records of positive a negative detection
-(\href{https://doi.org/10.17161/bi.v17i.15985}{Cobos & Peterson, 2022}).
+To assure the precision of the variables utilized in ENMs, we implemented in
+this package the methodology developed by
+\href{https://doi.org/10.17161/bi.v17i.15985}{Cobos & Peterson (2022)} that
+focuses on identifying niche signals in presence-absence data.
+
+By characterizing the sampling universe, this approach can determine whether
+pathogen detection is random or linked to particular environmental factors.
+}
+\examples{
+# Load species occurrences and environmental data.
+enm_data <- read.csv(system.file("extdata", "pa_data.csv", package = "enmpa"))
+head(enm_data)
+
+# Detection of niche signal using an univariate non-parametric test
+sn_bio1 <- niche_signal(data = enm_data, variables = "bio_1",
+                        condition = "Sp", method = "univariate")
+sn_bio1
+
+sn_bio12 <- niche_signal(data = enm_data, variables = "bio_12",
+                         condition = "Sp", method = "univariate")
+sn_bio12
+
 }

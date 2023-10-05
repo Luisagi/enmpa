@@ -41,3 +41,25 @@ that is independent of the one used for model calibration. The function is
 designed to detect and calculate different evaluation metrics depending on
 the type of occurrence data available: presences-only or presences-absences.
 }
+\examples{
+# Independent test data based on coordinates (lon/lat WGS 84) from  presence
+# and absences records
+test <- read.csv(system.file("extdata", "test_data.csv", package = "enmpa"))
+head(test)
+
+# Loading a model prediction
+pred <- terra::rast(system.file("extdata", "proj_out_wmean.tif", package = "enmpa"))
+terra::plot(pred)
+
+# Evaluation using presence-absence data
+independent_eval(data = test, prediction = pred, occ = "Sp",
+                 crs = "EPSG:4326", xy = c("lon", "lat"))
+
+# Evaluation using presence-only data
+test_p_only <- test[test$Sp == 1, ]
+th_maxTSS   <- 0.1274123            # threshold based on the maxTSS
+
+independent_eval(data = test_p_only, prediction = pred, threshold = th_maxTSS,
+                 occ = "Sp", crs = "EPSG:4326", xy = c("lon", "lat"))
+
+}

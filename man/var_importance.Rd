@@ -14,6 +14,37 @@ from the class \code{lm}.}
 data.frame containing the relative contribution of each variable.
 }
 \description{
-It calculates the relative importance of the predictor variables based on
-explained deviance.
+The function calculates the relative importance of predictor variables
+based on the concept of explained deviance. This is achieved by iteratively
+fitting a GLMs multiple times, where each iteration involves leaving out a
+different predictor variable to observe its impact on the model's performance.
+
+The process begins by fitting the full GLM model, which includes all predictor
+variables. Subsequently, separate GLM models are fitted, excluding one
+variable at a time to assess the influence of its absence on the model's
+performance. By systematically evaluating the effect of removing each
+predictor variable, the function provides valuable insights into their
+individual contributions to the model's overall performance and explanatory
+power.
+}
+\examples{
+# Load species occurrences and environmental data.
+enm_data <- read.csv(system.file("extdata", "pa_data.csv", package = "enmpa"))
+head(enm_data)
+
+# Custom formulas
+forms <- c("Sp ~ bio_1 + I(bio_1^2) + I(bio_12^2)",
+           "Sp ~ bio_12 + I(bio_1^2) + I(bio_12^2)")
+
+# Fitting models
+fits <- fit_glm(forms, data = enm_data )
+
+# Variable importance for single models
+var_importance(fits$Model_ID_1)
+var_importance(fits$Model_ID_2)
+
+# Variable importance for multiple models
+var_importance(fits)
+
+
 }

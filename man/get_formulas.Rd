@@ -42,4 +42,5 @@ formula <- get_formulas(dep, ind, type = "lqp", all_combinations = FALSE)
 
 # all combinations according to type
 formulas <- get_formulas(dep, ind, type = "lqp", all_combinations = TRUE)
+
 }

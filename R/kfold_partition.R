@@ -1,5 +1,15 @@
 #' K-fold data partitioning
 #'
+#' @description
+#'
+#' The function is designed to partition the available data into k equal-sized
+#' subsets or folds while maintaining the global proportion of presence-absences
+#' in each fold. This approach leads to a more robust evaluation of the model's
+#' performance, as it accounts for the inherent variability in the data.
+#'
+#' @usage
+#' kfold_partition(data, occ, k = 2, seed = 1)
+#'
 #' @param data data.frame or matrix containing at least two columns.
 #' @param occ Column name that contains the absence and presence records as 0
 #' and 1.
@@ -9,6 +19,19 @@
 #'
 #' @return
 #' A list of vectors with the indices of rows corresponding to each fold.
+#'
+#'
+#' @examples
+#'
+#' data <- data.frame(species = c(rep(0, 80), rep (1,20)),
+#'                    variable1 = rnorm(100),
+#'                    variable2 = rpois(100, 2))
+#'
+#' kfolds <- kfold_partition(data, occ = "species", k = 2)
+#'
+#' data[kfolds$Fold_1,]
+#' data[kfolds$Fold_2,]
+#'
 #'
 #' @export
 #'
@@ -50,3 +73,11 @@ kfold_partition <- function(data, occ, k = 2,  seed = 1){
   return(out)
 }
 
+data <- data.frame(species = c(rep(0, 80), rep (1,20)),
+                   variable1 = rnorm(100),
+                   variable2 = rpois(100, 2))
+
+kfolds <- kfold_partition(data, occ = "species", k = 2)
+
+data[kfolds$Fold_1,]
+data[kfolds$Fold_2,]

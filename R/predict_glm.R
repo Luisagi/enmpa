@@ -17,6 +17,23 @@
 #'
 #' @return a `SpatRaster` object or a vector of probabilities.
 #'
+#' @examples
+#' # Load species occurrences and environmental data.
+#' enm_data <- read.csv(system.file("extdata", "pa_data.csv", package = "enmpa"))
+#'
+#' # Load raster layers to be projected
+#' env_vars <- terra::rast(system.file("extdata", "vars.tif", package = "enmpa"))
+#'
+#' # Custom formula
+#' form <- c("Sp ~ bio_1 + I(bio_1^2) + I(bio_12^2)")
+#'
+#' # Fitting model
+#' fit <- fit_glm(form, data = enm_data)
+#'
+#' # Prediction
+#' pred <- predict_glm(fit$Model_ID_1, newdata = env_vars)
+#' terra::plot(pred)
+#'
 #' @export
 #' @importFrom terra as.data.frame predict setValues
 #' @importFrom stats coef predict.glm
@@ -77,3 +94,5 @@ predict_glm <- function(model, newdata, clamping = FALSE,
 
   return(out)
 }
+
+

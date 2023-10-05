@@ -1,5 +1,17 @@
 #' Plot variable importance
 #'
+#' @description
+#' It facilitates the visualization of the results obtained by the function
+#' \code{\link{var_importance}}.
+#'
+#' @usage
+#' plot_importance(x,
+#'                 xlab = NULL,
+#'                 ylab = "Relative contribution",
+#'                 main = "Variable importance",
+#'                 extra_info = TRUE, ...)
+#'
+#'
 #' @param x data.frame output from \code{\link{var_importance}}.
 #' @param xlab (character) a label for the x axis.
 #' @param ylab (character) a label for the y axis.
@@ -9,19 +21,33 @@
 #' @param ... additional arguments passed to \code{\link[graphics]{barplot}} or
 #' \code{\link[graphics]{boxplot}}.
 #'
+#' @examples
+#' # Load species occurrences and environmental data.
+#' enm_data <- read.csv(system.file("extdata", "pa_data.csv", package = "enmpa"))
+#'
+#' # Custom formulas
+#' forms <- c("Sp ~ bio_1 + I(bio_1^2) + I(bio_12^2)",
+#'            "Sp ~ bio_12 + I(bio_1^2) + I(bio_12^2)")
+#'
+#' # Fitting models
+#' fits <- fit_glm(forms, data = enm_data )
+#'
+#' # Variable importance for single models
+#' vi_1 <- var_importance(fits$Model_ID_1)
+#' plot_importance(x = vi_1)
+#'
+#' vi_2 <- var_importance(fits$Model_ID_2)
+#' plot_importance(x = vi_2)
+#'
+#' # Variable importance for multiple models
+#' vi_c <- var_importance(fits)
+#' plot_importance(x = vi_c)
+#'
 #' @export
 #'
 #' @importFrom graphics barplot boxplot text
 #'
-#' @examples
-#' # Single model
-#' # vi_1 <- var_importance(preds$fitted_models$Model_ID_1)
-#' # plot_importance(x = vi_1)
-#'
-#' # Multiple models
-#' # vi_2 <- var_importance(preds$fitted_models)
-#' # plot_importance(x = vi_2)
-#'
+
 
 plot_importance <- function(x,
                             xlab = NULL,
@@ -78,15 +104,4 @@ plot_importance <- function(x,
 
   }
 }
-
-
-
-
-
-
-
-
-
-
-
 

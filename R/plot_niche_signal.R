@@ -54,6 +54,28 @@
 #' @param ... other plotting arguments to be used.
 #'
 #' @rdname plot_niche_signal
+#'
+#' @examples
+#' # Load species occurrences and environmental data.
+#' enm_data <- read.csv(system.file("extdata", "pa_data.csv", package = "enmpa"))
+#' head(enm_data)
+#'
+#' # Detection of niche signal using an univariate non-parametric test
+#' sn_bio1 <- niche_signal(data = enm_data,
+#'                         variables = "bio_1",
+#'                         condition = "Sp",
+#'                         method = "univariate")
+#'
+#' plot_niche_signal(sn_bio1, variables = "bio_1")
+#'
+#' sn_bio12 <- niche_signal(data = enm_data,
+#'                          variables = "bio_12",
+#'                          condition = "Sp",
+#'                          method = "univariate")
+#'
+#' plot_niche_signal(sn_bio12, variables = "bio_12")
+#'
+#'
 #' @export
 #'
 #' @importFrom ellipse ellipse

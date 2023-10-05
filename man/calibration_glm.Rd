@@ -88,3 +88,26 @@ second filter to maintain only models that meet the \code{selection_criterion}
 ("TSS": TSS >= 0.4; or "ESS": maximum Accuracy - \code{tolerance}), and 3) from
 those, pick the ones with delta AIC <= 2.
 }
+\examples{
+library(enmpa)
+
+# Load species occurrences and environmental data.
+enm_data <- read.csv(system.file("extdata", "pa_data.csv", package = "enmpa"))
+head(enm_data)
+
+# Calibration using linear (l), quadratic (q), products(p) responses.
+cal_res <- calibration_glm(data = enm_data,
+                           dependent = "Sp",
+                           independent = c("bio_1", "bio_12"),
+                           response_type = "lpq",
+                           selection_criterion = "TSS",
+                           cv_kfolds = 3,
+                           exclude_bimodal = TRUE,
+                           verbose = FALSE)
+
+head(cal_res$calibration_results)
+head(cal_res$summary)
+head(cal_res$selected)
+head(cal_res$data)
+
+}

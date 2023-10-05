@@ -32,6 +32,37 @@ is defined.}
 \item{...}{additional arguments passed to \code{\link[graphics]{plot}}.}
 }
 \description{
-The function plot the response curve to  evaluates the variable of interest
-and its limits.
+The function offers a comprehensive view of the response of a variable,
+either based on a single model or multiple models. It plots the probabilities
+of species presence across a wide range of values for a specific environmental
+variable.
+
+The function calculates these probabilities by focusing on a single
+environmental gradient while keeping all other gradients constant at their
+mean values (Elith et al., 2005). This approach allows for the estimation of
+response curves, enabling a deeper understanding of how species occurrence
+fluctuates in response to the environmental conditions captured by the
+variable.
+}
+\examples{
+# Load species occurrences and environmental data.
+enm_data <- read.csv(system.file("extdata", "pa_data.csv", package = "enmpa"))
+head(enm_data)
+
+# Custom formulas
+forms <- c("Sp ~ bio_1 + I(bio_1^2) + I(bio_12^2)",
+           "Sp ~ bio_12 + I(bio_1^2) + I(bio_12^2)")
+
+# Fitting models
+fits <- fit_glm(forms, data = enm_data )
+
+# Response curve for single models
+response_curve(fits$Model_ID_1, variable = "bio_1",  extrapolate = TRUE)
+response_curve(fits$Model_ID_1, variable = "bio_12", extrapolate = TRUE)
+
+# Consensus response curve for both models
+response_curve(fits, variable = "bio_1",  extrapolate = TRUE)
+response_curve(fits, variable = "bio_12", extrapolate = TRUE)
+
+
 }

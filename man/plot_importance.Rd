@@ -4,14 +4,11 @@
 \alias{plot_importance}
 \title{Plot variable importance}
 \usage{
-plot_importance(
-  x,
-  xlab = NULL,
-  ylab = "Relative contribution",
-  main = "Variable importance",
-  extra_info = TRUE,
-  ...
-)
+plot_importance(x,
+                xlab = NULL,
+                ylab = "Relative contribution",
+                main = "Variable importance",
+                extra_info = TRUE, ...)
 }
 \arguments{
 \item{x}{data.frame output from \code{\link{var_importance}}.}
@@ -29,15 +26,29 @@ more information from more than one model.}
 \code{\link[graphics]{boxplot}}.}
 }
 \description{
-Plot variable importance
+It facilitates the visualization of the results obtained by the function
+\code{\link{var_importance}}.
 }
 \examples{
-# Single model
-# vi_1 <- var_importance(preds$fitted_models$Model_ID_1)
-# plot_importance(x = vi_1)
+# Load species occurrences and environmental data.
+enm_data <- read.csv(system.file("extdata", "pa_data.csv", package = "enmpa"))
 
-# Multiple models
-# vi_2 <- var_importance(preds$fitted_models)
-# plot_importance(x = vi_2)
+# Custom formulas
+forms <- c("Sp ~ bio_1 + I(bio_1^2) + I(bio_12^2)",
+           "Sp ~ bio_12 + I(bio_1^2) + I(bio_12^2)")
+
+# Fitting models
+fits <- fit_glm(forms, data = enm_data )
+
+# Variable importance for single models
+vi_1 <- var_importance(fits$Model_ID_1)
+plot_importance(x = vi_1)
+
+vi_2 <- var_importance(fits$Model_ID_2)
+plot_importance(x = vi_2)
+
+# Variable importance for multiple models
+vi_c <- var_importance(fits)
+plot_importance(x = vi_c)
 
 }

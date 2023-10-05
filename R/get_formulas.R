@@ -37,6 +37,7 @@
 #'
 #' # all combinations according to type
 #' formulas <- get_formulas(dep, ind, type = "lqp", all_combinations = TRUE)
+#'
 
 get_formulas <- function(dependent, independent, type = "l",
                          all_combinations = TRUE,

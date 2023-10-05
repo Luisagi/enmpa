@@ -21,5 +21,21 @@ into.}
 A list of vectors with the indices of rows corresponding to each fold.
 }
 \description{
-K-fold data partitioning
+The function is designed to partition the available data into k equal-sized
+subsets or folds while maintaining the global proportion of presence-absences
+in each fold. This approach leads to a more robust evaluation of the model's
+performance, as it accounts for the inherent variability in the data.
+}
+\examples{
+
+data <- data.frame(species = c(rep(0, 80), rep (1,20)),
+                   variable1 = rnorm(100),
+                   variable2 = rpois(100, 2))
+
+kfolds <- kfold_partition(data, occ = "species", k = 2)
+
+data[kfolds$Fold_1,]
+data[kfolds$Fold_2,]
+
+
 }

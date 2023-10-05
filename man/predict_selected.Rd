@@ -50,24 +50,15 @@ selected as the most robust. In addition, it allows the calculation of
 consensus models, when more than one model are selected.
 }
 \examples{
-# Load species occurrences and environmental data.
-enm_data <- read.csv(system.file("extdata", "pa_data.csv", package = "enmpa"))
-head(enm_data)
+# Load two fitted models
+load(system.file("extdata", "glm_fitted.RData", package = "enmpa"))
 
 # Load raster layers to be projected
 env_vars <- terra::rast(system.file("extdata", "vars.tif", package = "enmpa"))
 terra::plot(env_vars)
 
-# Selected models
-forms <- c("Sp ~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12",
-           "Sp ~ bio_1 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12")
-
-wAICs <- c(0.6248182, 0.3751818) # Akaike weights
-
-# Fitting models
-fits <- fit_glm(forms, data = enm_data )
-
 # Predictions
+wAICs <- c(0.6248182, 0.3751818) # Akaike weights
 preds <- predict_selected(x = fits, newdata = env_vars, consensus = TRUE,
                           consensus_weights = wAICs)
 

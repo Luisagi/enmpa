@@ -35,3 +35,14 @@ proc applies partial ROC tests to model predictions.
 Partial ROC is calculated following Peterson et al. (2008;
 \url{http://dx.doi.org/10.1016/j.ecolmodel.2007.11.008}).
 }
+\examples{
+# Loading a model prediction
+pred <- terra::rast(system.file("extdata", "proj_out_wmean.tif", package = "enmpa"))
+
+# Simulated data
+test <- runif(100, min = 0.3, max = 0.8)
+
+proc_enm(test, pred, threshold = 5, sample_percentage = 50, iterations = 500)
+
+
+}

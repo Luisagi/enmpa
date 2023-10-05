@@ -82,7 +82,7 @@ model_validation <- function(formula, data, family = binomial(link = "logit"),
   if (cv) {
     ## Cross-validation
     if (is.null(partition_index) & !is.null(k) & !is.null(dependent)) {
-      partition_index <- kfold_partition(data, occ = dependent, k = k,
+      partition_index <- kfold_partition(data, dependent = dependent, k = k,
                                          seed = seed)
     }
 

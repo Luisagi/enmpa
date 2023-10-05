@@ -8,10 +8,10 @@
 #' performance, as it accounts for the inherent variability in the data.
 #'
 #' @usage
-#' kfold_partition(data, occ, k = 2, seed = 1)
+#' kfold_partition(data, dependent, k = 2, seed = 1)
 #'
 #' @param data data.frame or matrix containing at least two columns.
-#' @param occ Column name that contains the absence and presence records as 0
+#' @param dependent (character) column name that contains the absence and presence records as 0
 #' and 1.
 #' @param k (numeric) the number of groups that the given data is to be split
 #' into.
@@ -27,7 +27,7 @@
 #'                    variable1 = rnorm(100),
 #'                    variable2 = rpois(100, 2))
 #'
-#' kfolds <- kfold_partition(data, occ = "species", k = 2)
+#' kfolds <- kfold_partition(data, dependent = "species", k = 2)
 #'
 #' data[kfolds$Fold_1,]
 #' data[kfolds$Fold_2,]
@@ -36,11 +36,11 @@
 #' @export
 #'
 
-kfold_partition <- function(data, occ, k = 2,  seed = 1){
+kfold_partition <- function(data, dependent, k = 2,  seed = 1){
 
   # initial tests
-  if(missing(data) | missing(occ)) {
-    stop("Argument 'data' or 'occ' must be defined.")
+  if(missing(data) | missing(dependent)) {
+    stop("Argument 'data' or 'dependent' must be defined.")
   }
 
   if (k < 2) {
@@ -49,8 +49,8 @@ kfold_partition <- function(data, occ, k = 2,  seed = 1){
 
   # We extract the positions for presences and absences then to keep the original
   # ratio presences/absences we do it for each set separately
-  pre <- which(data[, occ] == 1)
-  aus <- which(data[, occ] == 0)
+  pre <- which(data[, dependent] == 1)
+  aus <- which(data[, dependent] == 0)
 
   #To each original position we assign a value from 1:k and the is randomly shuffled
   set.seed(seed)
@@ -73,11 +73,3 @@ kfold_partition <- function(data, occ, k = 2,  seed = 1){
   return(out)
 }
 
-data <- data.frame(species = c(rep(0, 80), rep (1,20)),
-                   variable1 = rnorm(100),
-                   variable2 = rpois(100, 2))
-
-kfolds <- kfold_partition(data, occ = "species", k = 2)
-
-data[kfolds$Fold_1,]
-data[kfolds$Fold_2,]

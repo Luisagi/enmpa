@@ -4,12 +4,12 @@
 \alias{kfold_partition}
 \title{K-fold data partitioning}
 \usage{
-kfold_partition(data, occ, k = 2, seed = 1)
+kfold_partition(data, dependent, k = 2, seed = 1)
 }
 \arguments{
 \item{data}{data.frame or matrix containing at least two columns.}
 
-\item{occ}{Column name that contains the absence and presence records as 0
+\item{dependent}{(character) column name that contains the absence and presence records as 0
 and 1.}
 
 \item{k}{(numeric) the number of groups that the given data is to be split
@@ -32,7 +32,7 @@ data <- data.frame(species = c(rep(0, 80), rep (1,20)),
                    variable1 = rnorm(100),
                    variable2 = rpois(100, 2))
 
-kfolds <- kfold_partition(data, occ = "species", k = 2)
+kfolds <- kfold_partition(data, dependent = "species", k = 2)
 
 data[kfolds$Fold_1,]
 data[kfolds$Fold_2,]

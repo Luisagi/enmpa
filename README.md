@@ -138,12 +138,21 @@ derived from combinations of variables considering linear (l), quadratic
 (q), and product (p) responses. Product refers to pair interactions of
 variables.
 
+The function includes the flag `mode` to determine what strategy to
+iterate the predictors defined in for creating formulas:
+
+- **light** - returns simple iterations of complex formulas.
+- **moderate** - returns a comprehensive number of iterations.
+- **intense** - returns all possible combination. Very time-consuming
+  for 6 or more dependent variables.
+- **complex** - returns only the most complex formula.
+
 Linear + quadratic responses:
 
 ``` r
 enmpa::get_formulas(dependent = "Sp", 
                     independent = c("bio_1", "bio_12"),  
-                    type = "lq")
+                    type = "lq", mode = "intense")
 #>  [1] "Sp ~ bio_1"                                    
 #>  [2] "Sp ~ bio_12"                                   
 #>  [3] "Sp ~ I(bio_1^2)"                               
@@ -199,9 +208,11 @@ Now lets run an example of model calibration and selection:
 cal_res <- enmpa::calibration_glm(data = pa_data,
                                   dependent = "Sp",
                                   independent = c("bio_1", "bio_12"),
-                                  response_type = "lpq",
+                                  response_type = "lpq", 
+                                  form_mode = "intense", 
+                                  exclude_bimodal = TRUE,
                                   selection_criterion = "TSS",
-                                  cv_kfolds = 5, verbose = F)
+                                  cv_kfolds = 5, verbose = FALSE)
 ```
 
 Process results:
@@ -210,22 +221,22 @@ Process results:
 ## Two models were selected out of 31 models evaluated
 
 cal_res$selected[,1]    # Selected models
-#> [1] "Sp ~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12"
-#> [2] "Sp ~ bio_1 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12"
+#> [1] "Sp ~ bio_1 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12"         
+#> [2] "Sp ~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12"
 
 cal_res$selected[,2:20] # Metrics of evaluation
 #>   Threshold_criteria Threshold_mean Threshold_sd ROC_AUC_mean ROC_AUC_sd
-#> 1             maxTSS         0.0991       0.0154       0.9002     0.0192
-#> 2             maxTSS         0.0951       0.0166       0.9003     0.0190
+#> 1             maxTSS         0.0951       0.0166       0.9003     0.0190
+#> 2             maxTSS         0.0991       0.0154       0.9002     0.0192
 #>   False_positive_rate_mean False_positive_rate_sd Accuracy_mean Accuracy_sd
-#> 1                   0.1720                 0.0216        0.8305      0.0198
-#> 2                   0.1755                 0.0259        0.8274      0.0232
+#> 1                   0.1755                 0.0259        0.8274      0.0232
+#> 2                   0.1720                 0.0216        0.8305      0.0198
 #>   Sensitivity_mean Sensitivity_sd Specificity_mean Specificity_sd TSS_mean
-#> 1            0.856         0.0404           0.8280         0.0216   0.6840
-#> 2            0.858         0.0363           0.8245         0.0259   0.6825
+#> 1            0.858         0.0363           0.8245         0.0259   0.6825
+#> 2            0.856         0.0404           0.8280         0.0216   0.6840
 #>   TSS_sd Parameters     AIC Delta_AIC AIC_weight
-#> 1 0.0450          5 2185.68    0.0000  0.6248182
-#> 2 0.0404          4 2186.70    1.0201  0.3751818
+#> 1 0.0404          4 2186.70    1.0201  0.3751818
+#> 2 0.0450          5 2185.68    0.0000  0.6248182
 ```
 
 <br>
@@ -327,10 +338,9 @@ anova(f_models$Model_ID_1, test = "Chi")
 #>              Df Deviance Resid. Df Resid. Dev  Pr(>Chi)    
 #> NULL                          5626     3374.9              
 #> bio_1         1   869.35      5625     2505.6 < 2.2e-16 ***
-#> bio_12        1   177.56      5624     2328.0 < 2.2e-16 ***
-#> I(bio_1^2)    1    78.29      5623     2249.7 < 2.2e-16 ***
-#> I(bio_12^2)   1    47.40      5622     2202.3 5.774e-12 ***
-#> bio_1:bio_12  1    28.63      5621     2173.7 8.775e-08 ***
+#> I(bio_1^2)    1    46.77      5624     2458.8 7.972e-12 ***
+#> I(bio_12^2)   1   239.69      5623     2219.1 < 2.2e-16 ***
+#> bio_1:bio_12  1    42.40      5622     2176.7 7.450e-11 ***
 #> ---
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
@@ -342,11 +352,10 @@ terms of contribution.
 # Relative contribution of the deviance explained for the first model
 enmpa::var_importance(f_models$Model_ID_1)
 #>      predictor contribution cum_contribution
-#> 1        bio_1   0.31901523        0.3190152
-#> 3   I(bio_1^2)   0.28433044        0.6033457
-#> 4  I(bio_12^2)   0.22805823        0.8314039
-#> 5 bio_1:bio_12   0.15250677        0.9839107
-#> 2       bio_12   0.01608933        1.0000000
+#> 3  I(bio_12^2)    0.3572673        0.3572673
+#> 1        bio_1    0.2919587        0.6492259
+#> 2   I(bio_1^2)    0.2031750        0.8524009
+#> 4 bio_1:bio_12    0.1475991        1.0000000
 ```
 
 The function also allows to plot the contributions of the variables for
@@ -356,15 +365,15 @@ the two models together which can help with the interpretations:
 # Relative contribution of the deviance explained
 (vi_both_models <- enmpa::var_importance(f_models))
 #>      predictor contribution     Models
-#> 1        bio_1   0.31901523 Model_ID_1
-#> 2   I(bio_1^2)   0.28433044 Model_ID_1
-#> 3  I(bio_12^2)   0.22805823 Model_ID_1
-#> 4 bio_1:bio_12   0.15250677 Model_ID_1
-#> 5       bio_12   0.01608933 Model_ID_1
-#> 6  I(bio_12^2)   0.35726725 Model_ID_2
-#> 7        bio_1   0.29195868 Model_ID_2
-#> 8   I(bio_1^2)   0.20317496 Model_ID_2
-#> 9 bio_1:bio_12   0.14759911 Model_ID_2
+#> 1  I(bio_12^2)   0.35726725 Model_ID_1
+#> 2        bio_1   0.29195868 Model_ID_1
+#> 3   I(bio_1^2)   0.20317496 Model_ID_1
+#> 4 bio_1:bio_12   0.14759911 Model_ID_1
+#> 5        bio_1   0.31901523 Model_ID_2
+#> 6   I(bio_1^2)   0.28433044 Model_ID_2
+#> 7  I(bio_12^2)   0.22805823 Model_ID_2
+#> 8 bio_1:bio_12   0.15250677 Model_ID_2
+#> 9       bio_12   0.01608933 Model_ID_2
 ```
 
 ``` r

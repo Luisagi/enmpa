@@ -130,12 +130,21 @@ With `enmpa` you have the possibility to explore multiple model formulas derived
 from combinations of variables considering linear (l), quadratic (q), and
 product (p) responses. Product refers to pair interactions of variables.
 
+The function includes the flag `mode` to determine what strategy to iterate the 
+predictors defined in \code{type} for creating formulas:
+
+-   **light** - returns simple iterations of complex formulas.
+-   **moderate** - returns a comprehensive number of iterations.
+-   **intense** - returns all possible combination. Very time-consuming for 6
+ or more dependent variables.
+-   **complex** - returns only the most complex formula.
+
 Linear + quadratic responses:
 
 ```{r cache=TRUE}
 enmpa::get_formulas(dependent = "Sp", 
                     independent = c("bio_1", "bio_12"),  
-                    type = "lq")
+                    type = "lq", mode = "intense")
 ```
 
 <br>
@@ -175,9 +184,11 @@ Now lets run an example of model calibration and selection:
 cal_res <- enmpa::calibration_glm(data = pa_data,
                                   dependent = "Sp",
                                   independent = c("bio_1", "bio_12"),
-                                  response_type = "lpq",
+                                  response_type = "lpq", 
+                                  form_mode = "intense", 
+                                  exclude_bimodal = TRUE,
                                   selection_criterion = "TSS",
-                                  cv_kfolds = 5, verbose = F)
+                                  cv_kfolds = 5, verbose = FALSE)
 ```
 
 Process results:

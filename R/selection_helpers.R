@@ -64,8 +64,9 @@ evaluation_stats <- function(evaluation_results, bimodal_toexclude = FALSE,
   stats$AIC_weight <- rep(AIC_weight,
                           each = length(unique(stats$Threshold_criteria)))
 
-
+  if (bimodal_toexclude) {
   stats <- data.frame(stats[,c(1:18, 20,21, 19)])
+  }
 
   return(stats)
 }

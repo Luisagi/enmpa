@@ -4,7 +4,7 @@
 \alias{get_formulas}
 \title{Get formulas according to types of responses needed}
 \usage{
-get_formulas(dependent, independent, type = "l", all_combinations = TRUE,
+get_formulas(dependent, independent, type = "l", mode = "moderate",
              minvar=1, maxvar = NULL)
 }
 \arguments{
@@ -16,8 +16,9 @@ get_formulas(dependent, independent, type = "l", all_combinations = TRUE,
 or a combination of them. l = lineal, q = quadratic,
 p = interaction between two variables. Default = "l".}
 
-\item{all_combinations}{(logical) whether to produce all combinations,
-default = TRUE. FALSE returns only the most complex formula defined in type.}
+\item{mode}{(character) a character string to indicate the strategy to create
+the number of forms, must be among "light", "moderate", "intense" or
+"complex". Default = "moderate".}
 
 \item{minvar}{(numeric) minimum number of features.}
 
@@ -32,15 +33,29 @@ variable, taking into account the required response types. If necessary,
 calculate all possible combinations of these formulas considering different
 variable combinations.
 }
+\details{
+\code{mode} options determine what strategy to iterate the predictors defined in
+\code{type}:
+\itemize{
+\item \strong{light} - returns simple iterations of complex forms.
+\item \strong{moderate} - returns a comprehensive number of iterations.
+\item \strong{intense} - returns all possible combination. Very time-consuming for 6
+or more dependent variables.
+\item \strong{complex} - returns only the most complex formula.
+}
+}
 \examples{
 # example variables
-dep <- "presence"
-ind <- c("temperature", "humidity")
+dep <- "sp"
+ind <- c("temp", "rain", "slope")
 
 # one formula according to "type"
-formula <- get_formulas(dep, ind, type = "lqp", all_combinations = FALSE)
+get_formulas(dep, ind, type = "lqp", mode = "complex")
 
-# all combinations according to type
-formulas <- get_formulas(dep, ind, type = "lqp", all_combinations = TRUE)
+# mode = 'light', combinations according to type
+get_formulas(dep, ind, type = "lqp", mode = "light")
+
+# mode = 'light', combinations according to type
+get_formulas(dep, ind, type = "lqp", mode = "intense")
 
 }

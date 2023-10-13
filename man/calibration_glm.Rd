@@ -5,7 +5,7 @@
 \title{GLM calibration with presence-absence data}
 \usage{
 calibration_glm(data, dependent, independent, weights = NULL,
-                response_type = "l", all_combinations = TRUE,
+                response_type = "l", form_mode = "moderate",
                 minvar = 1, maxvar = NULL, user_formulas = NULL,
                 cv_kfolds = 5, partition_index = NULL, seed = 1,
                 n_threshold = 100, selection_criterion = "TSS",
@@ -26,9 +26,10 @@ calibration_glm(data, dependent, independent, weights = NULL,
 "p", "q" or a combination of them. l = lineal, q = quadratic,
 p = interaction between two variables. Default = "l".}
 
-\item{all_combinations}{(logical) whether to produce all combinations of
-formulas according to \code{response_type}, default = TRUE. FALSE returns only
-the most complex formula defined in \code{response_type}.}
+\item{form_mode}{(character) a character string to indicate the strategy to
+create the number of forms, must be among "light", "moderate", "intense" or
+"complex". Default = "moderate". "complex" returns only the most complex
+formula defined in \code{response_type}.}
 
 \item{minvar}{(numeric) minimum number of features.}
 
@@ -87,6 +88,16 @@ the models with ROC AUC >= 0.5 (statistically significant models), 2) a
 second filter to maintain only models that meet the \code{selection_criterion}
 ("TSS": TSS >= 0.4; or "ESS": maximum Accuracy - \code{tolerance}), and 3) from
 those, pick the ones with delta AIC <= 2.
+
+\code{mode} options determine what strategy to iterate the predictors defined in
+\code{type} for creating models:
+\itemize{
+\item \strong{light} - returns simple iterations of complex formulas.
+\item \strong{moderate} - returns a comprehensive number of iterations.
+\item \strong{intense} - returns all possible combination. Very time-consuming for 6
+or more dependent variables.
+\item \strong{complex} - returns only the most complex formula.
+}
 }
 \examples{
 library(enmpa)
@@ -100,6 +111,7 @@ cal_res <- calibration_glm(data = enm_data,
                            dependent = "Sp",
                            independent = c("bio_1", "bio_12"),
                            response_type = "lpq",
+                           form_mode = "moderate",
                            selection_criterion = "TSS",
                            cv_kfolds = 3,
                            exclude_bimodal = TRUE,

@@ -7,7 +7,7 @@
 #' variable combinations.
 #'
 #' @usage
-#' get_formulas(dependent, independent, type = "l", all_combinations = TRUE,
+#' get_formulas(dependent, independent, type = "l", mode = "moderate",
 #'              minvar=1, maxvar = NULL)
 #'
 #' @param dependent (character) name of dependent variable.
@@ -15,10 +15,21 @@
 #' @param type (character) a character string that must contain "l", "p", "q"
 #' or a combination of them. l = lineal, q = quadratic,
 #' p = interaction between two variables. Default = "l".
-#' @param all_combinations (logical) whether to produce all combinations,
-#' default = TRUE. FALSE returns only the most complex formula defined in type.
+#' @param mode (character) a character string to indicate the strategy to create
+#' formulas, must be among "light", "moderate", "intense" or "complex".
+#' Default = "moderate".
 #' @param minvar (numeric) minimum number of features.
 #' @param maxvar (numeric) maximum number of features.
+#'
+#' @details
+#'
+#' `mode` options determine what strategy to iterate the predictors defined in
+#'  \code{type}:
+#' - **light** - returns simple iterations of complex forms.
+#' - **moderate** - returns a comprehensive number of iterations.
+#' - **intense** - returns all possible combination. Very time-consuming for 6
+#' or more dependent variables.
+#' - **complex** - returns only the most complex formula.
 #'
 #' @return
 #' A character vector containing the resulting formula(s).
@@ -29,18 +40,21 @@
 #'
 #' @examples
 #' # example variables
-#' dep <- "presence"
-#' ind <- c("temperature", "humidity")
+#' dep <- "sp"
+#' ind <- c("temp", "rain", "slope")
 #'
-#' # one formula according to "type"
-#' formula <- get_formulas(dep, ind, type = "lqp", all_combinations = FALSE)
+#' # The most complex formula according to "type"
+#' get_formulas(dep, ind, type = "lqp", mode = "complex")
 #'
-#' # all combinations according to type
-#' formulas <- get_formulas(dep, ind, type = "lqp", all_combinations = TRUE)
+#' # mode = 'light', combinations according to type
+#' get_formulas(dep, ind, type = "lqp", mode = "light")
+#'
+#' # mode = 'light', combinations according to type
+#' get_formulas(dep, ind, type = "lqp", mode = "intense")
 #'
 
 get_formulas <- function(dependent, independent, type = "l",
-                         all_combinations = TRUE,
+                         mode = "moderate",
                          minvar=1, maxvar = NULL) {
 
   # initial test
@@ -58,8 +72,76 @@ get_formulas <- function(dependent, independent, type = "l",
     stop("'type' must be of class character.")
   }
 
-  if (!is.logical(all_combinations)) {
-    stop("'all_combinations' must be logical (TRUE or FALSE).")
+  if (! mode %in% c("light", "moderate", "intense", "complex")) {
+    stop("'mode' must be defined as 'light', 'moderate', 'intense' or 'complex'")
+  }
+
+  if (mode == "light"){
+
+    red_var_comb <- aux_var_comb(independent, minvar = 2, maxvar = maxvar)
+    reponse_comb <- aux_string_comb(type)
+
+    output <-lapply(red_var_comb, function(y){
+      get_formulas_main(dependent, independent = y, type = type, complex = TRUE)
+    })
+
+    return(unlist(output, use.names = F ))
+  }
+
+  if (mode == "moderate"){
+
+    red_var_comb <- aux_var_comb(independent, minvar = 2, maxvar = maxvar)
+    reponse_comb <- aux_string_comb(type)
+
+    output <- lapply(reponse_comb, function(x){
+      lapply(red_var_comb, function(y){
+
+        get_formulas_main(dependent, independent = y, type = x, complex = TRUE)
+      })
+    })
+
+    return(unlist(output, use.names = F ))
+  }
+
+  if (mode == "intense"){
+
+    output <- get_formulas_main(dependent, independent, type = type,
+                                complex = FALSE, minvar = minvar,
+                                maxvar = maxvar)
+    return(output)
+  }
+
+  if (mode == "complex"){
+    output <- get_formulas_main(dependent, independent, type = type,
+                                complex = TRUE, minvar = minvar,
+                                maxvar = maxvar)
+    return(output)
+  }
+}
+
+###___________ aux functions
+
+
+get_formulas_main <- function(dependent, independent, type = "l",
+                              complex = FALSE, minvar=1, maxvar = NULL) {
+
+  # initial test
+  if (!is.character(dependent) || length(dependent) != 1) {
+    stop("'dependent' must be a unique response variable name.")
+  }
+  if (!is.character(dependent)) {
+    stop("'independent' must be a character vector.")
+  }
+  if (is.character(type)) {
+    if (!all(unlist(strsplit(type, "")) %in% c("l", "p", "q"))) {
+      stop("'type' must be: 'l', 'p', 'q', or a combination of those three.")
+    }
+  } else {
+    stop("'type' must be of class character.")
+  }
+
+  if (!is.logical(complex)) {
+    stop("'complex' must be logical (TRUE or FALSE).")
   }
 
   predictors <- independent
@@ -108,17 +190,9 @@ get_formulas <- function(dependent, independent, type = "l",
   }
 
   # Create all possible combination
-  if (all_combinations) {
+  if (!complex) {
     ## unlist predictors in formula
     vec <- unlist(strsplit(gsub(" ", "", aux), split = "[+]"))[-1]
-
-
-    # Number of combinations
-    # total <- sapply(1:length(vec), function(x){
-    #   factorial(length(vec)) / (factorial(x) * factorial(length(vec) - x))
-    # })
-    #
-    # sum(total)
 
     if (!is.null(maxvar)){
       if (maxvar > length(vec)) {
@@ -141,15 +215,43 @@ get_formulas <- function(dependent, independent, type = "l",
     all_comb <- lapply(range_var, utils::combn, x = vec, simplify = FALSE)
     all_comb <- unlist(all_comb, recursive = FALSE)
 
-    out <- sapply(all_comb, function(x) {
+    output <- sapply(all_comb, function(x) {
       paste0(dependent, " ~ ", paste(x, collapse = " + "))
     })
 
   } else{
-    out <- gsub("  \\+", paste(dependent, "~"), aux)
+    output <- gsub("  \\+", paste(dependent, "~"), aux)
   }
 
   # Return formula(s)
-  return(out)
+  return(output)
 }
 
+
+# Variable combinaction from KUENM
+aux_var_comb <- function(var_names, minvar = 2, maxvar = NULL) {
+
+  if(is.null(maxvar)){maxvar <- length(var_names)}
+
+  var_comb <- lapply(minvar:maxvar, function(x) {
+    comb <- combn(var_names, m = x)
+    comb_vs <- lapply(1:dim(comb)[2], function(y) {comb[, y]})
+  })
+
+  var_combs <- do.call(c, var_comb)
+  names(var_combs) <- paste0("Set_", 1:length(var_combs))
+  return(var_combs)
+}
+
+# Function to generate all possible combinations of a string
+aux_string_comb <- function(string) {
+
+  bins <- strsplit(string, '')[[1]]
+  n <- length(bins)
+
+  all_comb <- lapply(1:n, function(i) {combn(bins, i, simplify = FALSE)})
+  all_comb <- unlist(all_comb, recursive = FALSE)
+
+  output <- lapply(all_comb, function(x){paste(x, collapse = "")})
+  return(output)
+}

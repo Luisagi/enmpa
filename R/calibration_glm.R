@@ -6,7 +6,7 @@
 #'
 #' @usage
 #' calibration_glm(data, dependent, independent, weights = NULL,
-#'                 response_type = "l", all_combinations = TRUE,
+#'                 response_type = "l", form_mode = "moderate",
 #'                 minvar = 1, maxvar = NULL, user_formulas = NULL,
 #'                 cv_kfolds = 5, partition_index = NULL, seed = 1,
 #'                 n_threshold = 100, selection_criterion = "TSS",
@@ -21,9 +21,10 @@
 #' @param response_type (character) a character string that must contain "l",
 #' "p", "q" or a combination of them. l = lineal, q = quadratic,
 #' p = interaction between two variables. Default = "l".
-#' @param all_combinations (logical) whether to produce all combinations of
-#' formulas according to `response_type`, default = TRUE. FALSE returns only
-#' the most complex formula defined in `response_type`.
+#' @param form_mode (character) a character string to indicate the strategy to
+#' create the number of forms, must be among "light", "moderate", "intense" or
+#' "complex". Default = "moderate". "complex" returns only the most complex
+#' formula defined in `response_type`.
 #' @param minvar (numeric) minimum number of features.
 #' @param maxvar (numeric) maximum number of features.
 #' @param user_formulas a vector of character with the set of formulas to test.
@@ -66,6 +67,14 @@
 #' those, pick the ones with delta AIC <= 2.
 #'
 #'
+#' `mode` options determine what strategy to iterate the predictors defined in
+#'  \code{type} for creating models:
+#' - **light** - returns simple iterations of complex formulas.
+#' - **moderate** - returns a comprehensive number of iterations.
+#' - **intense** - returns all possible combination. Very time-consuming for 6
+#' or more dependent variables.
+#' - **complex** - returns only the most complex formula.
+#'
 #' @examples
 #' library(enmpa)
 #'
@@ -78,6 +87,7 @@
 #'                            dependent = "Sp",
 #'                            independent = c("bio_1", "bio_12"),
 #'                            response_type = "lpq",
+#'                            form_mode = "moderate",
 #'                            selection_criterion = "TSS",
 #'                            cv_kfolds = 3,
 #'                            exclude_bimodal = TRUE,
@@ -98,7 +108,7 @@
 #' @importFrom foreach foreach %dopar%
 
 calibration_glm <- function(data, dependent, independent, weights = NULL,
-                            response_type = "l", all_combinations = TRUE,
+                            response_type = "l", form_mode = "moderate",
                             minvar=1, maxvar = NULL,  user_formulas = NULL,
                             cv_kfolds = 5, partition_index = NULL, seed = 1,
                             n_threshold = 100, selection_criterion = "TSS",
@@ -134,9 +144,10 @@ calibration_glm <- function(data, dependent, independent, weights = NULL,
       message("\nEstimating formulas combinations for evaluation.")
     }
 
-    user_formulas <- get_formulas(dependent = dependent, independent = independent,
-                                  type = response_type, minvar=minvar, maxvar = maxvar,
-                                  all_combinations = all_combinations)
+    user_formulas <- get_formulas(dependent = dependent,
+                                  independent = independent,
+                                  type = response_type, mode = form_mode,
+                                  minvar=minvar, maxvar = maxvar)
 
   } else {
 

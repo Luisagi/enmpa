@@ -8,7 +8,7 @@
 #'
 #' @usage
 #' get_formulas(dependent, independent, type = "l", mode = "moderate",
-#'              minvar=1, maxvar = NULL)
+#'              minvar = 1, maxvar = NULL)
 #'
 #' @param dependent (character) name of dependent variable.
 #' @param independent (character) a vector of names of independent variables.
@@ -37,6 +37,7 @@
 #' @importFrom utils combn
 #'
 #' @export
+#' @rdname get_formulas
 #'
 #' @examples
 #' # example variables
@@ -55,7 +56,7 @@
 
 get_formulas <- function(dependent, independent, type = "l",
                          mode = "moderate",
-                         minvar=1, maxvar = NULL) {
+                         minvar = 1, maxvar = NULL) {
 
   # initial test
   if (!is.character(dependent) || length(dependent) != 1) {
@@ -121,9 +122,15 @@ get_formulas <- function(dependent, independent, type = "l",
 
 ###___________ aux functions
 
+#' @export
+#' @rdname get_formulas
+#' @param complex (logical) whether to return the most complex formula.
+#' @usage
+#' get_formulas_main(dependent, independent, type = "l",
+#'                   complex = FALSE, minvar = 1, maxvar = NULL)
 
 get_formulas_main <- function(dependent, independent, type = "l",
-                              complex = FALSE, minvar=1, maxvar = NULL) {
+                              complex = FALSE, minvar = 1 , maxvar = NULL) {
 
   # initial test
   if (!is.character(dependent) || length(dependent) != 1) {
@@ -191,7 +198,7 @@ get_formulas_main <- function(dependent, independent, type = "l",
 
   # Create all possible combination
   if (!complex) {
-    ## unlist predictors in formula
+    # unlist predictors in formula
     vec <- unlist(strsplit(gsub(" ", "", aux), split = "[+]"))[-1]
 
     if (!is.null(maxvar)){
@@ -227,6 +234,9 @@ get_formulas_main <- function(dependent, independent, type = "l",
   return(output)
 }
 
+#' @export
+#' @rdname get_formulas
+#' @param var_names sames as `dependent`.
 
 # Variable combinaction from KUENM
 aux_var_comb <- function(var_names, minvar = 2, maxvar = NULL) {
@@ -242,6 +252,10 @@ aux_var_comb <- function(var_names, minvar = 2, maxvar = NULL) {
   names(var_combs) <- paste0("Set_", 1:length(var_combs))
   return(var_combs)
 }
+
+#' @export
+#' @rdname get_formulas
+#' @param string same as `type`.
 
 # Function to generate all possible combinations of a string
 aux_string_comb <- function(string) {

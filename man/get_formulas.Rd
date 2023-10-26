@@ -2,10 +2,20 @@
 % Please edit documentation in R/get_formulas.R
 \name{get_formulas}
 \alias{get_formulas}
+\alias{get_formulas_main}
+\alias{aux_var_comb}
+\alias{aux_string_comb}
 \title{Get formulas according to types of responses needed}
 \usage{
 get_formulas(dependent, independent, type = "l", mode = "moderate",
-             minvar=1, maxvar = NULL)
+             minvar = 1, maxvar = NULL)
+
+get_formulas_main(dependent, independent, type = "l",
+                  complex = FALSE, minvar = 1, maxvar = NULL)
+
+aux_var_comb(var_names, minvar = 2, maxvar = NULL)
+
+aux_string_comb(string)
 }
 \arguments{
 \item{dependent}{(character) name of dependent variable.}
@@ -17,12 +27,18 @@ or a combination of them. l = lineal, q = quadratic,
 p = interaction between two variables. Default = "l".}
 
 \item{mode}{(character) a character string to indicate the strategy to create
-the number of forms, must be among "light", "moderate", "intense" or
-"complex". Default = "moderate".}
+formulas, must be among "light", "moderate", "intense" or "complex".
+Default = "moderate".}
 
 \item{minvar}{(numeric) minimum number of features.}
 
 \item{maxvar}{(numeric) maximum number of features.}
+
+\item{complex}{(logical) whether to return the most complex formula.}
+
+\item{var_names}{sames as \code{dependent}.}
+
+\item{string}{same as \code{type}.}
 }
 \value{
 A character vector containing the resulting formula(s).
@@ -49,7 +65,7 @@ or more dependent variables.
 dep <- "sp"
 ind <- c("temp", "rain", "slope")
 
-# one formula according to "type"
+# The most complex formula according to "type"
 get_formulas(dep, ind, type = "lqp", mode = "complex")
 
 # mode = 'light', combinations according to type

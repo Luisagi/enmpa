@@ -27,7 +27,7 @@ or a combination of them. l = lineal, q = quadratic,
 p = interaction between two variables. Default = "l".}
 
 \item{mode}{(character) a character string to indicate the strategy to create
-formulas, must be among "light", "moderate", "intense" or "complex".
+formulas, must be among "light", "moderate", "intensive" or "complex".
 Default = "moderate".}
 
 \item{minvar}{(numeric) minimum number of features.}
@@ -55,7 +55,7 @@ variable combinations.
 \itemize{
 \item \strong{light} - returns simple iterations of complex forms.
 \item \strong{moderate} - returns a comprehensive number of iterations.
-\item \strong{intense} - returns all possible combination. Very time-consuming for 6
+\item \strong{intensive} - returns all possible combination. Very time-consuming for 6
 or more dependent variables.
 \item \strong{complex} - returns only the most complex formula.
 }
@@ -72,6 +72,6 @@ get_formulas(dep, ind, type = "lqp", mode = "complex")
 get_formulas(dep, ind, type = "lqp", mode = "light")
 
 # mode = 'light', combinations according to type
-get_formulas(dep, ind, type = "lqp", mode = "intense")
+get_formulas(dep, ind, type = "lqp", mode = "intensive")
 
 }

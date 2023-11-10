@@ -27,7 +27,7 @@ calibration_glm(data, dependent, independent, weights = NULL,
 p = interaction between two variables. Default = "l".}
 
 \item{form_mode}{(character) a character string to indicate the strategy to
-create the number of forms, must be among "light", "moderate", "intense" or
+create the number of forms, must be among "light", "moderate", "intensive" or
 "complex". Default = "moderate". "complex" returns only the most complex
 formula defined in \code{response_type}.}
 
@@ -94,14 +94,12 @@ those, pick the ones with delta AIC <= 2.
 \itemize{
 \item \strong{light} - returns simple iterations of complex formulas.
 \item \strong{moderate} - returns a comprehensive number of iterations.
-\item \strong{intense} - returns all possible combination. Very time-consuming for 6
+\item \strong{intensive} - returns all possible combination. Very time-consuming for 6
 or more dependent variables.
 \item \strong{complex} - returns only the most complex formula.
 }
 }
 \examples{
-library(enmpa)
-
 # Load species occurrences and environmental data.
 enm_data <- read.csv(system.file("extdata", "pa_data.csv", package = "enmpa"))
 head(enm_data)

@@ -22,7 +22,7 @@
 #' "p", "q" or a combination of them. l = lineal, q = quadratic,
 #' p = interaction between two variables. Default = "l".
 #' @param form_mode (character) a character string to indicate the strategy to
-#' create the number of forms, must be among "light", "moderate", "intense" or
+#' create the number of forms, must be among "light", "moderate", "intensive" or
 #' "complex". Default = "moderate". "complex" returns only the most complex
 #' formula defined in `response_type`.
 #' @param minvar (numeric) minimum number of features.
@@ -71,13 +71,11 @@
 #'  \code{type} for creating models:
 #' - **light** - returns simple iterations of complex formulas.
 #' - **moderate** - returns a comprehensive number of iterations.
-#' - **intense** - returns all possible combination. Very time-consuming for 6
+#' - **intensive** - returns all possible combination. Very time-consuming for 6
 #' or more dependent variables.
 #' - **complex** - returns only the most complex formula.
 #'
 #' @examples
-#' library(enmpa)
-#'
 #' # Load species occurrences and environmental data.
 #' enm_data <- read.csv(system.file("extdata", "pa_data.csv", package = "enmpa"))
 #' head(enm_data)
@@ -125,36 +123,30 @@ calibration_glm <- function(data, dependent, independent, weights = NULL,
     stop("Argument 'respuesta' must be defined if 'user_formulas' in NULL.")
   }
 
-
   ## 1. Data partitioning: k-Fold Cross-Validation
   if (is.null(partition_index)){
     k <- cv_kfolds
-    data_partition <- kfold_partition(data, dependent = dependent, k = k, seed = seed)
-
+    data_partition <- kfold_partition(data, dependent = dependent, k = k,
+                                      seed = seed)
   } else {
     k <- length(partition_index)
     data_partition <- partition_index
   }
 
   ## 2. Formula combination
-
   if (is.null(user_formulas)) {
-
     if (verbose == TRUE) {
       message("\nEstimating formulas combinations for evaluation.")
     }
-
     user_formulas <- get_formulas(dependent = dependent,
                                   independent = independent,
                                   type = response_type, mode = form_mode,
                                   minvar=minvar, maxvar = maxvar)
 
   } else {
-
     if (verbose == TRUE) {
     message("\nUsing user-defined formulas.")
     }
-
   }
 
   if (verbose == TRUE) {

@@ -1,45 +1,80 @@
-#' Fitting the selected models
+#' Fitting selected GLMs models
 #'
 #' @description
-#' Function that facilitates the fitting step of multiple models.
+#' Functions to facilitate fitting multiple GLMs.
 #'
-#' @param formulas (character) a vector containing the formula(s) of model(s).
-#' @param data data.frame or matrix with the dependent and independent variables.
+#' @param glm_calibration a list resulting from \code{\link{calibration_glm}}.
+#' Models fitted are those in the slot "selected".
+#' @param formulas (character) a vector containing the formula(s) for GLM(s).
+#' @param data data.frame with the dependent and independent variables.
 #' @param weights (numeric) a vector with the weights for observations.
-
-#' @return a list of fitted models
+#' Default = NULL.
+#' @param id (character) id code for models fitted. Default = NULL.
+#'
+#' @return A list of fitted GLMs.
+#'
+#' @export
+#' @importFrom stats glm as.formula binomial
+#' @rdname fit_glms
 #'
 #' @examples
-#' # Load species occurrences and environmental data.
-#' enm_data <- read.csv(system.file("extdata", "pa_data.csv", package = "enmpa"))
+#' # GLM calibration results
+#' data(cal_res, package = "enmpa")
+#'
+#' # Fitting selected models
+#' sel_fit <- fit_selected(cal_res)
+#'
+#' sel_fit
 #'
 #' # Custom formulas
 #' forms <- c("Sp ~ bio_1 + I(bio_1^2) + I(bio_12^2)",
 #'            "Sp ~ bio_12 + I(bio_1^2) + I(bio_12^2)")
 #'
 #' # Fitting models
-#' fits <- fit_glm(forms, data = enm_data)
+#' fits <- fit_glms(forms, data = cal_res$data)
 #'
 #' fits$Model_ID_1
-#' fits$Model_ID_2
-#'
-#' @export
-#'
-#' @importFrom stats glm as.formula binomial
-#'
 
-fit_glm <- function(formulas, data, weights = NULL){
+fit_selected <- function(glm_calibration) {
+  if (missing(glm_calibration)) {
+    stop("Arguments 'glm_calibration' must be defined.")
+  }
+
+  return(
+    fit_glms(formulas = glm_calibration$selected$Formulas,
+             data = glm_calibration$data,
+             weights = glm_calibration$weights,
+             id = glm_calibration$selected$ModelID)
+  )
+
+}
+
+
+#' @rdname fit_glms
+#' @usage fit_glms(formulas, data, weights = NULL)
+#' @export
+
+fit_glms <- function(formulas, data, weights = NULL, id = NULL) {
+  if (missing(formulas)) {
+    stop("Arguments 'formulas' must be defined.")
+  }
+  if (missing(data)) {
+    stop("Arguments 'data' must be defined.")
+  }
 
   # Model fitting
-  fits <- lapply(formulas, function(y){
+  fits <- lapply(formulas, function(y) {
     suppressWarnings(
       glm(formula = as.formula(y), family = binomial(link = "logit"),
-          data = data,
-          weights = weights)
+          data = data, weights = weights)
     )
   })
 
-  names(fits) <- paste0("Model_ID_", 1:length(formulas))
+  if (is.null(id)) {
+    names(fits) <- paste0("ModelID_", 1:length(formulas))
+  } else {
+    names(fits) <- id
+  }
 
   return(fits)
 }

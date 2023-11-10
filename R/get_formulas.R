@@ -1,10 +1,9 @@
-#' Get formulas according to types of responses needed
+#' Get GLM formulas according to types of responses needed
 #'
 #' @description
-#' Generate forms based on independent variables that can predict the dependent
-#' variable, taking into account the required response types. If necessary,
-#' calculate all possible combinations of these formulas considering different
-#' variable combinations.
+#' Generate GLM formulas for independent variables predicting a dependent
+#' variable, taking into account response types required. All possible
+#' combinations of variables can be created using arguments of the function
 #'
 #' @usage
 #' get_formulas(dependent, independent, type = "l", mode = "moderate",
@@ -12,23 +11,23 @@
 #'
 #' @param dependent (character) name of dependent variable.
 #' @param independent (character) a vector of names of independent variables.
-#' @param type (character) a character string that must contain "l", "p", "q"
-#' or a combination of them. l = lineal, q = quadratic,
+#' @param type (character) a character string that must contain the letters "l",
+#' "p", "q", or a combination of them. l = lineal, q = quadratic,
 #' p = interaction between two variables. Default = "l".
 #' @param mode (character) a character string to indicate the strategy to create
 #' formulas, must be among "light", "moderate", "intensive" or "complex".
 #' Default = "moderate".
-#' @param minvar (numeric) minimum number of features.
-#' @param maxvar (numeric) maximum number of features.
+#' @param minvar (numeric) minimum number of independent variables in formulas.
+#' @param maxvar (numeric) maximum number of independent variables in formulas.
 #'
 #' @details
-#'
-#' `mode` options determine what strategy to iterate the predictors defined in
-#'  \code{type}:
-#' - **light** - returns simple iterations of complex forms.
-#' - **moderate** - returns a comprehensive number of iterations.
-#' - **intensive** - returns all possible combination. Very time-consuming for 6
-#' or more dependent variables.
+#' `mode` options determine the strategy to combine independent variables
+#'  depending on \code{type}:
+#' - **light** - returns simple iterations of complex formulas.
+#' - **moderate** - returns a vector of formulas with increasing number of
+#' independent variables.
+#' - **intensive** - returns all possible combinations of variables. This can be
+#'  time-consuming for 6 or more independent variables.
 #' - **complex** - returns only the most complex formula.
 #'
 #' @return
@@ -52,7 +51,6 @@
 #'
 #' # mode = 'light', combinations according to type
 #' get_formulas(dep, ind, type = "lqp", mode = "intensive")
-#'
 
 get_formulas <- function(dependent, independent, type = "l",
                          mode = "moderate",

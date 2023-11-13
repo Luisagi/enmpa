@@ -108,8 +108,9 @@ model_validation <- function(formula, data, family = binomial(link = "logit"),
       )
 
       # Evaluation using Test Dependent data
-      pred_k <- stats::predict.glm(kfit, data_test[, -1], type = "response")
-      eval_k <- optimize_metrics(actual = data_test[, 1], predicted = pred_k,
+      pred_k <- stats::predict.glm(kfit, data_test, type = "response")
+      eval_k <- optimize_metrics(actual = data_test[, all.vars(f)[1]],
+                                 predicted = pred_k,
                                  n_threshold = n_threshold)$optimized
 
       res <- data.frame(Formulas = formula, Kfold = x,
@@ -118,8 +119,8 @@ model_validation <- function(formula, data, family = binomial(link = "logit"),
     }
 
   } else {
-    pred_global <- stats::predict.glm(gfit, data[, -1], type = "response")
-    eval_global <- optimize_metrics(actual = data[, 1],
+    pred_global <- stats::predict.glm(gfit, data, type = "response")
+    eval_global <- optimize_metrics(actual = data[, all.vars(f)[1]],
                                     predicted = pred_global,
                                     n_threshold = n_threshold)$optimized
     out <- data.frame(Formulas = formula, eval_global, Parameters = nparameters,

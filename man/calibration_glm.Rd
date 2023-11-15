@@ -5,7 +5,7 @@
 \title{GLM calibration with presence-absence data}
 \usage{
 calibration_glm(data, dependent, independent, weights = NULL,
-                response_type = "l", form_mode = "moderate",
+                response_type = "l", formula_mode = "moderate",
                 minvar = 1, maxvar = NULL, user_formulas = NULL,
                 cv_kfolds = 5, partition_index = NULL, seed = 1,
                 n_threshold = 100, selection_criterion = "TSS",
@@ -14,7 +14,8 @@ calibration_glm(data, dependent, independent, weights = NULL,
                 n_cores = NULL, verbose = TRUE)
 }
 \arguments{
-\item{data}{data.frame or matrix of independent variables.}
+\item{data}{data.frame or matrix of data to be used in model calibration.
+Columns represent dependent and independent variables.}
 
 \item{dependent}{(character) name of dependent variable.}
 
@@ -26,42 +27,42 @@ calibration_glm(data, dependent, independent, weights = NULL,
 "p", "q" or a combination of them. l = lineal, q = quadratic,
 p = interaction between two variables. Default = "l".}
 
-\item{form_mode}{(character) a character string to indicate the strategy to
-create the number of forms, must be among "light", "moderate", "intensive" or
-"complex". Default = "moderate". "complex" returns only the most complex
-formula defined in \code{response_type}.}
+\item{formula_mode}{(character) a character string to indicate the strategy to
+create the formulas for candidate models. Options are: "light", "moderate",
+"intensive", or "complex". Default = "moderate". "complex" returns only the
+most complex formula defined in \code{response_type}.}
 
-\item{minvar}{(numeric) minimum number of features.}
+\item{minvar}{(numeric) minimum number of independent variables in formulas.}
 
-\item{maxvar}{(numeric) maximum number of features.}
+\item{maxvar}{(numeric) maximum number of independent variables in formulas.}
 
-\item{user_formulas}{a vector of character with the set of formulas to test.
+\item{user_formulas}{(character) vector  with formula(s) to test.
 Default = NULL.}
 
 \item{cv_kfolds}{(numeric) number of folds to use for k-fold
 cross-validation exercises. Default = 5. Ignored if \code{partition_index}
 is defined.}
 
-\item{partition_index}{list of indices for cross-validation in k-fold. It can
-be calculated with enmpa::kfold_partition. Default = NULL.}
+\item{partition_index}{list of indices for cross-validation in k-fold. The
+default, NULL, uses the function \code{\link{kfold_partition}}.}
 
 \item{seed}{(numeric) a seed for k-fold partitioning.}
 
-\item{n_threshold}{(logical) number of thresholds to use to produce
-evaluation metrics. Default = 100,}
+\item{n_threshold}{(logical) number of threshold values to produce
+evaluation metrics. Default = 100.}
 
 \item{selection_criterion}{(character) criterion used to select best models,
 options are "TSS" and "ESS". Default = "TSS".}
 
-\item{exclude_bimodal}{(logical) whether to exclude from selected models those
-with one or more variable presenting concave responses. Default = FALSE.}
+\item{exclude_bimodal}{(logical) whether to filter out models with one or
+more variables presenting concave responses. Default = FALSE.}
 
-\item{tolerance}{(numeric) value to modify the metric used for model filtering
-for model selection if no models meet initial the consideration.
-Default = 0.01}
+\item{tolerance}{(numeric) value to modify the limit value of the metric
+used to filter models during model selection if none of the models meet
+initial considerations. Default = 0.01}
 
 \item{out_dir}{(character) output directory name to save the main calibration
-table results. Default = \code{NULL}.}
+results. Default = NULL.}
 
 \item{parallel}{(logical) whether to run on parallel or sequential.
 Default = FALSE.}
@@ -74,46 +75,43 @@ Default = TRUE}
 }
 \value{
 A list containing: selected models, a summary of statistics for all models,
-results obtained in cross-validation for all models, original data used, and
-weights.
+results obtained in cross-validation for all models, original data used,
+weights, and data-partition indices used.
 }
 \description{
-Wrapper function for facilitating model calibration and selection using
-presence-absence data and GLMs.
+Creates candidate models based on distinct parameter settings, evaluates
+models, and selects the ones that perform the best.
 }
 \details{
 Model evaluation is done considering the ability to predict presences and
-absences. Model selection consists of three steps: 1) a first filter to keep
-the models with ROC AUC >= 0.5 (statistically significant models), 2) a
-second filter to maintain only models that meet the \code{selection_criterion}
-("TSS": TSS >= 0.4; or "ESS": maximum Accuracy - \code{tolerance}), and 3) from
-those, pick the ones with delta AIC <= 2.
+absences,as well as model fitting and complexity. Model selection consists
+of three steps: 1) a first filter to keep the models with ROC AUC >= 0.5
+(statistically significant models), 2) a second filter to maintain only
+models that meet the \code{selection_criterion} ("TSS": TSS >= 0.4; or "ESS":
+maximum Accuracy - \code{tolerance}), and 3) from those, pick the ones with
+delta AIC <= 2.
 
-\code{mode} options determine what strategy to iterate the predictors defined in
-\code{type} for creating models:
+\code{formula_mode} options determine what strategy to iterate the predictors
+defined in \code{type} for creating models:
 \itemize{
-\item \strong{light} - returns simple iterations of complex formulas.
-\item \strong{moderate} - returns a comprehensive number of iterations.
-\item \strong{intensive} - returns all possible combination. Very time-consuming for 6
-or more dependent variables.
-\item \strong{complex} - returns only the most complex formula.
+\item \strong{light}.-- returns simple iterations of complex formulas.
+\item \strong{moderate}.-- returns a comprehensive number of iterations.
+\item \strong{intensive}.-- returns all possible combination. Very time-consuming for
+6 or more independent variables.
+\item \strong{complex}.-- returns only the most complex formula.
 }
 }
 \examples{
 # Load species occurrences and environmental data.
-enm_data <- read.csv(system.file("extdata", "pa_data.csv", package = "enmpa"))
+data("enm_data", package = "enmpa")
 head(enm_data)
 
 # Calibration using linear (l), quadratic (q), products(p) responses.
-cal_res <- calibration_glm(data = enm_data,
-                           dependent = "Sp",
+cal_res <- calibration_glm(data = enm_data, dependent = "Sp",
                            independent = c("bio_1", "bio_12"),
-                           response_type = "lpq",
-                           form_mode = "moderate",
-                           selection_criterion = "TSS",
-                           cv_kfolds = 3,
-                           exclude_bimodal = TRUE,
-                           verbose = FALSE)
+                           response_type = "lpq", formula_mode = "moderate",
+                           selection_criterion = "TSS", cv_kfolds = 3,
+                           exclude_bimodal = TRUE, verbose = FALSE)
 
 head(cal_res$calibration_results)
 head(cal_res$summary)

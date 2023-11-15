@@ -9,3 +9,41 @@
 #'
 #' str(cal_res)
 "cal_res"
+
+
+
+#' Example data used to run model calibration exercises
+#'
+#' @description A dataset containing information on presence and absence, and
+#' independent variables used to fit GLM models.
+#'
+#' @format A data frame with 5627 rows and 3 columns.
+#' \describe{
+#'   \item{Sp}{numeric, values of 0 = absence and 1 = presence.}
+#'   \item{bio_1}{numeric, temperature values.}
+#'   \item{bio_12}{numeric, precipitation values.}
+#' }
+#'
+#' @examples
+#' data("enm_data", package = "enmpa")
+#' head(enm_data)
+"enm_data"
+
+
+
+#' Example data used to test models
+#'
+#' @description A dataset containing information on presence and absence, and
+#' independent variables used to fit GLM models.
+#'
+#' @format A data frame with 100 rows and 3 columns.
+#' \describe{
+#'   \item{Sp}{numeric, values of 0 = absence and 1 = presence.}
+#'   \item{lon}{numeric, longitude values.}
+#'   \item{lat}{numeric, latitude values.}
+#' }
+#'
+#' @examples
+#' data("test", package = "enmpa")
+#' head(test)
+"test"

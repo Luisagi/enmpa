@@ -5,7 +5,7 @@
 \alias{get_formulas_main}
 \alias{aux_var_comb}
 \alias{aux_string_comb}
-\title{Get GLM formulas according to types of responses needed}
+\title{Get GLM formulas according to defined response types}
 \usage{
 get_formulas(dependent, independent, type = "l", mode = "moderate",
              minvar = 1, maxvar = NULL)
@@ -20,15 +20,15 @@ aux_string_comb(string)
 \arguments{
 \item{dependent}{(character) name of dependent variable.}
 
-\item{independent}{(character) a vector of names of independent variables.}
+\item{independent}{(character) vector of name(s) of independent variable(s).}
 
-\item{type}{(character) a character string that must contain the letters "l",
-"p", "q", or a combination of them. l = lineal, q = quadratic,
+\item{type}{(character) a character string that must contain "l",
+"p", "q" or a combination of them. l = lineal, q = quadratic,
 p = interaction between two variables. Default = "l".}
 
-\item{mode}{(character) a character string to indicate the strategy to create
-formulas, must be among "light", "moderate", "intensive" or "complex".
-Default = "moderate".}
+\item{mode}{(character) (character) a character string to indicate the strategy to
+create the formulas for candidate models. Options are: "light", "moderate",
+"intensive", or "complex". Default = "moderate".}
 
 \item{minvar}{(numeric) minimum number of independent variables in formulas.}
 
@@ -36,7 +36,7 @@ Default = "moderate".}
 
 \item{complex}{(logical) whether to return the most complex formula.}
 
-\item{var_names}{sames as \code{dependent}.}
+\item{var_names}{sames as \code{independent}.}
 
 \item{string}{same as \code{type}.}
 }
@@ -46,18 +46,17 @@ A character vector containing the resulting formula(s).
 \description{
 Generate GLM formulas for independent variables predicting a dependent
 variable, taking into account response types required. All possible
-combinations of variables can be created using arguments of the function
+combinations of variables can be created using arguments of the function.
 }
 \details{
-\code{mode} options determine the strategy to combine independent variables
-depending on \code{type}:
+\code{mode} options determine what strategy to iterate the predictors
+defined in \code{type} for creating models:
 \itemize{
-\item \strong{light} - returns simple iterations of complex formulas.
-\item \strong{moderate} - returns a vector of formulas with increasing number of
-independent variables.
-\item \strong{intensive} - returns all possible combinations of variables. This can be
-time-consuming for 6 or more independent variables.
-\item \strong{complex} - returns only the most complex formula.
+\item \strong{light}.-- returns simple iterations of complex formulas.
+\item \strong{moderate}.-- returns a comprehensive number of iterations.
+\item \strong{intensive}.-- returns all possible combination. Very time-consuming for
+6 or more independent variables.
+\item \strong{complex}.-- returns only the most complex formula.
 }
 }
 \examples{

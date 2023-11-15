@@ -1,34 +1,33 @@
-#' Get GLM formulas according to types of responses needed
+#' Get GLM formulas according to defined response types
 #'
 #' @description
 #' Generate GLM formulas for independent variables predicting a dependent
 #' variable, taking into account response types required. All possible
-#' combinations of variables can be created using arguments of the function
+#' combinations of variables can be created using arguments of the function.
 #'
 #' @usage
 #' get_formulas(dependent, independent, type = "l", mode = "moderate",
 #'              minvar = 1, maxvar = NULL)
 #'
 #' @param dependent (character) name of dependent variable.
-#' @param independent (character) a vector of names of independent variables.
-#' @param type (character) a character string that must contain the letters "l",
-#' "p", "q", or a combination of them. l = lineal, q = quadratic,
+#' @param independent (character) vector of name(s) of independent variable(s).
+#' @param type (character) a character string that must contain "l",
+#' "p", "q" or a combination of them. l = lineal, q = quadratic,
 #' p = interaction between two variables. Default = "l".
-#' @param mode (character) a character string to indicate the strategy to create
-#' formulas, must be among "light", "moderate", "intensive" or "complex".
-#' Default = "moderate".
+#' @param mode (character) (character) a character string to indicate the strategy to
+#' create the formulas for candidate models. Options are: "light", "moderate",
+#' "intensive", or "complex". Default = "moderate".
 #' @param minvar (numeric) minimum number of independent variables in formulas.
 #' @param maxvar (numeric) maximum number of independent variables in formulas.
 #'
 #' @details
-#' `mode` options determine the strategy to combine independent variables
-#'  depending on \code{type}:
-#' - **light** - returns simple iterations of complex formulas.
-#' - **moderate** - returns a vector of formulas with increasing number of
-#' independent variables.
-#' - **intensive** - returns all possible combinations of variables. This can be
-#'  time-consuming for 6 or more independent variables.
-#' - **complex** - returns only the most complex formula.
+#' `mode` options determine what strategy to iterate the predictors
+#' defined in \code{type} for creating models:
+#' - **light**.-- returns simple iterations of complex formulas.
+#' - **moderate**.-- returns a comprehensive number of iterations.
+#' - **intensive**.-- returns all possible combination. Very time-consuming for
+#' 6 or more independent variables.
+#' - **complex**.-- returns only the most complex formula.
 #'
 #' @return
 #' A character vector containing the resulting formula(s).
@@ -53,8 +52,7 @@
 #' get_formulas(dep, ind, type = "lqp", mode = "intensive")
 
 get_formulas <- function(dependent, independent, type = "l",
-                         mode = "moderate",
-                         minvar = 1, maxvar = NULL) {
+                         mode = "moderate", minvar = 1, maxvar = NULL) {
 
   # initial test
   if (!is.character(dependent) || length(dependent) != 1) {
@@ -75,7 +73,7 @@ get_formulas <- function(dependent, independent, type = "l",
     stop("'mode' must be defined as 'light', 'moderate', 'intensive' or 'complex'")
   }
 
-  if (mode == "light"){
+  if (mode == "light") {
 
     red_var_comb <- aux_var_comb(independent, minvar = 2, maxvar = maxvar)
     reponse_comb <- aux_string_comb(type)
@@ -87,7 +85,7 @@ get_formulas <- function(dependent, independent, type = "l",
     return(unlist(output, use.names = F ))
   }
 
-  if (mode == "moderate"){
+  if (mode == "moderate") {
 
     red_var_comb <- aux_var_comb(independent, minvar = 2, maxvar = maxvar)
     reponse_comb <- aux_string_comb(type)
@@ -117,8 +115,6 @@ get_formulas <- function(dependent, independent, type = "l",
     return(output)
   }
 }
-
-###___________ aux functions
 
 #' @export
 #' @rdname get_formulas
@@ -234,12 +230,12 @@ get_formulas_main <- function(dependent, independent, type = "l",
 
 #' @export
 #' @rdname get_formulas
-#' @param var_names sames as `dependent`.
+#' @param var_names sames as `independent`.
 
-# Variable combinaction from KUENM
+# Variable combination from KUENM
 aux_var_comb <- function(var_names, minvar = 2, maxvar = NULL) {
 
-  if(is.null(maxvar)){maxvar <- length(var_names)}
+  if(is.null(maxvar)) {maxvar <- length(var_names)}
 
   var_comb <- lapply(minvar:maxvar, function(x) {
     comb <- combn(var_names, m = x)

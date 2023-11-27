@@ -1,34 +1,45 @@
-#' Evaluate final models using an independent dataset.
+#' Evaluate final models using independent data
 #'
-#'@description
-#' The function enables a final evaluation of model predictions using a dataset
-#' that is independent of the one used for model calibration. The function is
-#' designed to detect and calculate different evaluation metrics depending on
-#' the type of occurrence data available: presences-only or presences-absences.
+#' @description
+#' Final evaluation steps for model predictions using an independent dataset
+#' (not used in model calibration).
 #'
-#' @param data data.frame or matrix with the occurrence data and spatial
-#' coordinates.
-#' @param prediction `SpatRaster` object of a model prediction.
+#' @usage
+#' independent_eval1(prediction, threshold, test_prediction = NULL,
+#'                   lon_lat = NULL)
+#'
+#' @param prediction (numeric) vector or `SpatRaster` object. If numeric,
+#' predicted values in independent data (for \code{\link{independent_eval01}}),
+#' or the entire area of prediction (for \code{\link{independent_eval1}}).
+#' If `SpatRaster` prediction over the area of interest.
 #' @param threshold (numeric) the lowest predicted probability value for an
 #' occurrence point. This value must be defined for presences-only data.
 #' Default = NULL.
-#' @param crs (character) any Coordinate Reference System (CRS)
-#' that \code{\link[terra]{vect}} function from `terra` accepts.
-#' @param occ (character) column name of the `data` containing the
-#' occurrence data.
-#' @param xy  (character) vector with the field names associated with the
-#' geometry data, representing the x-y coordinates. Default = c("lon", "lat").
+#' @param test_prediction (numeric) vector of predictions for independent data.
+#' Default = NULL.
+#' @param lon_lat matrix or data.frame of coordinates (longitude and latitude,
+#' in that order) of independent data. Points must be located within the valid
+#' area of `prediction`. For \code{\link{independent_eval01}} they
+#' must correspond with values in observation.
 #'
-#' @return data.frame or list containing evaluation results.
+#' @return
+#' A data.frame or list containing evaluation results.
+#'
+#' @export
+#'
+#' @rdname independent_eval
+#'
+#' @importFrom terra extract
 #'
 #' @examples
-#' # Independent test data based on coordinates (lon/lat WGS 84) from  presence
+#' # Independent test data based on coordinates (lon/lat WGS 84) from presence
 #' # and absences records
-#' test <- read.csv(system.file("extdata", "test_data.csv", package = "enmpa"))
+#' data("test", package = "enmpa")
 #' head(test)
 #'
 #' # Loading a model prediction
-#' pred <- terra::rast(system.file("extdata", "proj_out_wmean.tif", package = "enmpa"))
+#' pred <- terra::rast(system.file("extdata", "proj_out_wmean.tif",
+#'                                 package = "enmpa"))
 #' terra::plot(pred)
 #'
 #' # Evaluation using presence-absence data
@@ -41,88 +52,82 @@
 #'
 #' independent_eval(data = test_p_only, prediction = pred, threshold = th_maxTSS,
 #'                  occ = "Sp", crs = "EPSG:4326", xy = c("lon", "lat"))
-#'
-#' @export
-#'
-#' @importFrom terra same.crs vect
 
-
-
-independent_eval <- function(data, prediction, threshold = NULL,
-                             crs , occ = "sp", xy = c("lon", "lat")){
+independent_eval1 <- function(prediction, threshold, test_prediction = NULL,
+                              lon_lat = NULL) {
 
   # initial test
-  if (missing(data) | missing(prediction) | missing(crs)) {
-    stop("All requiere arguments must be defined.")
+  if (missing(prediction) | missing(threshold)) {
+    stop("Arguments 'prediction' and 'threshold' must be defined.")
+  }
+  if (threshold <= 0 | threshold >= 1) {
+    stop("Threshold value must be within the range 0-1.")
+  }
+  if (class(prediction)[1] == "SpatRaster" & is.null(lon_lat)) {
+    stop("Argument 'lonlat' is required if 'prediction' is a 'SpatRaster'.")
+  }
+  if (class(prediction)[1] == "numeric" & is.null(test_prediction)) {
+    stop("Argument 'test_prediction' is required if 'prediction' is a 'numeric' vector.")
   }
 
-  if (!class(data)[1] %in% c("matrix", "data.frame")) {
-    stop("'newdata' must be of class 'matrix', 'data.frame'.")
-  }
-
-  if (!class(prediction)[1] %in% c("SpatRaster")) {
-    stop("'prediction' must be of class 'SpatRaster'.")
-  }
-
-  # CRS checking
-  if (!terra::same.crs(prediction, crs)){
-    stop("Different Coordinate Reference Systems (CRS).")
-  }
-
-
-  # transform to a Spatvector object and extract predicted values
-  idata <- terra::vect(data, geom = xy, crs  = crs)
-
-  obs <- data.frame(idata)[, occ]
-  prd <- terra::extract(prediction, idata, ID = FALSE)[[1]]
-
-
-  # Check if the occurrence data contains only 1
-  if (all(obs == 1)) {
-    message("The occurrence data contains only presences.")
-
-    if (is.null(threshold)) {
-      message("A threshold value must be defined by the user.")
-
-    } else if (!(threshold >= 0 & threshold <= 1)) {
-      message("Threshold value must be in the range 0-1.")
-
-    } else {
-
-      # Omission error (false negative rate)
-      prd_bin <- ifelse(prd >= threshold, 1, 0)
-
-      fn <- sum(obs == 1 & prd_bin == 0) # false positives
-      tp <- sum(obs == 1)                # total real positives
-      oe <- fn / tp                      # Omission error
-
-      # pROC
-      proc <- proc_enm(test_prediction = prd, prediction = prediction)
-
-
-      oe_out <- data.frame(omission_error = oe,
-                           threshold = threshold,
-                           Mean_AUC_ratio_at_5 = proc$pROC_summary[[1]],
-                           pval_pROC = proc$pROC_summary[[2]])
-
-      return(oe_out)
-
+  if (class(prediction)[1] == "SpatRaster") {
+    if (!class(lon_lat)[1] %in% c("matrix", "data.frame")) {
+      stop("'lonlat' must be a 'matrix' or a 'data.frame'.")
     }
-
-    # Check if the occurrence data contains 0 and 1.
-  } else if (all(obs %in% c(0,1))) {
-    message("The occurrence data contains both presences and absences.")
-
-    metrics <- optimize_metrics(actual = obs,
-                                predicted = prd,
-                                n_threshold = 1000)
-    return(metrics$optimized)
-
-
+    # transform to a Spatvector object and extract predicted values
+    prd <- terra::extract(prediction, as.matrix(lon_lat))[, 1]
   } else {
-
-    stop("The occurrence data must contains '1' and/or '0' to be evaluated.\n")
-
+    prd <- test_prediction
   }
+
+  # Omission error (false negative rate)
+  oe <- sum(prd >= threshold) / length(prd)
+
+  # pROC
+  proc <- proc_enm(test_prediction = prd, prediction = prediction,
+                   threshold = round(threshold * 100, 2))
+
+  # results
+  oe_out <- data.frame(omission_error = oe,
+                       threshold = threshold,
+                       Mean_AUC_ratio = proc$pROC_summary[1],
+                       pval_pROC = proc$pROC_summary[2], row.names = NULL)
+
+  return(oe_out)
 }
 
+
+#' @param observation (numeric) vector of observed (known) values of presence
+#' or absence to test against `prediction` (if numeric) or values of prediction
+#' in `lon_lat`.
+#'
+#' @export
+#' @rdname independent_eval
+
+independent_eval01 <- function(prediction, observation, lon_lat = NULL) {
+
+  # initial test
+  if (missing(prediction) | missing(observation)) {
+    stop("Arguments 'prediction' and 'observation' must be defined.")
+  }
+  if (!all(observation %in% c(0, 1))) {
+    stop("'observation' contain non-valid values.")
+  }
+  if (class(prediction)[1] == "SpatRaster" & is.null(lon_lat)) {
+    stop("Argument 'lonlat' is required if 'prediction' is a 'SpatRaster'.")
+  }
+
+  if (class(prediction)[1] == "SpatRaster") {
+    if (!class(lon_lat)[1] %in% c("matrix", "data.frame")) {
+      stop("'lonlat' must be a 'matrix' or a 'data.frame'.")
+    }
+    # transform to a Spatvector object and extract predicted values
+    prediction <- terra::extract(prediction, as.matrix(lon_lat))[, 1]
+  }
+
+  # evaluation
+  metrics <- optimize_metrics(actual = observation, predicted = prediction,
+                              n_threshold = 1000)
+
+  return(metrics$optimized)
+}

@@ -24,6 +24,13 @@
 #' @details Partial ROC is calculated following Peterson et al. (2008;
 #' \url{http://dx.doi.org/10.1016/j.ecolmodel.2007.11.008}).
 #'
+#' @importFrom terra as.data.frame minmax
+#' @importFrom stats na.omit
+#'
+#' @useDynLib enmpa, .registration = TRUE
+#'
+#' @export
+#'
 #' @examples
 #' # Loading a model prediction
 #' pred <- terra::rast(system.file("extdata", "proj_out_wmean.tif", package = "enmpa"))
@@ -32,12 +39,6 @@
 #' test <- runif(100, min = 0.3, max = 0.8)
 #'
 #' proc_enm(test, pred, threshold = 5, sample_percentage = 50, iterations = 500)
-#'
-#'
-#' @importFrom terra as.data.frame minmax
-#' @importFrom stats na.omit
-#' @useDynLib enmpa, .registration = TRUE
-#' @export
 
 proc_enm <- function(test_prediction, prediction, threshold = 5,
                      sample_percentage = 50, iterations = 500) {

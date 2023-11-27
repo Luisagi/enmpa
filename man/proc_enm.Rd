@@ -43,6 +43,4 @@ pred <- terra::rast(system.file("extdata", "proj_out_wmean.tif", package = "enmp
 test <- runif(100, min = 0.3, max = 0.8)
 
 proc_enm(test, pred, threshold = 5, sample_percentage = 50, iterations = 500)
-
-
 }

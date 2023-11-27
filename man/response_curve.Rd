@@ -50,5 +50,7 @@ data(sel_fit, package = "enmpa")
 
 # Response curve for single models
 response_curve(sel_fit$ModelID_7, variable = "bio_1")
-response_curve(sel_fit$ModelID_7, variable = "bio_12")
+
+# Response curve when model(s) are in a list (only one model in this one)
+response_curve(sel_fit, variable = "bio_12")
 }

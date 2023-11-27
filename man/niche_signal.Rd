@@ -52,6 +52,9 @@ as environmental variable.}
 
 \item{permutations}{number of permutations to be performed.}
 }
+\value{
+A list with results from analysis depending on \code{method}.
+}
 \description{
 To assure the precision of the variables utilized in ENMs, we implemented in
 this package the methodology developed by
@@ -74,5 +77,4 @@ sn_bio1
 sn_bio12 <- niche_signal(data = enm_data, variables = "bio_12",
                          condition = "Sp", method = "univariate")
 sn_bio12
-
 }

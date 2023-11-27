@@ -36,6 +36,14 @@
 #' Default = TRUE.
 #' @param ... other arguments to be passed to \code{\link[vegan]{adonis2}}.
 #'
+#' @return
+#' A list with results from analysis depending on `method`.
+#'
+#' @export
+#'
+#' @importFrom vegan adonis2
+#' @importFrom stats median sd ecdf
+#'
 #' @rdname niche_signal
 #'
 #' @examples
@@ -51,12 +59,7 @@
 #' sn_bio12 <- niche_signal(data = enm_data, variables = "bio_12",
 #'                          condition = "Sp", method = "univariate")
 #' sn_bio12
-#'
-#' @export
-#'
-#' @importFrom vegan adonis2
-#' @importFrom stats median sd ecdf
-#'
+
 
 niche_signal <- function(data, condition, variables, method = "univariate",
                          permanova_method = "mahalanobis", iterations = 1000,

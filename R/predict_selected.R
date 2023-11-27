@@ -9,8 +9,8 @@
 #' predict_selected(fitted, newdata, clamping = FALSE,
 #'                  type = "response", consensus = TRUE)
 #'
-#' @param fitted a list resulting from \code{\link{calibration_glm}}.
-#' Predictions are from models in the slot "selected".
+#' @param fitted an object of class `glm` or a list of GLMs obtained using the
+#' functions \code{\link{fit_selected}} or \code{\link{fit_glms}}.
 #' @param newdata a `SpatRaster`, data.frame, or matrix with the new data on
 #' which to predict.
 #' @param clamping (logical) this option controls extrapolation when making

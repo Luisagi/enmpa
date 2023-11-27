@@ -8,8 +8,8 @@ predict_selected(fitted, newdata, clamping = FALSE,
                  type = "response", consensus = TRUE)
 }
 \arguments{
-\item{fitted}{a list resulting from \code{\link{calibration_glm}}.
-Predictions are from models in the slot "selected".}
+\item{fitted}{an object of class \code{glm} or a list of GLMs obtained using the
+functions \code{\link{fit_selected}} or \code{\link{fit_glms}}.}
 
 \item{newdata}{a \code{SpatRaster}, data.frame, or matrix with the new data on
 which to predict.}

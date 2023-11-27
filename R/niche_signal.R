@@ -1,13 +1,10 @@
-#' Niche Signal
+#' Niche Signal detection using one or multiple variables
 #'
 #' @description
-#' To assure the precision of the variables utilized in ENMs, we implemented in
-#' this package the methodology developed by
+#' Identifies whether a signal of niche can be detected using one or multiple
+#' variables. This is an implementation of the methods developed by
 #' \href{https://doi.org/10.17161/bi.v17i.15985}{Cobos & Peterson (2022)} that
 #' focuses on identifying niche signals in presence-absence data.
-#'
-#' By characterizing the sampling universe, this approach can determine whether
-#' pathogen detection is random or linked to particular environmental factors.
 #'
 #' @usage
 #' niche_signal(data, condition, variables, method = "univariate",

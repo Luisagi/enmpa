@@ -4,7 +4,7 @@
 \alias{niche_signal}
 \alias{niche_signal_univariate}
 \alias{niche_signal_permanova}
-\title{Niche Signal}
+\title{Niche Signal detection using one or multiple variables}
 \usage{
 niche_signal(data, condition, variables, method = "univariate",
              permanova_method = "mahalanobis", iterations = 1000,
@@ -56,13 +56,10 @@ as environmental variable.}
 A list with results from analysis depending on \code{method}.
 }
 \description{
-To assure the precision of the variables utilized in ENMs, we implemented in
-this package the methodology developed by
+Identifies whether a signal of niche can be detected using one or multiple
+variables. This is an implementation of the methods developed by
 \href{https://doi.org/10.17161/bi.v17i.15985}{Cobos & Peterson (2022)} that
 focuses on identifying niche signals in presence-absence data.
-
-By characterizing the sampling universe, this approach can determine whether
-pathogen detection is random or linked to particular environmental factors.
 }
 \examples{
 # Load species occurrences and environmental data.

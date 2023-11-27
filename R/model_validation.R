@@ -1,11 +1,10 @@
 #' Model validation options
 #'
 #' @description
-#' Model evaluation using entire set of data or a K-fold cross validation
+#' Model evaluation using entire set of data and a k-fold cross validation
 #' approach. Models are assessed based on discrimination power (ROC-AUC),
-#' classification capability (FPR, accuracy, sensitivity, specificity, and TSS ),
-#' and the balance between goodness-of-fit and complexity (number of parameters
-#' and AICc).
+#' classification ability (accuracy, sensitivity, specificity, TSS, etc.),
+#' and the balance between fitting and complexity (AIC).
 #'
 #' @usage
 #' model_validation(formula, data, family = binomial(link = "logit"),
@@ -13,25 +12,35 @@
 #'                  k = NULL, dependent = NULL, n_threshold = 100,
 #'                  keep_coefficients = FALSE, seed = 1)
 #'
-#' @param formula (character) `expressions` to return a `formula` object class.
-#' @param data data.frame to create model.
+#' @param formula (character) `expression` to be used as a glm `formula`.
+#' @param data data.frame with dependent and independent variables.
 #' @param family a `family` object for models used by functions such as `glm`.
-#' @param weights (numeric) vector with weights for observations.
-#' @param cv (logical) whether to use a k-fold cross validation.
+#' Default = binomial(link = "logit").
+#' @param weights (numeric) vector with weights for observations. Default = NULL.
+#' @param cv (logical) whether to use a k-fold cross validation for evaluation.
+#' Default = FALSE.
 #' @param partition_index list of indices for cross validation in k-fold.
+#' Obtained with the function \code{\link{kfold_partition}}. Default = NULL.
 #' @param k (numeric) number of folds for a new k-fold index preparation.
-#' Ignored if `partition_index` is defined.
+#' Ignored if `partition_index` is defined or if `cv` = FALSE. Default = NULL.
 #' @param dependent (character) name of dependent variable. Ignore if
-#' `cv` = FALSE.
-#' @param n_threshold (numeric) number of threshold values to be used.
+#' `cv` = FALSE. Default = NULL.
+#' @param n_threshold (numeric) number of threshold values to be used for ROC.
 #' Default = 100.
 #' @param keep_coefficients (logical) whether to keep model coefficients.
 #' Default = FALSE.
-#' @param seed (numeric) a seed number.
+#' @param seed (numeric) a seed number. Default = 1.
+#'
+#' @return
+#' A data.frame with results from evaluation.
+#'
+#' @export
+#'
+#' @importFrom stats as.formula binomial glm predict.glm
 #'
 #' @examples
 #' # Load species occurrences and environmental data.
-#' enm_data <- read.csv(system.file("extdata", "pa_data.csv", package = "enmpa"))
+#' data("enm_data", package = "enmpa")
 #' head(enm_data)
 #'
 #' # Custom formula
@@ -42,15 +51,6 @@
 #'
 #' # Model evaluation using a k-fold cross-validation (k = 3)
 #' model_validation(form, data = enm_data, cv = TRUE, k = 3, dependent = "Sp")
-#'
-#'
-#' @return
-#' data.frame
-#'
-#' @export
-#'
-#' @importFrom stats as.formula binomial glm predict.glm
-#'
 
 model_validation <- function(formula, data, family = binomial(link = "logit"),
                              weights = NULL, cv = FALSE, partition_index = NULL,

@@ -10,45 +10,47 @@ model_validation(formula, data, family = binomial(link = "logit"),
                  keep_coefficients = FALSE, seed = 1)
 }
 \arguments{
-\item{formula}{(character) \code{expressions} to return a \code{formula} object class.}
+\item{formula}{(character) \code{expression} to be used as a glm \code{formula}.}
 
-\item{data}{data.frame to create model.}
+\item{data}{data.frame with dependent and independent variables.}
 
-\item{family}{a \code{family} object for models used by functions such as \code{glm}.}
+\item{family}{a \code{family} object for models used by functions such as \code{glm}.
+Default = binomial(link = "logit").}
 
-\item{weights}{(numeric) vector with weights for observations.}
+\item{weights}{(numeric) vector with weights for observations. Default = NULL.}
 
-\item{cv}{(logical) whether to use a k-fold cross validation.}
+\item{cv}{(logical) whether to use a k-fold cross validation for evaluation.
+Default = FALSE.}
 
-\item{partition_index}{list of indices for cross validation in k-fold.}
+\item{partition_index}{list of indices for cross validation in k-fold.
+Obtained with the function \code{\link{kfold_partition}}. Default = NULL.}
 
 \item{k}{(numeric) number of folds for a new k-fold index preparation.
-Ignored if \code{partition_index} is defined.}
+Ignored if \code{partition_index} is defined or if \code{cv} = FALSE. Default = NULL.}
 
 \item{dependent}{(character) name of dependent variable. Ignore if
-\code{cv} = FALSE.}
+\code{cv} = FALSE. Default = NULL.}
 
-\item{n_threshold}{(numeric) number of threshold values to be used.
+\item{n_threshold}{(numeric) number of threshold values to be used for ROC.
 Default = 100.}
 
 \item{keep_coefficients}{(logical) whether to keep model coefficients.
 Default = FALSE.}
 
-\item{seed}{(numeric) a seed number.}
+\item{seed}{(numeric) a seed number. Default = 1.}
 }
 \value{
-data.frame
+A data.frame with results from evaluation.
 }
 \description{
-Model evaluation using entire set of data or a K-fold cross validation
+Model evaluation using entire set of data and a k-fold cross validation
 approach. Models are assessed based on discrimination power (ROC-AUC),
-classification capability (FPR, accuracy, sensitivity, specificity, and TSS ),
-and the balance between goodness-of-fit and complexity (number of parameters
-and AICc).
+classification ability (accuracy, sensitivity, specificity, TSS, etc.),
+and the balance between fitting and complexity (AIC).
 }
 \examples{
 # Load species occurrences and environmental data.
-enm_data <- read.csv(system.file("extdata", "pa_data.csv", package = "enmpa"))
+data("enm_data", package = "enmpa")
 head(enm_data)
 
 # Custom formula
@@ -59,6 +61,4 @@ model_validation(form, data = enm_data)
 
 # Model evaluation using a k-fold cross-validation (k = 3)
 model_validation(form, data = enm_data, cv = TRUE, k = 3, dependent = "Sp")
-
-
 }

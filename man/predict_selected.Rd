@@ -4,11 +4,11 @@
 \alias{predict_selected}
 \title{Predictions for the models selected after calibration}
 \usage{
-predict_selected(glm_calibration, newdata, clamping = FALSE,
+predict_selected(fitted, newdata, clamping = FALSE,
                  type = "response", consensus = TRUE)
 }
 \arguments{
-\item{glm_calibration}{a list resulting from \code{\link{calibration_glm}}.
+\item{fitted}{a list resulting from \code{\link{calibration_glm}}.
 Predictions are from models in the slot "selected".}
 
 \item{newdata}{a \code{SpatRaster}, data.frame, or matrix with the new data on
@@ -29,8 +29,9 @@ the mean, median, a weighted average using the AIC weights, and variance.
 Default = TRUE.}
 }
 \value{
-A list with predictions of selected models on the \code{newdata}. Consensus
-predictions are added if defined and if \code{newdata} is a \code{SpatRaster} object.
+A list with predictions of selected models on the \code{newdata} and fitted
+selected model(s). Consensus predictions are added if multiple selected
+models exits and if \code{newdata} is a \code{SpatRaster} object.
 }
 \description{
 Wrapper function that facilitates the prediction of those models
@@ -38,14 +39,14 @@ selected as the most robust. In addition, it allows the calculation of
 consensus models, when more than one model are selected.
 }
 \examples{
-# Load two fitted models
-data(cal_res, package = "enmpa")
+# Load a fitted selected model
+data(sel_fit, package = "enmpa")
 
 # Load raster layers to be projected
 env_vars <- terra::rast(system.file("extdata", "vars.tif", package = "enmpa"))
 
 # Predictions (only one selected mode, no consensus required)
-preds <- predict_selected(cal_res, newdata = env_vars, consensus = FALSE)
+preds <- predict_selected(sel_fit, newdata = env_vars, consensus = FALSE)
 
 # Plot prediction
 terra::plot(preds$predictions)

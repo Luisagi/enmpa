@@ -6,10 +6,10 @@
 #' consensus models, when more than one model are selected.
 #'
 #' @usage
-#' predict_selected(glm_calibration, newdata, clamping = FALSE,
+#' predict_selected(fitted, newdata, clamping = FALSE,
 #'                  type = "response", consensus = TRUE)
 #'
-#' @param glm_calibration a list resulting from \code{\link{calibration_glm}}.
+#' @param fitted a list resulting from \code{\link{calibration_glm}}.
 #' Predictions are from models in the slot "selected".
 #' @param newdata a `SpatRaster`, data.frame, or matrix with the new data on
 #' which to predict.
@@ -26,8 +26,9 @@
 #' Default = TRUE.
 #'
 #' @return
-#' A list with predictions of selected models on the `newdata`. Consensus
-#' predictions are added if defined and if `newdata` is a `SpatRaster` object.
+#' A list with predictions of selected models on the `newdata` and fitted
+#' selected model(s). Consensus predictions are added if multiple selected
+#' models exits and if `newdata` is a `SpatRaster` object.
 #'
 #' @export
 #'
@@ -35,34 +36,34 @@
 #' @importFrom stats var median
 #'
 #' @examples
-#' # Load two fitted models
-#' data(cal_res, package = "enmpa")
+#' # Load a fitted selected model
+#' data(sel_fit, package = "enmpa")
 #'
 #' # Load raster layers to be projected
 #' env_vars <- terra::rast(system.file("extdata", "vars.tif", package = "enmpa"))
 #'
 #' # Predictions (only one selected mode, no consensus required)
-#' preds <- predict_selected(cal_res, newdata = env_vars, consensus = FALSE)
+#' preds <- predict_selected(sel_fit, newdata = env_vars, consensus = FALSE)
 #'
 #' # Plot prediction
 #' terra::plot(preds$predictions)
 
-predict_selected <- function(glm_calibration, newdata, clamping = FALSE,
-                             type = "response", consensus = TRUE,
-                             consensus_weights = NULL) {
+predict_selected <- function(fitted, newdata, clamping = FALSE,
+                             type = "response", consensus = TRUE) {
 
-  if (missing(glm_calibration)) {
-    stop("Arguments 'glm_calibration' must be defined.")
+  if (missing(fitted)) {
+    stop("Arguments 'fitted' must be defined.")
   }
   if (missing(newdata)) {
     stop("Arguments 'newdata' must be defined.")
   }
 
-  # fitting selected models
-  x <- fit_selected(glm_calibration)
+  # separate parts
+  selected <- fitted$selected
+  fitted$selected <- NULL
 
   # Obtain the predicted values (p) for each selected model
-  p <- lapply(x, function(y) {
+  p <- lapply(fitted, function(y) {
     predict_glm(y, newdata, clamping = clamping, type = type)
   })
 
@@ -70,13 +71,13 @@ predict_selected <- function(glm_calibration, newdata, clamping = FALSE,
     p <- terra::rast(p)
   }
 
-  names(p) <- names(x)
+  names(p) <- names(fitted)
 
   # Consensus obtained by combining the forecasts from
   # the selected models.
-  if (consensus  && length(x) > 1 && class(newdata)[1] == "SpatRaster") {
-    cons_p <- consensus_p(predictions = p,
-                          weights = glm_calibration$selected$AIC_weight)
+  if (consensus  && length(fitted) > 1 &&
+      class(newdata)[1] == "SpatRaster") {
+    cons_p <- consensus_p(predictions = p, weights = selected$AIC_weight)
     out <- list(predictions = p, consensus = cons_p)
     return(out)
 

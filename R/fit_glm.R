@@ -11,7 +11,11 @@
 #' Default = NULL.
 #' @param id (character) id code for models fitted. Default = NULL.
 #'
-#' @return A list of fitted GLMs.
+#' @return
+#' A list of fitted GLMs.
+#'
+#' For `fit_selected`, the data.frame with results from model evaluation for
+#' selected models is added.
 #'
 #' @export
 #' @importFrom stats glm as.formula binomial
@@ -41,10 +45,13 @@ fit_selected <- function(glm_calibration) {
   }
 
   return(
-    fit_glms(formulas = glm_calibration$selected$Formulas,
-             data = glm_calibration$data,
-             weights = glm_calibration$weights,
-             id = glm_calibration$selected$ModelID)
+    c(
+      fit_glms(formulas = glm_calibration$selected$Formulas,
+               data = glm_calibration$data,
+               weights = glm_calibration$weights,
+               id = glm_calibration$selected$ModelID),
+      list(selected = glm_calibration$selected)
+    )
   )
 
 }

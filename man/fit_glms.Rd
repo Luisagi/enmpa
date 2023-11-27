@@ -24,6 +24,9 @@ Default = NULL.}
 }
 \value{
 A list of fitted GLMs.
+
+For \code{fit_selected}, the data.frame with results from model evaluation for
+selected models is added.
 }
 \description{
 Functions to facilitate fitting multiple GLMs.

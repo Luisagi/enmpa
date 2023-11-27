@@ -47,3 +47,20 @@
 #' data("test", package = "enmpa")
 #' head(test)
 "test"
+
+
+
+#' Example of selected models fitted
+#'
+#' @description A list containing fitted selected model(s) and the information
+#' from model evaluation for such model(s).
+#'
+#' @format A list with two elements.
+#' \describe{
+#'   \item{ModelID_7}{a fitted glm.}
+#'   \item{selected}{a data.frame with results from evaluation of ModelID_7}
+#' }
+#'
+#' @examples
+#' data("sel_fit", package = "enmpa")
+"sel_fit"

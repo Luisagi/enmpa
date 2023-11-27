@@ -277,7 +277,7 @@ consensus_p <- function(predictions, weights = NULL){
   if (!is.null(weights)) {
 
     if (sum(weights) != 1){
-      stop("The sum of the entered weights must be equal to 1 to calculate the weighted average.")
+      stop("'weights' must sum to 1 to calculate the weighted average.")
 
       } else {
         # Mean

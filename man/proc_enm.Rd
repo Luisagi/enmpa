@@ -37,10 +37,13 @@ Partial ROC is calculated following Peterson et al. (2008;
 }
 \examples{
 # Loading a model prediction
-pred <- terra::rast(system.file("extdata", "proj_out_wmean.tif", package = "enmpa"))
+pred <- terra::rast(system.file("extdata", "proj_out_wmean.tif",
+                                package = "enmpa"))
 
 # Simulated data
 test <- runif(100, min = 0.3, max = 0.8)
 
-proc_enm(test, pred, threshold = 5, sample_percentage = 50, iterations = 500)
+# partial ROC calculation
+pr <- proc_enm(test, pred, threshold = 5, sample_percentage = 50,
+               iterations = 500)
 }

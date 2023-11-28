@@ -1,25 +1,31 @@
 #' Plot variable importance
 #'
 #' @description
-#' It facilitates the visualization of the results obtained by the function
+#' Visualization of the results obtained with the function
 #' \code{\link{var_importance}}.
 #'
 #' @usage
-#' plot_importance(x,
-#'                 xlab = NULL,
-#'                 ylab = "Relative contribution",
-#'                 main = "Variable importance",
-#'                 extra_info = TRUE, ...)
+#' plot_importance(x, xlab = NULL, ylab = "Relative contribution",
+#'                 main = "Variable importance", extra_info = TRUE, ...)
 #'
 #'
 #' @param x data.frame output from \code{\link{var_importance}}.
 #' @param xlab (character) a label for the x axis.
 #' @param ylab (character) a label for the y axis.
 #' @param main (character) main title for the plot.
-#' @param extra_info (logical) adds extra details to the plot when there is
-#' more information from more than one model.
+#' @param extra_info (logical) when results are from more than one model, it
+#' adds information about the number of models using each predictor and the mean
+#' contribution found.
 #' @param ... additional arguments passed to \code{\link[graphics]{barplot}} or
 #' \code{\link[graphics]{boxplot}}.
+#'
+#' @return
+#' A plot
+#'
+#' @export
+#'
+#' @importFrom graphics barplot boxplot text
+#'
 #'
 #' @examples
 #' # Load two fitted models
@@ -35,40 +41,33 @@
 #' # Variable importance for multiple models
 #' vi_c <- var_importance(fits)
 #' plot_importance(x = vi_c)
-#'
-#' @export
-#'
-#' @importFrom graphics barplot boxplot text
-#'
 
 
-plot_importance <- function(x,
-                            xlab = NULL,
-                            ylab = "Relative contribution",
-                            main = "Variable importance",
-                            extra_info = TRUE, ...) {
+plot_importance <- function(x, xlab = NULL, ylab = "Relative contribution",
+                            main = "Variable importance", extra_info = TRUE,
+                            ...) {
+
+  if (missing(x)) {
+    stop("Argument 'x' must be defined.")
+  }
 
   # Check if single or multiple models
   if ("Models" %in% colnames(x)) {
 
     # sort predictors by importance
     sort_p <- with(x, reorder(predictor, contribution, median,
-                               decreasing = TRUE)
-                    )
+                               decreasing = TRUE))
 
     # Create a list of arguments to pass to boxplot
     boxplot_args <- list(formula = x$contribution ~ sort_p,
-                         main = main,
-                         xlab= xlab,
-                         ylab = ylab,
+                         main = main, xlab= xlab, ylab = ylab,
                          ylim = c(0, max(x$contribution) + 0.2), ...)
 
     # plot a boxplot using do.call()
     do.call(boxplot, boxplot_args)
 
 
-    if (extra_info){
-
+    if (extra_info) {
       #Calculate means and counts per group
       means  <- tapply(x$contribution, x$predictor, mean)[levels(sort_p)]
       counts <- tapply(x$contribution, x$predictor, length)[levels(sort_p)]
@@ -84,17 +83,12 @@ plot_importance <- function(x,
     }
 
   } else {
-
     # Create a list of arguments to pass to barplot
-    barplot_args <- list(height = x$contribution,
-                         names.arg = x$predictor,
-                         main = main,
-                         xlab = xlab,
-                         ylab = ylab, ...)
+    barplot_args <- list(height = x$contribution, names.arg = x$predictor,
+                         main = main, xlab = xlab, ylab = ylab, ...)
 
     # plot a barplot using do.call()
     do.call(barplot, barplot_args)
-
   }
 }
 

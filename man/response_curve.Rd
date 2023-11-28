@@ -2,59 +2,58 @@
 % Please edit documentation in R/response_curve.R
 \name{response_curve}
 \alias{response_curve}
-\title{Response curve}
+\title{Variable response curves for GLMs}
 \usage{
-response_curve(model, variable, n = 100, new_data = NULL, extrapolate = FALSE,
+response_curve(fitted, variable, n = 100, new_data = NULL, extrapolate = TRUE,
                xlab = NULL, ylab = "Probability", col = "red", ...)
 }
 \arguments{
-\item{model}{an object of class \code{glm} or a list of them which inherit
-from the class \code{lm}.}
+\item{fitted}{an object of class \code{glm} or a list of GLMs obtained using the
+functions \code{\link{fit_selected}} or \code{\link{fit_glms}}.}
 
 \item{variable}{(character) name of the variables to be plotted.}
 
-\item{n}{(numeric) an integer guiding the number of breaks. Default n = 100}
+\item{n}{(numeric) an integer guiding the number of breaks. Default = 100}
 
-\item{new_data}{a \code{SpatRaster}, data.frame or  matrix of variables
-representing the range of values for the complete extent in an area of
-interest. Default = NULL.}
+\item{new_data}{a \code{SpatRaster}, data.frame, or  matrix of variables
+representing the range of variable values in an area of interest.
+Default = NULL.}
 
 \item{extrapolate}{(logical) whether to allow extrapolation to study the
-behavior of the response outside the calibration limits. Ignored if \code{new_data}
-is defined.}
+behavior of the response outside the calibration limits. Ignored if
+\code{new_data} is defined. Default = TRUE.}
 
-\item{xlab}{(character) a label for the x axis.}
+\item{xlab}{(character) a label for the x axis. The default, NULL, uses the
+name defined in \code{variable}.}
 
-\item{ylab}{(character) a label for the y axis.}
+\item{ylab}{(character) a label for the y axis. Default = "Probability".}
 
-\item{col}{(character) color for lines.}
+\item{col}{(character) color for lines. Default = "red".}
 
 \item{...}{additional arguments passed to \code{\link[graphics]{plot}}.}
 }
+\value{
+A plot with the response curve for a \code{variable}.
+}
 \description{
-The function offers a comprehensive view of the response of a variable,
-either based on a single model or multiple models. It plots the probabilities
-of species presence across a wide range of values for a specific environmental
-variable.
-
+A view of variable responses in models. Responses based on single or multiple
+models can be provided.
+}
+\details{
 The function calculates these probabilities by focusing on a single
-environmental gradient while keeping all other gradients constant at their
-mean values (Elith et al., 2005). This approach allows for the estimation of
-response curves, enabling a deeper understanding of how species occurrence
-fluctuates in response to the environmental conditions captured by the
-variable.
+environmental variable while keeping all other variables constant at their
+mean values.
+
+When responses for multiple models are to be plotted, the mean and confidence
+intervals for the set of responses are calculated using a GAM.
 }
 \examples{
-# Load two fitted models
-load(system.file("extdata", "glm_fitted.RData", package = "enmpa"))
+# Load a fitted selected model
+data(sel_fit, package = "enmpa")
 
 # Response curve for single models
-response_curve(fits$Model_ID_1, variable = "bio_1",  extrapolate = TRUE)
-response_curve(fits$Model_ID_1, variable = "bio_12", extrapolate = TRUE)
+response_curve(sel_fit$ModelID_7, variable = "bio_1")
 
-# Consensus response curve for both models
-response_curve(fits, variable = "bio_1",  extrapolate = TRUE)
-response_curve(fits, variable = "bio_12", extrapolate = TRUE)
-
-
+# Response curve when model(s) are in a list (only one model in this one)
+response_curve(sel_fit, variable = "bio_12")
 }

@@ -1,18 +1,16 @@
 #' K-fold data partitioning
 #'
 #' @description
-#'
-#' The function is designed to partition the available data into k equal-sized
-#' subsets or folds while maintaining the global proportion of presence-absences
-#' in each fold. This approach leads to a more robust evaluation of the model's
-#' performance, as it accounts for the inherent variability in the data.
+#' Creates indices to partition available data into k equal-sized
+#' subsets or folds, maintaining the global proportion of presence-absences
+#' in each fold.
 #'
 #' @usage
 #' kfold_partition(data, dependent, k = 2, seed = 1)
 #'
 #' @param data data.frame or matrix containing at least two columns.
-#' @param dependent (character) column name that contains the absence and presence records as 0
-#' and 1.
+#' @param dependent (character) name of column that contains the
+#' presence-absence records (1-0).
 #' @param k (numeric) the number of groups that the given data is to be split
 #' into.
 #' @param seed (numeric) integer value to specify an initial seed. Default = 1.
@@ -20,21 +18,20 @@
 #' @return
 #' A list of vectors with the indices of rows corresponding to each fold.
 #'
+#' @export
 #'
 #' @examples
-#'
+#' # example data
 #' data <- data.frame(species = c(rep(0, 80), rep (1,20)),
 #'                    variable1 = rnorm(100),
 #'                    variable2 = rpois(100, 2))
 #'
+#' # create partition indices
 #' kfolds <- kfold_partition(data, dependent = "species", k = 2)
 #'
-#' data[kfolds$Fold_1,]
-#' data[kfolds$Fold_2,]
-#'
-#'
-#' @export
-#'
+#' # data for partition 1
+#' data[kfolds$Fold_1, ]
+
 
 kfold_partition <- function(data, dependent, k = 2,  seed = 1){
 
@@ -52,7 +49,7 @@ kfold_partition <- function(data, dependent, k = 2,  seed = 1){
   pre <- which(data[, dependent] == 1)
   aus <- which(data[, dependent] == 0)
 
-  #To each original position we assign a value from 1:k and the is randomly shuffled
+  # To each original position we assign a value from 1:k and the is randomly shuffled
   set.seed(seed)
   foldp <- sample(cut(seq(1, length(pre)), breaks = k, labels = FALSE))
   folda <- sample(cut(seq(1, length(aus)), breaks = k, labels = FALSE))

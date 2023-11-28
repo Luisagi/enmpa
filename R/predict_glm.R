@@ -1,21 +1,26 @@
-#' Model Prediction
+#' Extension of glm predict to generate predictions of different types
 #'
 #' @description
-#'  Obtains predictions from a fitted generalized linear model object. It also
-#'  allows the clamping option to avoid extrapolation in areas outside the
-#'  calibration area.
+#' Obtains predictions from a fitted generalized linear model objects. It also
+#' allows the clamping option to restrict extrapolation in areas outside the
+#' calibration area.
 #'
-#' @param model a `glm` fitted object.
+#' @param model a `glm` object.
 #' @param newdata a data.frame or matrix with the new data to project the
 #' predictions.
 #' @param clamping (logical) whether to clamp values to a minimum and maximum
-#' value, that are establish for the max and min values of the calibration
-#' limits. Default = FALSE.
+#' value, that are established for the max and min values within calibration
+#' values. Default = FALSE.
 #' @param type (character) the type of prediction required. For a default
 #' binomial model the default predictions are of log-odds (probabilities on
-#' logit scale) and type = "response" gives the predicted probabilities.
+#' logit scale). The default, "response", returns predicted probabilities.
 #'
-#' @return a `SpatRaster` object or a vector of probabilities.
+#' @return
+#' A `SpatRaster` object or a vector with predictions.
+#'
+#' @export
+#' @importFrom terra as.data.frame predict setValues
+#' @importFrom stats coef predict.glm
 #'
 #' @examples
 #' # Load two fitted models
@@ -27,11 +32,6 @@
 #' # Prediction
 #' pred <- predict_glm(fits$Model_ID_1, newdata = env_vars)
 #' terra::plot(pred)
-#'
-#' @export
-#' @importFrom terra as.data.frame predict setValues
-#' @importFrom stats coef predict.glm
-#'
 
 predict_glm <- function(model, newdata, clamping = FALSE,
                         type = "response") {
@@ -47,8 +47,7 @@ predict_glm <- function(model, newdata, clamping = FALSE,
     }
   }
 
-  ## clamping to the calibration limits
-
+  # clamping to the calibration limits
   if (clamping) {
 
     if (class(newdata)[1] == "SpatRaster") {
@@ -78,11 +77,10 @@ predict_glm <- function(model, newdata, clamping = FALSE,
     }
   }
 
-  ### Prediction
-
+  # Prediction
   if (class(newdata)[1] == "SpatRaster") {
     out <- terra::predict(newdata, model,  type = "response")
-  } else{
+  } else {
     out <- predict.glm(model, newdata, type = "response")
   }
 

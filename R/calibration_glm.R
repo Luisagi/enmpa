@@ -1,12 +1,12 @@
 #' GLM calibration with presence-absence data
 #'
 #' @description
-#' Wrapper function for facilitating model calibration and selection using
-#' presence-absence data and GLMs.
+#' Creates candidate models based on distinct parameter settings, evaluates
+#' models, and selects the ones that perform the best.
 #'
 #' @usage
 #' calibration_glm(data, dependent, independent, weights = NULL,
-#'                 response_type = "l", form_mode = "moderate",
+#'                 response_type = "l", formula_mode = "moderate",
 #'                 minvar = 1, maxvar = NULL, user_formulas = NULL,
 #'                 cv_kfolds = 5, partition_index = NULL, seed = 1,
 #'                 n_threshold = 100, selection_criterion = "TSS",
@@ -14,38 +14,39 @@
 #'                 out_dir = NULL, parallel = FALSE,
 #'                 n_cores = NULL, verbose = TRUE)
 #'
-#' @param data data.frame or matrix of independent variables.
+#' @param data data.frame or matrix of data to be used in model calibration.
+#' Columns represent dependent and independent variables.
 #' @param dependent (character) name of dependent variable.
 #' @param independent (character) vector of name(s) of independent variable(s).
 #' @param weights (numeric) a vector with the weights for observations.
 #' @param response_type (character) a character string that must contain "l",
 #' "p", "q" or a combination of them. l = lineal, q = quadratic,
 #' p = interaction between two variables. Default = "l".
-#' @param form_mode (character) a character string to indicate the strategy to
-#' create the number of forms, must be among "light", "moderate", "intense" or
-#' "complex". Default = "moderate". "complex" returns only the most complex
-#' formula defined in `response_type`.
-#' @param minvar (numeric) minimum number of features.
-#' @param maxvar (numeric) maximum number of features.
-#' @param user_formulas a vector of character with the set of formulas to test.
+#' @param formula_mode (character) a character string to indicate the strategy to
+#' create the formulas for candidate models. Options are: "light", "moderate",
+#' "intensive", or "complex". Default = "moderate". "complex" returns only the
+#' most complex formula defined in `response_type`.
+#' @param minvar (numeric) minimum number of independent variables in formulas.
+#' @param maxvar (numeric) maximum number of independent variables in formulas.
+#' @param user_formulas (character) vector  with formula(s) to test.
 #' Default = NULL.
-#' @param partition_index list of indices for cross-validation in k-fold. It can
-#' be calculated with enmpa::kfold_partition. Default = NULL.
+#' @param partition_index list of indices for cross-validation in k-fold. The
+#' default, NULL, uses the function \code{\link{kfold_partition}}.
 #' @param cv_kfolds (numeric) number of folds to use for k-fold
 #' cross-validation exercises. Default = 5. Ignored if `partition_index`
 #' is defined.
 #' @param seed (numeric) a seed for k-fold partitioning.
-#' @param n_threshold (logical) number of thresholds to use to produce
-#' evaluation metrics. Default = 100,
+#' @param n_threshold (logical) number of threshold values to produce
+#' evaluation metrics. Default = 100.
 #' @param selection_criterion (character) criterion used to select best models,
 #' options are "TSS" and "ESS". Default = "TSS".
-#' @param exclude_bimodal (logical) whether to exclude from selected models those
-#' with one or more variable presenting concave responses. Default = FALSE.
-#' @param tolerance (numeric) value to modify the metric used for model filtering
-#' for model selection if no models meet initial the consideration.
-#' Default = 0.01
+#' @param exclude_bimodal (logical) whether to filter out models with one or
+#' more variables presenting concave responses. Default = FALSE.
+#' @param tolerance (numeric) value to modify the limit value of the metric
+#' used to filter models during model selection if none of the models meet
+#' initial considerations. Default = 0.01
 #' @param out_dir (character) output directory name to save the main calibration
-#' table results. Default = `NULL`.
+#' results. Default = NULL.
 #' @param parallel (logical) whether to run on parallel or sequential.
 #' Default = FALSE.
 #' @param n_cores (numeric) number of cores to use. Default = number of free
@@ -55,43 +56,38 @@
 #'
 #' @return
 #' A list containing: selected models, a summary of statistics for all models,
-#' results obtained in cross-validation for all models, original data used, and
-#' weights.
+#' results obtained in cross-validation for all models, original data used,
+#' weights, and data-partition indices used.
 #'
 #' @details
 #' Model evaluation is done considering the ability to predict presences and
-#' absences. Model selection consists of three steps: 1) a first filter to keep
-#' the models with ROC AUC >= 0.5 (statistically significant models), 2) a
-#' second filter to maintain only models that meet the `selection_criterion`
-#' ("TSS": TSS >= 0.4; or "ESS": maximum Accuracy - `tolerance`), and 3) from
-#' those, pick the ones with delta AIC <= 2.
+#' absences,as well as model fitting and complexity. Model selection consists
+#' of three steps: 1) a first filter to keep the models with ROC AUC >= 0.5
+#' (statistically significant models), 2) a second filter to maintain only
+#' models that meet the `selection_criterion` ("TSS": TSS >= 0.4; or "ESS":
+#' maximum Accuracy - `tolerance`), and 3) from those, pick the ones with
+#' delta AIC <= 2.
 #'
 #'
-#' `mode` options determine what strategy to iterate the predictors defined in
-#'  \code{type} for creating models:
-#' - **light** - returns simple iterations of complex formulas.
-#' - **moderate** - returns a comprehensive number of iterations.
-#' - **intense** - returns all possible combination. Very time-consuming for 6
-#' or more dependent variables.
-#' - **complex** - returns only the most complex formula.
+#' `formula_mode` options determine what strategy to iterate the predictors
+#' defined in \code{type} for creating models:
+#' - **light**.-- returns simple iterations of complex formulas.
+#' - **moderate**.-- returns a comprehensive number of iterations.
+#' - **intensive**.-- returns all possible combination. Very time-consuming for
+#' 6 or more independent variables.
+#' - **complex**.-- returns only the most complex formula.
 #'
 #' @examples
-#' library(enmpa)
-#'
 #' # Load species occurrences and environmental data.
-#' enm_data <- read.csv(system.file("extdata", "pa_data.csv", package = "enmpa"))
+#' data("enm_data", package = "enmpa")
 #' head(enm_data)
 #'
 #' # Calibration using linear (l), quadratic (q), products(p) responses.
-#' cal_res <- calibration_glm(data = enm_data,
-#'                            dependent = "Sp",
+#' cal_res <- calibration_glm(data = enm_data, dependent = "Sp",
 #'                            independent = c("bio_1", "bio_12"),
-#'                            response_type = "lpq",
-#'                            form_mode = "moderate",
-#'                            selection_criterion = "TSS",
-#'                            cv_kfolds = 3,
-#'                            exclude_bimodal = TRUE,
-#'                            verbose = FALSE)
+#'                            response_type = "lpq", formula_mode = "moderate",
+#'                            selection_criterion = "TSS", cv_kfolds = 3,
+#'                            exclude_bimodal = TRUE, verbose = FALSE)
 #'
 #' head(cal_res$calibration_results)
 #' head(cal_res$summary)
@@ -108,7 +104,7 @@
 #' @importFrom foreach foreach %dopar%
 
 calibration_glm <- function(data, dependent, independent, weights = NULL,
-                            response_type = "l", form_mode = "moderate",
+                            response_type = "l", formula_mode = "moderate",
                             minvar=1, maxvar = NULL,  user_formulas = NULL,
                             cv_kfolds = 5, partition_index = NULL, seed = 1,
                             n_threshold = 100, selection_criterion = "TSS",
@@ -125,36 +121,30 @@ calibration_glm <- function(data, dependent, independent, weights = NULL,
     stop("Argument 'respuesta' must be defined if 'user_formulas' in NULL.")
   }
 
-
   ## 1. Data partitioning: k-Fold Cross-Validation
   if (is.null(partition_index)){
     k <- cv_kfolds
-    data_partition <- kfold_partition(data, dependent = dependent, k = k, seed = seed)
-
+    data_partition <- kfold_partition(data, dependent = dependent, k = k,
+                                      seed = seed)
   } else {
     k <- length(partition_index)
     data_partition <- partition_index
   }
 
   ## 2. Formula combination
-
   if (is.null(user_formulas)) {
-
     if (verbose == TRUE) {
       message("\nEstimating formulas combinations for evaluation.")
     }
-
     user_formulas <- get_formulas(dependent = dependent,
                                   independent = independent,
-                                  type = response_type, mode = form_mode,
+                                  type = response_type, mode = formula_mode,
                                   minvar=minvar, maxvar = maxvar)
 
   } else {
-
     if (verbose == TRUE) {
     message("\nUsing user-defined formulas.")
     }
-
   }
 
   if (verbose == TRUE) {
@@ -263,8 +253,7 @@ calibration_glm <- function(data, dependent, independent, weights = NULL,
 
   # Summary stats: mean and SD calculation for each model based on folds
   stats <- evaluation_stats(evaluation_results = glm_res,
-                            bimodal_toexclude = exclude_bimodal,
-                            cv_kfolds = k)
+                            bimodal_toexclude = exclude_bimodal)
 
   # selected models
   sel <- model_selection(evaluation_stats = stats,

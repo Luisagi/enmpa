@@ -5,8 +5,8 @@
 \alias{enmpa}
 \title{enmpa: Ecological Niche Modeling using Presence-Absence Data}
 \description{
-\code{enmpa} contains a set of tools to perform Ecological Niche Modeling with
-presence-absence data.
+\code{enmpa} contains a set of tools to perform detailed Ecological Niche Modeling
+using presence-absence data.
 }
 \details{
 It includes algorithms for data partitioning, model fitting, calibration,
@@ -15,14 +15,13 @@ features as such variable response curves and variable importance.
 }
 \section{Main functions in \code{enmpa}}{
 
-\code{\link{calibration_glm}}, \code{\link{get_formulas}},
+\code{\link{calibration_glm}}, \code{\link{evaluation_stats}},
+\code{\link{fit_glms}}, \code{\link{fit_selected}},
+\code{\link{get_formulas}}, \code{\link{independent_eval}},
+\code{\link{kfold_partition}}, \code{\link{model_selection}}
+\code{\link{model_validation}}, \code{\link{niche_signal}},
+\code{\link{optimize_metrics}}, \code{\link{predict_glm}},
 \code{\link{predict_selected}}, \code{\link{response_curve}},
-\code{\link{var_importance}}, \code{\link{independent_eval}}
-add others
-}
-
-\section{Data included}{
-
-add data names as with the functions here
+\code{\link{var_importance}}
 }
 

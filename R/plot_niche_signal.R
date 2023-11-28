@@ -1,4 +1,4 @@
-#' Plot Niche Signal
+#' Plot Niche Signal results
 #'
 #' @description
 #' Plots to interpret results from niche_signal tests
@@ -53,6 +53,15 @@
 #' recommended. Default = c("black", "red").
 #' @param ... other plotting arguments to be used.
 #'
+#' @return
+#' A plot.
+#'
+#' @export
+#'
+#' @importFrom ellipse ellipse
+#' @importFrom stats cov anova ecdf quantile
+#' @importFrom graphics lines box hist points
+#'
 #' @rdname plot_niche_signal
 #'
 #' @examples
@@ -74,13 +83,6 @@
 #'                          method = "univariate")
 #'
 #' plot_niche_signal(sn_bio12, variables = "bio_12")
-#'
-#'
-#' @export
-#'
-#' @importFrom ellipse ellipse
-#' @importFrom stats cov anova ecdf quantile
-#' @importFrom graphics lines box hist points
 
 
 plot_niche_signal <- function(niche_signal_list, statistic = "mean",

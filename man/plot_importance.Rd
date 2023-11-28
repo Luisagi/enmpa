@@ -4,11 +4,8 @@
 \alias{plot_importance}
 \title{Plot variable importance}
 \usage{
-plot_importance(x,
-                xlab = NULL,
-                ylab = "Relative contribution",
-                main = "Variable importance",
-                extra_info = TRUE, ...)
+plot_importance(x, xlab = NULL, ylab = "Relative contribution",
+                main = "Variable importance", extra_info = TRUE, ...)
 }
 \arguments{
 \item{x}{data.frame output from \code{\link{var_importance}}.}
@@ -19,14 +16,18 @@ plot_importance(x,
 
 \item{main}{(character) main title for the plot.}
 
-\item{extra_info}{(logical) adds extra details to the plot when there is
-more information from more than one model.}
+\item{extra_info}{(logical) when results are from more than one model, it
+adds information about the number of models using each predictor and the mean
+contribution found.}
 
 \item{...}{additional arguments passed to \code{\link[graphics]{barplot}} or
 \code{\link[graphics]{boxplot}}.}
 }
+\value{
+A plot
+}
 \description{
-It facilitates the visualization of the results obtained by the function
+Visualization of the results obtained with the function
 \code{\link{var_importance}}.
 }
 \examples{
@@ -43,5 +44,4 @@ plot_importance(x = vi_2)
 # Variable importance for multiple models
 vi_c <- var_importance(fits)
 plot_importance(x = vi_c)
-
 }

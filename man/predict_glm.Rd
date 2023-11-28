@@ -2,30 +2,30 @@
 % Please edit documentation in R/predict_glm.R
 \name{predict_glm}
 \alias{predict_glm}
-\title{Model Prediction}
+\title{Extension of glm predict to generate predictions of different types}
 \usage{
 predict_glm(model, newdata, clamping = FALSE, type = "response")
 }
 \arguments{
-\item{model}{a \code{glm} fitted object.}
+\item{model}{a \code{glm} object.}
 
 \item{newdata}{a data.frame or matrix with the new data to project the
 predictions.}
 
 \item{clamping}{(logical) whether to clamp values to a minimum and maximum
-value, that are establish for the max and min values of the calibration
-limits. Default = FALSE.}
+value, that are established for the max and min values within calibration
+values. Default = FALSE.}
 
 \item{type}{(character) the type of prediction required. For a default
 binomial model the default predictions are of log-odds (probabilities on
-logit scale) and type = "response" gives the predicted probabilities.}
+logit scale). The default, "response", returns predicted probabilities.}
 }
 \value{
-a \code{SpatRaster} object or a vector of probabilities.
+A \code{SpatRaster} object or a vector with predictions.
 }
 \description{
-Obtains predictions from a fitted generalized linear model object. It also
-allows the clamping option to avoid extrapolation in areas outside the
+Obtains predictions from a fitted generalized linear model objects. It also
+allows the clamping option to restrict extrapolation in areas outside the
 calibration area.
 }
 \examples{
@@ -38,5 +38,4 @@ env_vars <- terra::rast(system.file("extdata", "vars.tif", package = "enmpa"))
 # Prediction
 pred <- predict_glm(fits$Model_ID_1, newdata = env_vars)
 terra::plot(pred)
-
 }

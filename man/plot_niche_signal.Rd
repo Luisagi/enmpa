@@ -4,7 +4,7 @@
 \alias{plot_niche_signal}
 \alias{plot_niche_signal_univariate}
 \alias{plot_niche_signal_permanova}
-\title{Plot Niche Signal}
+\title{Plot Niche Signal results}
 \usage{
 plot_niche_signal(niche_signal_list, statistic = "mean",
                   variables = NULL, ellipses = FALSE, level = 0.99,
@@ -90,6 +90,9 @@ recommended. Default = c("black", "red").}
 
 \item{niche_signal_permanova_list}{list of results from niche_signal_permanova.}
 }
+\value{
+A plot.
+}
 \description{
 Plots to interpret results from niche_signal tests
 (\href{https://doi.org/10.17161/bi.v17i.15985}{Cobos & Peterson, 2022}).
@@ -113,6 +116,4 @@ sn_bio12 <- niche_signal(data = enm_data,
                          method = "univariate")
 
 plot_niche_signal(sn_bio12, variables = "bio_12")
-
-
 }

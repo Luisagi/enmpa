@@ -8,7 +8,7 @@ optimize_metrics(actual, predicted, n_threshold = 100)
 }
 \arguments{
 \item{actual}{(numeric) vector of actual values (0, 1) to be compared to
-\code{predicted} values after thresholding.}
+\code{predicted} values after applying a threshold.}
 
 \item{predicted}{(numeric) vector of predicted probability values to be
 thresholded and compared to \code{actual}.}

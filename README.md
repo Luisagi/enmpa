@@ -3,18 +3,20 @@ enmpa: Ecological Niche Modeling for Presence-absence Data
 Luis F. Arias-Giraldo, Marlon E. Cobos, A. Townsend Peterson
 
 - [Installation](#installation)
+- [Packages required](#packages-required)
+- [Example data](#example-data)
 - [Example](#example)
-  - [Loading packages needed](#loading-packages-needed)
-  - [Example data](#example-data)
-  - [Detecting niche signals](#detecting-niche-signals)
+  - [Detecting signals of ecological
+    niche](#detecting-signals-of-ecological-niche)
   - [Model formulas](#model-formulas)
   - [Model calibration and selection](#model-calibration-and-selection)
-  - [Fitting and predictions of the most robust candidates
-    models](#fitting-and-predictions-of-the-most-robust-candidates-models)
+  - [Fitting and predictions for selected
+    models](#fitting-and-predictions-for-selected-models)
   - [Consensus models](#consensus-models)
   - [Response Curves](#response-curves)
   - [Variable importance](#variable-importance)
-  - [Final model evaluation](#final-model-evaluation)
+  - [Model evaluation with independent
+    data](#model-evaluation-with-independent-data)
   - [Literature](#literature)
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -22,10 +24,10 @@ Luis F. Arias-Giraldo, Marlon E. Cobos, A. Townsend Peterson
 <!-- badges: end -->
 <hr>
 
-The package `enmpa` comprises a set of tools to perform Ecological Niche
-Modeling using presence-absence data. Some of the main functions help
-perform data partitioning, model calibration, model selection, variable
-response exploration, and model projection.
+`enmpa` is an r package that contains a set of tools to perform
+Ecological Niche Modeling using presence-absence data. Some of the main
+functions help perform data partitioning, model calibration, model
+selection, variable response exploration, and model projection.
 
 <br>
 
@@ -41,12 +43,10 @@ remotes::install_github("Luisagi/enmpa")
 
 <br>
 
-## Example
+## Packages required
 
-### Loading packages needed
-
-The package `terra` will be used to handle spatial data, and `enmpa`
-will be used to perform ENM.
+The package `terra` is used to handle spatial data, and `enmpa` is used
+to perform ENM.
 
 ``` r
 library(enmpa)
@@ -55,17 +55,22 @@ library(terra)
 
 <br>
 
-### Example data
+## Example data
 
-This is a basic example which shows you how to solve a common problem:
+The data used in this example is included in `enmpa`.
 
 ``` r
-# Load species occurrences and environmental data.
-pa_data  <- read.csv(system.file("extdata", "pa_data.csv", package = "enmpa"))
-env_vars <- terra::rast(system.file("extdata", "vars.tif", package = "enmpa"))
+# Species presence absence data associated with envrionmental variables
+data("enm_data", package = "enmpa")
 
-# Presence-absence data with the values of environmental variables associated
-head(pa_data)
+# Data for final model evaluation 
+data("test", package = "enmpa")
+
+# Environmental data as raster layers for projections
+env_vars <- rast(system.file("extdata", "vars.tif", package = "enmpa"))
+
+# Check the example data
+head(enm_data)
 #>   Sp     bio_1 bio_12
 #> 1  0  4.222687    403
 #> 2  0  6.006802    738
@@ -75,59 +80,53 @@ head(pa_data)
 #> 6  1 16.934618    319
 ```
 
-Check raster layers for the projection area. Obtained from
+The raster layers for projections were obtained from
 [WorldClim](https://worldclim.org/):
 
 - bio_1 = Annual Mean Temperature
 - bio_12 = Annual Precipitation
 
 ``` r
-terra::plot(env_vars, mar = c(0, 0, 0, 5))
+plot(env_vars, mar = c(1, 1, 2, 4))
 ```
 
 <img src="man/figures/README-figures-raster_layers-1.png" width="100%" />
 
 <br>
 
-### Detecting niche signals
+## Example
 
-To assure the precision of the variables utilized in our niche models,
-we implemented in this package the methodology developed by ([Cobos and
-Peterson 2022](#ref-cobos2022)) that focuses on identifying niche
-signals in presence-absence data. By characterizing the sampling
-universe, this approach can determine whether pathogen detection is
-random or linked to particular environmental factors.
+### Detecting signals of ecological niche
+
+To explore the relevance of the variables to be used in niche models, we
+implemented in the methods developed by ([Cobos and Peterson
+2022](#ref-cobos2022)). These methods help to identify signals of
+ecological niche considering distinct variables and the presence-absence
+data. By characterizing the sampling universe, this approach can
+determine whether presences and absences can be separated better than
+randomly considering distinct environmental factors.
 
 ``` r
-sn_bio1  <- enmpa::niche_signal(data = pa_data, variables = "bio_1", 
-                               condition = "Sp", method = "univariate")
+sn_bio1  <- niche_signal(data = enm_data, variables = "bio_1", 
+                         condition = "Sp", method = "univariate")
 
-sn_bio12 <- enmpa::niche_signal(data = pa_data, variables = "bio_12",
-                                condition = "Sp", method = "univariate")
+sn_bio12 <- niche_signal(data = enm_data, variables = "bio_12",
+                         condition = "Sp", method = "univariate")
 ```
 
 ``` r
-
-enmpa::plot_niche_signal(sn_bio1, variables = "bio_1")
-enmpa::plot_niche_signal(sn_bio12, variables = "bio_12")
+plot_niche_signal(sn_bio1, variables = "bio_1")
+plot_niche_signal(sn_bio12, variables = "bio_12")
 ```
 
 <img src="man/figures/README-figures-niche_signal-1.png" width="50%" /><img src="man/figures/README-figures-niche_signal-2.png" width="50%" />
 
-Based on the univariate test results of the variables bio_1 and bio_12,
-there appears to be a distinct pattern or response to environmental
-gradients that determines the presence of the species, rather than
-random occurrences. For instance, in our example, the species tends to
-occur in areas with higher annual mean temperature values (bio_1) as
-evidenced by the observed value (blue vertical dotted line) falling
-within the higher tail of the null distribution (H0). Conversely, the
-observed values for annual precipitation (bio_12) were found in the
-lower tail of the null distribution, indicating a preference for areas
-with lower precipitation. Notably, the observed values were outside the
-confidence limits of the null distribution in both cases. Therefore, it
-can be concluded that both variables are useful in modeling the species’
-niche. For more information, see ([Cobos and Peterson
-2022](#ref-cobos2022)).
+Based on the univariate test results, the variables bio_1 and bio_12
+help to detect signals of ecological niche in our data. In our example,
+the species tends to occur in areas with higher annual mean temperatures
+(bio_1); whereas, considering annual precipitation (bio_12), the species
+seems to be present in areas with lower values. See the function’s
+documentation for more information.
 
 <br>
 
@@ -138,21 +137,21 @@ derived from combinations of variables considering linear (l), quadratic
 (q), and product (p) responses. Product refers to pair interactions of
 variables.
 
-The function includes the flag `mode` to determine what strategy to
-iterate the predictors defined in for creating formulas:
+The function includes the flag `mode` to determine what strategy to use
+to combine predictors based on the responses defined in . The options of
+mode are:
 
-- **light** - returns simple iterations of complex formulas.
-- **moderate** - returns a comprehensive number of iterations.
-- **intense** - returns all possible combination. Very time-consuming
-  for 6 or more dependent variables.
-- **complex** - returns only the most complex formula.
+- **light**.– returns simple iterations of complex formulas.
+- **moderate**.– returns a comprehensive number of iterations.
+- **intensive**.– returns all possible combination. Very time-consuming
+  for 6 or more independent variables.
+- **complex**.– returns only the most complex formula.
 
-Linear + quadratic responses:
+An example using linear + quadratic responses:
 
 ``` r
-enmpa::get_formulas(dependent = "Sp", 
-                    independent = c("bio_1", "bio_12"),  
-                    type = "lq", mode = "intense")
+get_formulas(dependent = "Sp", independent = c("bio_1", "bio_12"),  
+             type = "lq", mode = "intensive")
 #>  [1] "Sp ~ bio_1"                                    
 #>  [2] "Sp ~ bio_12"                                   
 #>  [3] "Sp ~ I(bio_1^2)"                               
@@ -174,30 +173,34 @@ enmpa::get_formulas(dependent = "Sp",
 
 ### Model calibration and selection
 
-The function `calibration_glm()` is a wrapper function that allows to:
+The function `calibration_glm()` is a general function that allows to
+perform the following steps:
 
-- Create model formulas
-- Fit and evaluate models based on such formulas
+- Partition data in k-folds
+- Create formulas for candidate models
+- Fit and evaluate candidate models
 - Select best performing models
 
 Model selection consists of three steps:
 
-1.  a first filter to keep the models with ROC AUC \>= 0.5
+1.  A first filter to keep the models with ROC AUC \>= 0.5
     (statistically significant models).
-2.  a second filter to maintain only models that meet a
+2.  A second filter to maintain only models that meet a
     `selection_criterion` (“TSS”: TSS \>= 0.4; or “ESS”: maximum
     Accuracy - tolerance).
-3.  from those, pick the ones with delta AIC \<= 2.
+3.  From those, pick the ones with delta AIC \<= 2.
 
 <br>
 
-Results are returned as a list containing:
+The results are returned as a list containing:
 
-- selected models `*$selected`
-- a summary of statistics for all models `*$summary`
-- results obtained from cross-validation for all models
-  `*$calibration_results`
-- input data with k-fold partition used `*$data`
+- Selected models (`*$selected`)
+- A summary of statistics for all models (`*$summary`)
+- Results obtained from cross-validation for all models
+  (`*$calibration_results`)
+- Input data used (`*$data`)
+- The weights used (`*$weights`)
+- The list of partition indices (`*$kfold_index_partition`)
 
 <br>
 
@@ -205,26 +208,24 @@ Now lets run an example of model calibration and selection:
 
 ``` r
 # Linear + quadratic + products responses
-cal_res <- enmpa::calibration_glm(data = pa_data,
-                                  dependent = "Sp",
-                                  independent = c("bio_1", "bio_12"),
-                                  response_type = "lpq", 
-                                  form_mode = "intense", 
-                                  exclude_bimodal = TRUE,
-                                  selection_criterion = "TSS",
-                                  cv_kfolds = 5, verbose = FALSE)
+cal_res <- calibration_glm(data = enm_data, dependent = "Sp",
+                           independent = c("bio_1", "bio_12"),
+                           response_type = "lpq", formula_mode = "intensive", 
+                           exclude_bimodal = TRUE, selection_criterion = "TSS",
+                           cv_kfolds = 5, verbose = FALSE)
 ```
 
 Process results:
 
 ``` r
 ## Two models were selected out of 31 models evaluated
+cal_res$selected[, 1]  # Selected models
+#> [1] "ModelID_29" "ModelID_31"
 
-cal_res$selected[,1]    # Selected models
-#> [1] "Sp ~ bio_1 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12"         
-#> [2] "Sp ~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12"
-
-cal_res$selected[,2:20] # Metrics of evaluation
+cal_res$selected  # Metrics of evaluation
+#>      ModelID                                                      Formulas
+#> 1 ModelID_29          Sp ~ bio_1 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12
+#> 2 ModelID_31 Sp ~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12
 #>   Threshold_criteria Threshold_mean Threshold_sd ROC_AUC_mean ROC_AUC_sd
 #> 1             maxTSS         0.0951       0.0166       0.9003     0.0190
 #> 2             maxTSS         0.0991       0.0154       0.9002     0.0192
@@ -234,33 +235,28 @@ cal_res$selected[,2:20] # Metrics of evaluation
 #>   Sensitivity_mean Sensitivity_sd Specificity_mean Specificity_sd TSS_mean
 #> 1            0.858         0.0363           0.8245         0.0259   0.6825
 #> 2            0.856         0.0404           0.8280         0.0216   0.6840
-#>   TSS_sd Parameters     AIC Delta_AIC AIC_weight
-#> 1 0.0404          4 2186.70    1.0201  0.3751818
+#>   TSS_sd Parameters     AIC Delta_AIC AIC_weight Concave_responses
+#> 1 0.0404          4 2186.70    1.0201  0.3751818                  
 #> 2 0.0450          5 2185.68    0.0000  0.6248182
 ```
 
 <br>
 
-### Fitting and predictions of the most robust candidates models
+### Fitting and predictions for selected models
 
 After one or more models are selected, the next steps are the fitting
-and projection of the models. In this case we are projecting the model
-to the whole area of interest.
+and projection of these models. In this case we are projecting the
+models to the whole area of interest.
 
 ``` r
-# Extract model formulas and AIC weights. 
-models <- cal_res$selected$Formulas
-wIACs <- cal_res$selected$AIC_weight
-
 # Fitting
-f_models <- fit_glm(models, data = pa_data)
+f_models <- fit_selected(cal_res)
 
 # Prediction for the two selected models and their consensus
-preds <- enmpa::predict_selected(x = f_models, newdata = env_vars,
-                                 consensus = T, consensus_weights = wIACs)
+preds <- predict_selected(f_models, newdata = env_vars, consensus = TRUE)
 
 # Visualization
-terra::plot(preds$predictions,  mar = c(0, 0, 0, 5))
+plot(preds$predictions, mar = c(1, 1, 2, 4))
 ```
 
 <img src="man/figures/README-figures-prediction_selected-1.png" width="100%" />
@@ -269,18 +265,18 @@ terra::plot(preds$predictions,  mar = c(0, 0, 0, 5))
 
 ### Consensus models
 
-An alternative to strict selection of a single model is to use an
-ensemble of models. The main idea is to avoid selecting the best model
-and instead rely on multiple candidate models that prove to be robust.
+An alternative to strict selection of a single model is to use a
+consensus model. The main idea is to avoid selecting the best model and
+instead rely on multiple models with similar performance.
 
-Here we describe how to create concordance between these models using
-techniques such as mean, median or weighted mean based on an information
-criterion (Akaike weights)([Akaikei 1973](#ref-akaike1973); [Wagenmakers
-and Farrell 2004](#ref-wagenmakers2004)).
+During the prediction of selected models, we calculated model consensus
+using the mean, median, and a weighted average (using Akaike weights)
+([Akaikei 1973](#ref-akaike1973); [Wagenmakers and Farrell
+2004](#ref-wagenmakers2004)).
 
 ``` r
 # Consensus projections
-terra::plot(preds$consensus, mar = c(0, 0, 0, 5.1))
+plot(preds$consensus, mar = c(1, 1, 2, 5))
 ```
 
 <img src="man/figures/README-figures-consensus-1.png" width="100%" />
@@ -289,28 +285,24 @@ terra::plot(preds$consensus, mar = c(0, 0, 0, 5.1))
 
 ### Response Curves
 
-An important step in understanding the ecological niches that can be
-characterized with these models is to explore variable responses. The
-following lines of code help to do so:
+An important step in understanding the ecological niches with these
+models is to explore variable response curves. The following lines of
+code help to do so:
 
 ``` r
 # Response Curves for Bio_1 and Bio_2, first selected model 
-enmpa::response_curve(model = f_models$Model_ID_1, variable = "bio_1",
-                      new_data = env_vars)
+response_curve(f_models$ModelID_29, variable = "bio_1")
 
-enmpa::response_curve(model = f_models$Model_ID_1, variable = "bio_12",
-                      new_data = env_vars)
+response_curve(f_models$ModelID_29, variable = "bio_12")
 ```
 
 <img src="man/figures/README-figures-rcurve_model_ID_1-1.png" width="50%" /><img src="man/figures/README-figures-rcurve_model_ID_1-2.png" width="50%" />
 
 ``` r
-# Consensus Response Curves for Bio_1 and Bio_2, from both models 
-enmpa::response_curve(model = f_models, variable = "bio_1",
-                      new_data = env_vars)
+# Consensus Response Curves for Bio_1 and Bio_2, for both models 
+response_curve(f_models, variable = "bio_1")
 
-enmpa::response_curve(model = f_models, variable = "bio_12",
-                      new_data = env_vars)
+response_curve(f_models, variable = "bio_12")
 ```
 
 <img src="man/figures/README-figures-rcurve_consensus-1.png" width="50%" /><img src="man/figures/README-figures-rcurve_consensus-2.png" width="50%" />
@@ -319,7 +311,7 @@ enmpa::response_curve(model = f_models, variable = "bio_12",
 
 ### Variable importance
 
-The variable importance or contribution to models can be calculated as a
+Variable importance or contribution to models can be calculated as a
 function of the relative deviance explained by each predictor.
 
 Analysis of Deviance for the first selected model:
@@ -345,12 +337,12 @@ anova(f_models$Model_ID_1, test = "Chi")
 #> Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
 
-Using a function from `enmpa` you can explore variable importance in
-terms of contribution.
+Using a function from `enmpa` you can also explore variable importance
+in terms of contribution.
 
 ``` r
 # Relative contribution of the deviance explained for the first model
-enmpa::var_importance(f_models$Model_ID_1)
+var_importance(f_models$ModelID_29)
 #>      predictor contribution cum_contribution
 #> 3  I(bio_12^2)    0.3572673        0.3572673
 #> 1        bio_1    0.2919587        0.6492259
@@ -363,56 +355,50 @@ the two models together which can help with the interpretations:
 
 ``` r
 # Relative contribution of the deviance explained
-(vi_both_models <- enmpa::var_importance(f_models))
-#>      predictor contribution     Models
-#> 1  I(bio_12^2)   0.35726725 Model_ID_1
-#> 2        bio_1   0.29195868 Model_ID_1
-#> 3   I(bio_1^2)   0.20317496 Model_ID_1
-#> 4 bio_1:bio_12   0.14759911 Model_ID_1
-#> 5        bio_1   0.31901523 Model_ID_2
-#> 6   I(bio_1^2)   0.28433044 Model_ID_2
-#> 7  I(bio_12^2)   0.22805823 Model_ID_2
-#> 8 bio_1:bio_12   0.15250677 Model_ID_2
-#> 9       bio_12   0.01608933 Model_ID_2
+vi_both_models <- var_importance(f_models)
 ```
 
 ``` r
 # Plot
-enmpa::plot_importance(vi_both_models, extra_info = TRUE)
+plot_importance(vi_both_models, extra_info = TRUE)
 ```
 
 <img src="man/figures/README-figures-var_importance-1.png" width="70%" />
 
-### Final model evaluation
+### Model evaluation with independent data
 
 Finally, we will evaluate the final models using the “independent_eval”
-function. Ideally, the model should be validated with an independent
-data set, but if unavailable, the entire initial data set used in the
-calibration process can be used instead.
+functions. Ideally, the model should be evaluated with an independent
+data set (i.e., data that was not used during model calibration or for
+final model fitting).
 
-``` r
-# Load species occurrences of an indepedent dataset
-id_data  <- read.csv(system.file("extdata", "test_data.csv", package = "enmpa"))
-head(id_data)
-#>   Sp       lon      lat
-#> 1  0 -105.6639 35.81247
-#> 2  0 -107.9354 33.37200
-#> 3  0 -100.3134 48.96018
-#> 4  1 -117.5543 33.62975
-#> 5  0 -120.6168 36.59670
-#> 6  0 -105.3379 40.08928
-```
+#### Evaluation using presence-absence data.
 
-##### Evaluation using presence-absence data.
+Using independent data for which presence and absence is known can give
+the most robust results. Here an example:
 
 ``` r
 # In this example, we will use the final model calculated as the weighted 
 # average of the two selected models.
 wmean <- preds$consensus$Weighted_average
 
-eval <- independent_eval(data = id_data, prediction = wmean, occ = "Sp", 
-                         crs = "EPSG:4326", xy = c("lon", "lat"))
-#> The occurrence data contains both presences and absences.
+# check the test data
+head(test, 10)
+#>    Sp       lon      lat
+#> 1   0 -105.6639 35.81247
+#> 2   0 -107.9354 33.37200
+#> 3   0 -100.3134 48.96018
+#> 4   1 -117.5543 33.62975
+#> 5   0 -120.6168 36.59670
+#> 6   0 -105.3379 40.08928
+#> 7   0 -115.4178 40.65446
+#> 8   1 -100.9363 38.68424
+#> 9   0 -119.2357 37.23158
+#> 10  0 -118.8269 38.62374
+
+# independent evaluation
+eval <- independent_eval01(prediction = wmean, observation = test$Sp, 
+                           lon_lat = test[, 2:3])
 
 eval
 #>     Threshold_criteria Threshold   ROC_AUC False_positive_rate Accuracy
@@ -425,27 +411,26 @@ eval
 #> 210   0.9090909   0.8988764 0.8079673
 ```
 
-##### Evaluation using presence-only data.
+#### Evaluation using presence-only data.
 
-When only presence data is available, the evaluation metrics are based
-on calculating the omission error and using a partial ROC analysis.
+When only presence data is available, the evaluation of performance is
+based on the omission error and the partial ROC analysis.
 
-To do this we will have to define a threshold value, which will be the
-minimum probability of a presence. We can use any of the three threshold
-values obtained above: ESS, maxTSS or SEN90.
+To do this in our example, we will need to define a threshold value. We
+can use any of the three threshold values obtained above: ESS, maxTSS or
+SEN90.
 
 ``` r
-id_data_po <- id_data[id_data$Sp == 1, ] # presence-only data
-th <- eval[, "Threshold"][3]             # Threshold based in criteria: SEN90
+# Threshold based in criteria: Sensitivity = 90%
+th <- eval[3, "Threshold"]            
 
-eval2 <- independent_eval(data = id_data_po, prediction = wmean, occ = "Sp",
-                          threshold = th, crs = "EPSG:4326", 
-                          xy = c("lon", "lat"))
-#> The occurrence data contains only presences.
+# independent evaluation 
+eval2 <- independent_eval1(prediction = wmean, threshold = th, 
+                           lon_lat = test[, 2:3])
 
 eval2
-#>   omission_error threshold Mean_AUC_ratio_at_5 pval_pROC
-#> 1     0.09090909 0.1394197            1.634595         0
+#>   omission_error threshold Mean_AUC_ratio pval_pROC
+#> 1           0.19 0.1394197            NaN       NaN
 ```
 
 ### Literature

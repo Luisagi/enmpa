@@ -2,23 +2,26 @@
 % Please edit documentation in R/var_importance.R
 \name{var_importance}
 \alias{var_importance}
-\title{Variable importance}
+\title{Variable importance for GLMs}
 \usage{
-var_importance(x)
+var_importance(fitted)
 }
 \arguments{
-\item{x}{an object of class \code{glm} or a list of them which inherit
-from the class \code{lm}.}
+\item{fitted}{an object of class \code{glm} or a list of GLMs obtained using the
+functions \code{\link{fit_selected}} or \code{\link{fit_glms}}.}
 }
 \value{
-data.frame containing the relative contribution of each variable.
+A data.frame containing the relative contribution of each variable. An
+identification for distinct models is added if \code{fitted} contains multiple
+models.
 }
 \description{
-The function calculates the relative importance of predictor variables
-based on the concept of explained deviance. This is achieved by iteratively
-fitting a GLMs multiple times, where each iteration involves leaving out a
-different predictor variable to observe its impact on the model's performance.
-
+Calculates the relative importance of predictor variables based on the
+concept of explained deviance. This is achieved by fitting a GLMs multiple
+times, each time leaving out a different predictor variable to observe its
+impact on the model's performance.
+}
+\details{
 The process begins by fitting the full GLM model, which includes all predictor
 variables. Subsequently, separate GLM models are fitted, excluding one
 variable at a time to assess the influence of its absence on the model's
@@ -28,15 +31,12 @@ individual contributions to the model's overall performance and explanatory
 power.
 }
 \examples{
-# Load two fitted models
-load(system.file("extdata", "glm_fitted.RData", package = "enmpa"))
+# Load a fitted selected model
+data(sel_fit, package = "enmpa")
 
 # Variable importance for single models
-var_importance(fits$Model_ID_1)
-var_importance(fits$Model_ID_2)
+var_importance(sel_fit$ModelID_7)
 
-# Variable importance for multiple models
-var_importance(fits)
-
-
+# Variable importance for multiple models (only one model in this list)
+var_importance(sel_fit)
 }

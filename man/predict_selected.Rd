@@ -2,47 +2,36 @@
 % Please edit documentation in R/predict_selected.R
 \name{predict_selected}
 \alias{predict_selected}
-\title{Predict the selected models}
+\title{Predictions for the models selected after calibration}
 \usage{
-predict_selected(
-  x,
-  newdata,
-  clamping = FALSE,
-  type = "response",
-  consensus = TRUE,
-  consensus_weights = NULL
-)
+predict_selected(fitted, newdata, clamping = FALSE,
+                 type = "response", consensus = TRUE)
 }
 \arguments{
-\item{x}{a list of fitting models obtained by \code{\link{fit_glm}}.}
+\item{fitted}{an object of class \code{glm} or a list of GLMs obtained using the
+functions \code{\link{fit_selected}} or \code{\link{fit_glms}}.}
 
-\item{newdata}{a \code{SpatRaster}, data.frame or matrix with the new data to
-project the predictions.}
+\item{newdata}{a \code{SpatRaster}, data.frame, or matrix with the new data on
+which to predict.}
 
-\item{clamping}{(logical) this option mitigates the risk of extreme
-extrapolations when making model predictions for environmental conditions
-beyond the calibrated data range. It employs the marginal values within the
-calibration area to predict outcomes for more extreme conditions in transfer
-areas. Default = FALSE.}
+\item{clamping}{(logical) this option controls extrapolation when making
+predictions for environmental conditions beyond the calibration data.
+Default = FALSE.}
 
 \item{type}{(character) the type of prediction required. For a default
 binomial model the default predictions are of log-odds (probabilities on
-logit scale) and type = "response" gives the predicted probabilities.}
+logit scale). The default, "response", returns predicted probabilities.}
 
-\item{consensus}{(logical) whether to produce three consensus forecasts
-(or “ensemble”) obtained by combining the forecasts from the collection the
-selected models. By default consensuses are calculated from the mean and
-median. To calculated weighted mean user must provide a weighting metric.
-It is recommended the wAIC. Additionally, an consensus map of variance
-is also calculated to measure the amount of variability or disagreement among
-individuals consensus. Default = TRUE.}
-
-\item{consensus_weights}{(numeric) vector with the metric to calculate a
-weighted average consensus model. It is recommended the wAIC.}
+\item{consensus}{(logical) valid if \code{newdata} is a \code{SpatRaster}, whether to
+produce consensus results obtained by combining the predictions from the
+collection of selected models. By default consensuses are calculated using
+the mean, median, a weighted average using the AIC weights, and variance.
+Default = TRUE.}
 }
 \value{
-An individual model predictions \code{SpatRaster} object,
-and a consensus predictions \code{SpatRaster} object.
+A list with predictions of selected models on the \code{newdata} and fitted
+selected model(s). Consensus predictions are added if multiple selected
+models exits and if \code{newdata} is a \code{SpatRaster} object.
 }
 \description{
 Wrapper function that facilitates the prediction of those models
@@ -50,22 +39,15 @@ selected as the most robust. In addition, it allows the calculation of
 consensus models, when more than one model are selected.
 }
 \examples{
-# Load two fitted models
-load(system.file("extdata", "glm_fitted.RData", package = "enmpa"))
+# Load a fitted selected model
+data(sel_fit, package = "enmpa")
 
 # Load raster layers to be projected
 env_vars <- terra::rast(system.file("extdata", "vars.tif", package = "enmpa"))
-terra::plot(env_vars)
 
-# Predictions
-wAICs <- c(0.6248182, 0.3751818) # Akaike weights
-preds <- predict_selected(x = fits, newdata = env_vars, consensus = TRUE,
-                          consensus_weights = wAICs)
+# Predictions (only one selected mode, no consensus required)
+preds <- predict_selected(sel_fit, newdata = env_vars, consensus = FALSE)
 
-# Predictions of the two selected models in the area of interest
+# Plot prediction
 terra::plot(preds$predictions)
-
-# Predictions of the consensus models using averaging approaches
-terra::plot(preds$consensus,  mar = c(0, 0, 0, 5))
-
 }

@@ -5,7 +5,7 @@
 \alias{get_formulas_main}
 \alias{aux_var_comb}
 \alias{aux_string_comb}
-\title{Get formulas according to types of responses needed}
+\title{Get GLM formulas according to defined response types}
 \usage{
 get_formulas(dependent, independent, type = "l", mode = "moderate",
              minvar = 1, maxvar = NULL)
@@ -20,23 +20,23 @@ aux_string_comb(string)
 \arguments{
 \item{dependent}{(character) name of dependent variable.}
 
-\item{independent}{(character) a vector of names of independent variables.}
+\item{independent}{(character) vector of name(s) of independent variable(s).}
 
-\item{type}{(character) a character string that must contain "l", "p", "q"
-or a combination of them. l = lineal, q = quadratic,
+\item{type}{(character) a character string that must contain "l",
+"p", "q" or a combination of them. l = lineal, q = quadratic,
 p = interaction between two variables. Default = "l".}
 
-\item{mode}{(character) a character string to indicate the strategy to create
-formulas, must be among "light", "moderate", "intense" or "complex".
-Default = "moderate".}
+\item{mode}{(character) (character) a character string to indicate the strategy to
+create the formulas for candidate models. Options are: "light", "moderate",
+"intensive", or "complex". Default = "moderate".}
 
-\item{minvar}{(numeric) minimum number of features.}
+\item{minvar}{(numeric) minimum number of independent variables in formulas.}
 
-\item{maxvar}{(numeric) maximum number of features.}
+\item{maxvar}{(numeric) maximum number of independent variables in formulas.}
 
 \item{complex}{(logical) whether to return the most complex formula.}
 
-\item{var_names}{sames as \code{dependent}.}
+\item{var_names}{sames as \code{independent}.}
 
 \item{string}{same as \code{type}.}
 }
@@ -44,20 +44,19 @@ Default = "moderate".}
 A character vector containing the resulting formula(s).
 }
 \description{
-Generate forms based on independent variables that can predict the dependent
-variable, taking into account the required response types. If necessary,
-calculate all possible combinations of these formulas considering different
-variable combinations.
+Generate GLM formulas for independent variables predicting a dependent
+variable, taking into account response types required. All possible
+combinations of variables can be created using arguments of the function.
 }
 \details{
-\code{mode} options determine what strategy to iterate the predictors defined in
-\code{type}:
+\code{mode} options determine what strategy to iterate the predictors
+defined in \code{type} for creating models:
 \itemize{
-\item \strong{light} - returns simple iterations of complex forms.
-\item \strong{moderate} - returns a comprehensive number of iterations.
-\item \strong{intense} - returns all possible combination. Very time-consuming for 6
-or more dependent variables.
-\item \strong{complex} - returns only the most complex formula.
+\item \strong{light}.-- returns simple iterations of complex formulas.
+\item \strong{moderate}.-- returns a comprehensive number of iterations.
+\item \strong{intensive}.-- returns all possible combination. Very time-consuming for
+6 or more independent variables.
+\item \strong{complex}.-- returns only the most complex formula.
 }
 }
 \examples{
@@ -72,6 +71,5 @@ get_formulas(dep, ind, type = "lqp", mode = "complex")
 get_formulas(dep, ind, type = "lqp", mode = "light")
 
 # mode = 'light', combinations according to type
-get_formulas(dep, ind, type = "lqp", mode = "intense")
-
+get_formulas(dep, ind, type = "lqp", mode = "intensive")
 }

@@ -259,7 +259,7 @@ function of the relative deviance explained by each predictor.
 Analysis of Deviance for the first selected model:
 
 ```{r warning=FALSE, cache=TRUE}
-anova(f_models$Model_ID_1, test = "Chi")
+anova(f_models$ModelID_29, test = "Chi")
 ```
 
 Using a function from `enmpa` you can also explore variable importance in terms of

@@ -317,7 +317,7 @@ function of the relative deviance explained by each predictor.
 Analysis of Deviance for the first selected model:
 
 ``` r
-anova(f_models$Model_ID_1, test = "Chi")
+anova(f_models$ModelID_29, test = "Chi")
 #> Analysis of Deviance Table
 #> 
 #> Model: binomial, link: logit

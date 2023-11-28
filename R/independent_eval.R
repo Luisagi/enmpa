@@ -90,8 +90,8 @@ independent_eval1 <- function(prediction, threshold, test_prediction = NULL,
   # results
   oe_out <- data.frame(omission_error = oe,
                        threshold = threshold,
-                       Mean_AUC_ratio = proc$pROC_summary[1],
-                       pval_pROC = proc$pROC_summary[2], row.names = NULL)
+                       Mean_AUC_ratio = proc$pROC_summary[[1]],
+                       pval_pROC = proc$pROC_summary[[2]], row.names = NULL)
 
   return(oe_out)
 }

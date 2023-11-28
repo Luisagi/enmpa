@@ -29,6 +29,9 @@
 #' environmental variable while keeping all other variables constant at their
 #' mean values.
 #'
+#' When responses for multiple models are to be plotted, the mean and confidence
+#' intervals for the set of responses are calculated using a GAM.
+#'
 #' @return
 #' A plot with the response curve for a `variable`.
 #'

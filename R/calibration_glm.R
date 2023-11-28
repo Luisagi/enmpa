@@ -253,8 +253,7 @@ calibration_glm <- function(data, dependent, independent, weights = NULL,
 
   # Summary stats: mean and SD calculation for each model based on folds
   stats <- evaluation_stats(evaluation_results = glm_res,
-                            bimodal_toexclude = exclude_bimodal,
-                            cv_kfolds = k)
+                            bimodal_toexclude = exclude_bimodal)
 
   # selected models
   sel <- model_selection(evaluation_stats = stats,

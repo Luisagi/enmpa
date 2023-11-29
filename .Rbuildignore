@@ -4,3 +4,6 @@
 ^LICENSE\.md$
 ^README\.Rmd$
 ^enmpa\.Rproj$
+^README_cache
+^references.bib
+^\.github$

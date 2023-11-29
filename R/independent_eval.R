@@ -25,8 +25,9 @@
 #' @return
 #' A data.frame or list containing evaluation results.
 #'
-#' @rdname independent_eval
 #' @export
+#'
+#' @rdname independent_eval
 #'
 #' @importFrom terra extract
 #'
@@ -95,6 +96,7 @@ independent_eval1 <- function(prediction, threshold, test_prediction = NULL,
   return(oe_out)
 }
 
+#'
 #' @rdname independent_eval
 #' @param observation (numeric) vector of observed (known) values of presence
 #' or absence to test against `prediction` (if numeric) or values of prediction

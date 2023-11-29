@@ -21,7 +21,10 @@ Luis F. Arias-Giraldo, Marlon E. Cobos, A. Townsend Peterson
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 <!-- badges: start -->
+
+[![R-CMD-check](https://github.com/Luisagi/enmpa/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/Luisagi/enmpa/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
+
 <hr>
 
 `enmpa` is an r package that contains a set of tools to perform
@@ -271,7 +274,7 @@ instead rely on multiple models with similar performance.
 
 During the prediction of selected models, we calculated model consensus
 using the mean, median, and a weighted average (using Akaike weights)
-([Akaikei 1973](#ref-akaike1973); [Wagenmakers and Farrell
+([Akaike 1973](#ref-akaike1973); [Wagenmakers and Farrell
 2004](#ref-wagenmakers2004)).
 
 ``` r
@@ -442,7 +445,7 @@ eval2
 
 <div id="ref-akaike1973" class="csl-entry">
 
-Akaikei, H. 1973. “Information Theory and an Extension of Maximum
+Akaike, H. 1973. “Information Theory and an Extension of Maximum
 Likelihood Principle.” In *Proc. 2nd Int. Symp. On Information Theory*,
 267–81.
 

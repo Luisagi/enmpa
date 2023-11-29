@@ -9,18 +9,18 @@ Authors@R: c(
     person("A. Townsend", "Peterson", email = "town@ku.edu", role = "aut",
     comment = c(ORCID = "0000-0003-0243-2379"))
     )
-Maintener: Luis F. Arias-Giraldo <lfarias.giraldo@gmail.com>
+Maintainer: Luis F. Arias-Giraldo <lfarias.giraldo@gmail.com>
 Date: 2023-11-27
 Description: A set of tools to perform Ecological Niche Modeling with
-    presence-abscense data. It includes algorithms for data partitioning, 
+    presence-absence data. It includes algorithms for data partitioning, 
     model fitting, calibration, evaluation, selection, and prediction. 
-    Other functios help to explore signals of ecological niche using univariate
+    Other functions help to explore signals of ecological niche using univariate
     and multivariate analyses, and model features such as variable response 
     curves and variable importance. These tools are implemented 
     following principles proposed in
-    Cobos et al. (2022) <doi:10.17161/bi.v17i.15985>, 
-    Cobos et al. (2019) <doi:10.7717/peerj.6281>, 
-    and Peterson et al. (2008) <doi:10.1016/j.ecolmodel.2007.11.008>.
+    Cobos et al., (2022) <doi:10.17161/bi.v17i.15985>, 
+    Cobos et al., (2019) <doi:10.7717/peerj.6281>, 
+    and Peterson et al., (2008) <doi:10.1016/j.ecolmodel.2007.11.008>.
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

@@ -319,11 +319,14 @@ any of the three threshold values obtained above: ESS, maxTSS or SEN90.
 
 ```{r}
 # Threshold based in criteria: Sensitivity = 90%
-th <- eval[3, "Threshold"]            
+th <- eval[3, "Threshold"]   
+
+# Keep only presence records
+test_p <- test[test$Sp == 1,]
 
 # independent evaluation 
 eval2 <- independent_eval1(prediction = wmean, threshold = th, 
-                           lon_lat = test[, 2:3])
+                           lon_lat = test_p[, 2:3])
 
 eval2
 ```

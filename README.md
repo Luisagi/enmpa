@@ -422,15 +422,18 @@ SEN90.
 
 ``` r
 # Threshold based in criteria: Sensitivity = 90%
-th <- eval[3, "Threshold"]            
+th <- eval[3, "Threshold"]   
+
+# Keep only presence records
+test_p <- test[test$Sp == 1,]
 
 # independent evaluation 
 eval2 <- independent_eval1(prediction = wmean, threshold = th, 
-                           lon_lat = test[, 2:3])
+                           lon_lat = test_p[, 2:3])
 
 eval2
 #>   omission_error threshold Mean_AUC_ratio pval_pROC
-#> 1           0.19 0.1394197            NaN       NaN
+#> 1     0.09090909 0.1394197       1.634595         0
 ```
 
 ### Literature

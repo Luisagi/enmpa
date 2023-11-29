@@ -80,7 +80,7 @@ independent_eval1 <- function(prediction, threshold, test_prediction = NULL,
   }
 
   # Omission error (false negative rate)
-  oe <- sum(prd >= threshold) / length(prd)
+  oe <- 1 - sum(prd >= threshold) / length(prd)
 
   # pROC
   proc <- proc_enm(test_prediction = prd, prediction = prediction,

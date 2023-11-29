@@ -7,3 +7,4 @@
 ^README_cache
 ^references.bib
 ^\.github$
+^cran-comments\.md$

@@ -58,7 +58,7 @@ fit_selected <- function(glm_calibration) {
 
 
 #' @rdname fit_glms
-#' @usage fit_glms(formulas, data, weights = NULL)
+#' @usage fit_glms(formulas, data, weights = NULL, id = NULL)
 #' @export
 
 fit_glms <- function(formulas, data, weights = NULL, id = NULL) {

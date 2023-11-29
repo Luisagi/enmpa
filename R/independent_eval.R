@@ -25,9 +25,8 @@
 #' @return
 #' A data.frame or list containing evaluation results.
 #'
-#' @export
-#'
 #' @rdname independent_eval
+#' @export
 #'
 #' @importFrom terra extract
 #'
@@ -43,15 +42,15 @@
 #' terra::plot(pred)
 #'
 #' # Evaluation using presence-absence data
-#' independent_eval(data = test, prediction = pred, occ = "Sp",
-#'                  crs = "EPSG:4326", xy = c("lon", "lat"))
+#' independent_eval01(prediction = pred, observation = test$Sp,
+#'                    lon_lat = test[, 2:3])
 #'
 #' # Evaluation using presence-only data
 #' test_p_only <- test[test$Sp == 1, ]
 #' th_maxTSS   <- 0.1274123            # threshold based on the maxTSS
 #'
-#' independent_eval(data = test_p_only, prediction = pred, threshold = th_maxTSS,
-#'                  occ = "Sp", crs = "EPSG:4326", xy = c("lon", "lat"))
+#' independent_eval1(prediction = pred, threshold = th_maxTSS,
+#'                   lon_lat = test_p_only[, 2:3])
 
 independent_eval1 <- function(prediction, threshold, test_prediction = NULL,
                               lon_lat = NULL) {
@@ -96,13 +95,12 @@ independent_eval1 <- function(prediction, threshold, test_prediction = NULL,
   return(oe_out)
 }
 
-
+#' @rdname independent_eval
 #' @param observation (numeric) vector of observed (known) values of presence
 #' or absence to test against `prediction` (if numeric) or values of prediction
 #' in `lon_lat`.
-#'
 #' @export
-#' @rdname independent_eval
+#'
 
 independent_eval01 <- function(prediction, observation, lon_lat = NULL) {
 

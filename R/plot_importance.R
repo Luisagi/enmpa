@@ -28,14 +28,22 @@
 #'
 #'
 #' @examples
-#' # Load two fitted models
-#' load(system.file("extdata", "glm_fitted.RData", package = "enmpa"))
+#'
+#' # Load species occurrences and environmental data.
+#' data("enm_data", package = "enmpa")
+#'
+#' # Custom formulas
+#' forms <- c("Sp ~ bio_1 + I(bio_1^2) + I(bio_12^2)",
+#'            "Sp ~ bio_12 + I(bio_1^2) + I(bio_12^2)")
+#'
+#' # Fitting models
+#' fits <- fit_glms(forms, data = enm_data)
 #'
 #' # Variable importance for single models
-#' vi_1 <- var_importance(fits$Model_ID_1)
+#' vi_1 <- var_importance(fits$ModelID_1)
 #' plot_importance(x = vi_1)
 #'
-#' vi_2 <- var_importance(fits$Model_ID_2)
+#' vi_2 <- var_importance(fits$ModelID_2)
 #' plot_importance(x = vi_2)
 #'
 #' # Variable importance for multiple models

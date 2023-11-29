@@ -51,13 +51,13 @@ pred <- terra::rast(system.file("extdata", "proj_out_wmean.tif",
 terra::plot(pred)
 
 # Evaluation using presence-absence data
-independent_eval(data = test, prediction = pred, occ = "Sp",
-                 crs = "EPSG:4326", xy = c("lon", "lat"))
+independent_eval01(prediction = pred, observation = test$Sp,
+                   lon_lat = test[, 2:3])
 
 # Evaluation using presence-only data
 test_p_only <- test[test$Sp == 1, ]
 th_maxTSS   <- 0.1274123            # threshold based on the maxTSS
 
-independent_eval(data = test_p_only, prediction = pred, threshold = th_maxTSS,
-                 occ = "Sp", crs = "EPSG:4326", xy = c("lon", "lat"))
+independent_eval1(prediction = pred, threshold = th_maxTSS,
+                  lon_lat = test_p_only[, 2:3])
 }

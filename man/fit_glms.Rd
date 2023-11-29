@@ -7,7 +7,7 @@
 \usage{
 fit_selected(glm_calibration)
 
-fit_glms(formulas, data, weights = NULL)
+fit_glms(formulas, data, weights = NULL, id = NULL)
 }
 \arguments{
 \item{glm_calibration}{a list resulting from \code{\link{calibration_glm}}.

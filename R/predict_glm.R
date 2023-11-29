@@ -23,14 +23,14 @@
 #' @importFrom stats coef predict.glm
 #'
 #' @examples
-#' # Load two fitted models
-#' load(system.file("extdata", "glm_fitted.RData", package = "enmpa"))
+#' # Load fitted model
+#' data("sel_fit", package = "enmpa")
 #'
 #' # Load raster layers to be projected
 #' env_vars <- terra::rast(system.file("extdata", "vars.tif", package = "enmpa"))
 #'
 #' # Prediction
-#' pred <- predict_glm(fits$Model_ID_1, newdata = env_vars)
+#' pred <- predict_glm(sel_fit$ModelID_7, newdata = env_vars)
 #' terra::plot(pred)
 
 predict_glm <- function(model, newdata, clamping = FALSE,

@@ -45,7 +45,7 @@
 #'
 #' @examples
 #' # Load species occurrences and environmental data.
-#' enm_data <- read.csv(system.file("extdata", "pa_data.csv", package = "enmpa"))
+#' data("enm_data", package = "enmpa")
 #' head(enm_data)
 #'
 #' # Detection of niche signal using an univariate non-parametric test

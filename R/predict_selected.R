@@ -16,6 +16,10 @@
 #' @param clamping (logical) this option controls extrapolation when making
 #' predictions for environmental conditions beyond the calibration data.
 #' Default = FALSE.
+#' @param var_to_clamp (character) a vector containing the names of the variables
+#' that will undergo clamping. By default, if no specific names are provided,
+#' the value is set to NULL, which indicates that clamping will be applied to
+#' all variables. Ignore if clamping = FALSE.
 #' @param type (character) the type of prediction required. For a default
 #' binomial model the default predictions are of log-odds (probabilities on
 #' logit scale). The default, "response", returns predicted probabilities.
@@ -49,7 +53,8 @@
 #' terra::plot(preds$predictions)
 
 predict_selected <- function(fitted, newdata, clamping = FALSE,
-                             type = "response", consensus = TRUE) {
+                             var_to_clamp = NULL, type = "response",
+                             consensus = TRUE) {
 
   if (missing(fitted)) {
     stop("Arguments 'fitted' must be defined.")

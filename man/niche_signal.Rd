@@ -58,7 +58,7 @@ A list with results from analysis depending on \code{method}.
 \description{
 Identifies whether a signal of niche can be detected using one or multiple
 variables. This is an implementation of the methods developed by
-\href{https://doi.org/10.17161/bi.v17i.15985}{Cobos & Peterson (2022)} that
+Cobos & Peterson, (2022) \url{doi:10.17161/bi.v17i.15985} that
 focuses on identifying niche signals in presence-absence data.
 }
 \examples{

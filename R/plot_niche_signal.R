@@ -2,7 +2,7 @@
 #'
 #' @description
 #' Plots to interpret results from niche_signal tests
-#' (\href{https://doi.org/10.17161/bi.v17i.15985}{Cobos & Peterson, 2022}).
+#' (Cobos & Peterson, (2022) <doi:10.17161/bi.v17i.15985>).
 #'
 #' @usage
 #' plot_niche_signal(niche_signal_list, statistic = "mean",

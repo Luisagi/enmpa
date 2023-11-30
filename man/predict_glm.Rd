@@ -4,7 +4,13 @@
 \alias{predict_glm}
 \title{Extension of glm predict to generate predictions of different types}
 \usage{
-predict_glm(model, newdata, clamping = FALSE, type = "response")
+predict_glm(
+  model,
+  newdata,
+  clamping = FALSE,
+  var_to_clamp = NULL,
+  type = "response"
+)
 }
 \arguments{
 \item{model}{a \code{glm} object.}
@@ -15,6 +21,11 @@ predictions.}
 \item{clamping}{(logical) whether to clamp values to a minimum and maximum
 value, that are established for the max and min values within calibration
 values. Default = FALSE.}
+
+\item{var_to_clamp}{(character) a vector containing the names of the variables
+that will undergo clamping. By default, if no specific names are provided,
+the value is set to NULL, which indicates that clamping will be applied to
+all variables. Ignore if clamping = FALSE.}
 
 \item{type}{(character) the type of prediction required. For a default
 binomial model the default predictions are of log-odds (probabilities on

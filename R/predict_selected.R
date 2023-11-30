@@ -6,7 +6,7 @@
 #' consensus models, when more than one model are selected.
 #'
 #' @usage
-#' predict_selected(fitted, newdata, clamping = FALSE,
+#' predict_selected(fitted, newdata, clamping = FALSE, var_to_clamp = NULL,
 #'                  type = "response", consensus = TRUE)
 #'
 #' @param fitted an object of class `glm` or a list of GLMs obtained using the
@@ -69,7 +69,8 @@ predict_selected <- function(fitted, newdata, clamping = FALSE,
 
   # Obtain the predicted values (p) for each selected model
   p <- lapply(fitted, function(y) {
-    predict_glm(y, newdata, clamping = clamping, type = type)
+    predict_glm(y, newdata, clamping = clamping, var_to_clamp = var_to_clamp,
+                type = type)
   })
 
   if (class(newdata)[1] == "SpatRaster") {

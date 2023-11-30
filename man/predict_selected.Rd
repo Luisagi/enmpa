@@ -4,7 +4,7 @@
 \alias{predict_selected}
 \title{Predictions for the models selected after calibration}
 \usage{
-predict_selected(fitted, newdata, clamping = FALSE,
+predict_selected(fitted, newdata, clamping = FALSE, var_to_clamp = NULL,
                  type = "response", consensus = TRUE)
 }
 \arguments{
@@ -17,6 +17,11 @@ which to predict.}
 \item{clamping}{(logical) this option controls extrapolation when making
 predictions for environmental conditions beyond the calibration data.
 Default = FALSE.}
+
+\item{var_to_clamp}{(character) a vector containing the names of the variables
+that will undergo clamping. By default, if no specific names are provided,
+the value is set to NULL, which indicates that clamping will be applied to
+all variables. Ignore if clamping = FALSE.}
 
 \item{type}{(character) the type of prediction required. For a default
 binomial model the default predictions are of log-odds (probabilities on

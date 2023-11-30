@@ -9,7 +9,7 @@
 #' predict_selected(fitted, newdata, clamping = FALSE, var_to_clamp = NULL,
 #'                  type = "response", consensus = TRUE)
 #'
-#' @param fitted an object of class `glm` or a list of GLMs obtained using the
+#' @param fitted a list of GLMs obtained using the
 #' functions \code{\link{fit_selected}} or \code{\link{fit_glms}}.
 #' @param newdata a `SpatRaster`, data.frame, or matrix with the new data on
 #' which to predict.

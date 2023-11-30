@@ -327,7 +327,11 @@ check_if_glm_list <- function(arg) {
 
 # ------------------------------------------------------------------------------
 # Aux to save calibration result tables
-save_cal <- function(x, out_dir = "enmpa_calibration") {
+save_cal <- function(x, out_dir) {
+
+  if (missing(out_dir)) {
+    stop("Argument 'out_dir' must be defined.")
+  }
 
   if (!dir.exists(out_dir)) {
     dir.create(out_dir)

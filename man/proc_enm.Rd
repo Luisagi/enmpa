@@ -32,7 +32,7 @@ the AUC values and AUC ratios calculated for all iterations.
 proc applies partial ROC tests to model predictions.
 }
 \details{
-Partial ROC is calculated following Peterson et al.(2008)
+Partial ROC is calculated following Peterson et al. (2008)
 \url{doi:10.1016/j.ecolmodel.2007.11.008}.
 }
 \examples{

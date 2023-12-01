@@ -95,7 +95,7 @@ A plot.
 }
 \description{
 Plots to interpret results from niche_signal tests
-(Cobos & Peterson, (2022) \url{doi:10.17161/bi.v17i.15985}).
+(Cobos & Peterson (2022) \url{doi:10.17161/bi.v17i.15985}).
 }
 \examples{
 # Load species occurrences and environmental data.

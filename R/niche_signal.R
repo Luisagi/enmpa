@@ -3,7 +3,7 @@
 #' @description
 #' Identifies whether a signal of niche can be detected using one or multiple
 #' variables. This is an implementation of the methods developed by
-#' Cobos & Peterson, (2022) <doi:10.17161/bi.v17i.15985> that
+#' Cobos & Peterson (2022) <doi:10.17161/bi.v17i.15985> that
 #' focuses on identifying niche signals in presence-absence data.
 #'
 #' @usage

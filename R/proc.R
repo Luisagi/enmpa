@@ -21,7 +21,7 @@
 #' @return A list with the summary of the results and a data.frame containing
 #' the AUC values and AUC ratios calculated for all iterations.
 #'
-#' @details Partial ROC is calculated following Peterson et al.(2008)
+#' @details Partial ROC is calculated following Peterson et al. (2008)
 #' <doi:10.1016/j.ecolmodel.2007.11.008>.
 #'
 #' @importFrom terra as.data.frame minmax

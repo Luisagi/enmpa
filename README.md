@@ -2,6 +2,7 @@ enmpa: Ecological Niche Modeling for Presence-absence Data
 ================
 Luis F. Arias-Giraldo, Marlon E. Cobos, A. Townsend Peterson
 
+- [Package description](#package-description)
 - [Installation](#installation)
 - [Packages required](#packages-required)
 - [Example data](#example-data)
@@ -23,9 +24,14 @@ Luis F. Arias-Giraldo, Marlon E. Cobos, A. Townsend Peterson
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/Luisagi/enmpa/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/Luisagi/enmpa/actions/workflows/R-CMD-check.yaml)
+
 <!-- badges: end -->
 
+<img src="man/figures/enmpa_logo_100dpi.png" align="right" width="166"/></a>
+
 <hr>
+
+## Package description
 
 `enmpa` is an r package that contains a set of tools to perform
 Ecological Niche Modeling using presence-absence data. Some of the main
@@ -33,6 +39,8 @@ functions help perform data partitioning, model calibration, model
 selection, variable response exploration, and model projection.
 
 <br>
+
+<hr>
 
 ## Installation
 

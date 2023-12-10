@@ -22,9 +22,14 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>",
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/Luisagi/enmpa/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/Luisagi/enmpa/actions/workflows/R-CMD-check.yaml)
+
 <!-- badges: end -->
 
+<img src="man/figures/enmpa_logo_100dpi.png" align="right" width="166"/></a>
+
 <hr>
+
+## Package description
 
 `enmpa` is an r package that contains a set of tools to perform Ecological Niche
 Modeling using presence-absence data. Some of the main functions help perform
@@ -32,6 +37,8 @@ data partitioning, model calibration, model selection, variable response
 exploration, and model projection.
 
 <br>
+
+<hr>
 
 ## Installation
 
@@ -47,7 +54,7 @@ remotes::install_github("Luisagi/enmpa")
 
 ## Packages required
 
-The package `terra` is used to handle spatial data, and `enmpa` is used to 
+The package `terra` is used to handle spatial data, and `enmpa` is used to
 perform ENM.
 
 ```{r message=FALSE}
@@ -75,10 +82,11 @@ env_vars <- rast(system.file("extdata", "vars.tif", package = "enmpa"))
 head(enm_data)
 ```
 
-The raster layers for projections were obtained from [WorldClim](https://worldclim.org/):
+The raster layers for projections were obtained from
+[WorldClim](https://worldclim.org/):
 
-- bio_1 = Annual Mean Temperature
-- bio_12 = Annual Precipitation
+-   bio_1 = Annual Mean Temperature
+-   bio_12 = Annual Precipitation
 
 ```{r figures-raster_layers, fig.height=2.5, fig.width=8, cache=TRUE}
 plot(env_vars, mar = c(1, 1, 2, 4))
@@ -92,10 +100,10 @@ plot(env_vars, mar = c(1, 1, 2, 4))
 
 To explore the relevance of the variables to be used in niche models, we
 implemented in the methods developed by [@cobos2022]. These methods help to
-identify signals of ecological niche considering distinct variables and the 
-presence-absence data. By characterizing the sampling universe, this approach 
-can determine whether presences and absences can be separated better than randomly 
-considering distinct environmental factors.
+identify signals of ecological niche considering distinct variables and the
+presence-absence data. By characterizing the sampling universe, this approach
+can determine whether presences and absences can be separated better than
+randomly considering distinct environmental factors.
 
 ```{r message=FALSE}
 sn_bio1  <- niche_signal(data = enm_data, variables = "bio_1", 
@@ -105,14 +113,13 @@ sn_bio12 <- niche_signal(data = enm_data, variables = "bio_12",
                          condition = "Sp", method = "univariate")
 ```
 
-
 ```{r figures-niche_signal, fig.show="hold", out.width="50%", cache=TRUE}
 plot_niche_signal(sn_bio1, variables = "bio_1")
 plot_niche_signal(sn_bio12, variables = "bio_12")
 ```
 
-Based on the univariate test results, the variables bio_1 and bio_12 help to 
-detect signals of ecological niche in our data. In our example, the species 
+Based on the univariate test results, the variables bio_1 and bio_12 help to
+detect signals of ecological niche in our data. In our example, the species
 tends to occur in areas with higher annual mean temperatures (bio_1); whereas,
 considering annual precipitation (bio_12), the species seems to be present in
 areas with lower values. See the function's documentation for more information.
@@ -125,13 +132,15 @@ With `enmpa` you have the possibility to explore multiple model formulas derived
 from combinations of variables considering linear (l), quadratic (q), and
 product (p) responses. Product refers to pair interactions of variables.
 
-The function includes the flag `mode` to determine what strategy to use to combine 
-predictors based on the responses defined in \code{type}. The options of mode are:
+The function includes the flag `mode` to determine what strategy to use to
+combine predictors based on the responses defined in \code{type}. The options of
+mode are:
 
-- **light**.-- returns simple iterations of complex formulas.
-- **moderate**.-- returns a comprehensive number of iterations.
-- **intensive**.-- returns all possible combination. Very time-consuming for 6 or more independent variables.
-- **complex**.-- returns only the most complex formula.
+-   **light**.-- returns simple iterations of complex formulas.
+-   **moderate**.-- returns a comprehensive number of iterations.
+-   **intensive**.-- returns all possible combination. Very time-consuming for 6
+    or more independent variables.
+-   **complex**.-- returns only the most complex formula.
 
 An example using linear + quadratic responses:
 
@@ -144,12 +153,13 @@ get_formulas(dependent = "Sp", independent = c("bio_1", "bio_12"),
 
 ### Model calibration and selection
 
-The function `calibration_glm()` is a general function that allows to perform the following steps:
+The function `calibration_glm()` is a general function that allows to perform
+the following steps:
 
-- Partition data in k-folds
-- Create formulas for candidate models
-- Fit and evaluate candidate models 
-- Select best performing models
+-   Partition data in k-folds
+-   Create formulas for candidate models
+-   Fit and evaluate candidate models
+-   Select best performing models
 
 Model selection consists of three steps:
 
@@ -163,13 +173,13 @@ Model selection consists of three steps:
 
 The results are returned as a list containing:
 
-- Selected models (`*$selected`)
-- A summary of statistics for all models (`*$summary`)
-- Results obtained from cross-validation for all models (`*$calibration_results`)
-- Input data used (`*$data`)
-- The weights used (`*$weights`)
-- The list of partition indices (`*$kfold_index_partition`)
-
+-   Selected models (`*$selected`)
+-   A summary of statistics for all models (`*$summary`)
+-   Results obtained from cross-validation for all models
+    (`*$calibration_results`)
+-   Input data used (`*$data`)
+-   The weights used (`*$weights`)
+-   The list of partition indices (`*$kfold_index_partition`)
 
 <br>
 
@@ -198,8 +208,8 @@ cal_res$selected  # Metrics of evaluation
 ### Fitting and predictions for selected models
 
 After one or more models are selected, the next steps are the fitting and
-projection of these models. In this case we are projecting the models to the whole
-area of interest.
+projection of these models. In this case we are projecting the models to the
+whole area of interest.
 
 ```{r warning=FALSE, cache=TRUE, figures-prediction_selected, fig.height=2.5,fig.width=8, cache=TRUE,fig.show="hold"}
 # Fitting
@@ -220,8 +230,9 @@ An alternative to strict selection of a single model is to use a consensus
 model. The main idea is to avoid selecting the best model and instead rely on
 multiple models with similar performance.
 
-During the prediction of selected models, we calculated model consensus using 
-the mean, median, and a weighted average (using Akaike weights) [@akaike1973; @wagenmakers2004].
+During the prediction of selected models, we calculated model consensus using
+the mean, median, and a weighted average (using Akaike weights) [@akaike1973;
+@wagenmakers2004].
 
 ```{r warning=FALSE, figures-consensus, fig.show="hold", cache=TRUE}
 # Consensus projections
@@ -232,8 +243,8 @@ plot(preds$consensus, mar = c(1, 1, 2, 5))
 
 ### Response Curves
 
-An important step in understanding the ecological niches with these models is 
-to explore variable response curves. The following lines of code help to do so:
+An important step in understanding the ecological niches with these models is to
+explore variable response curves. The following lines of code help to do so:
 
 ```{r figures-rcurve_model_ID_1, fig.show="hold", out.width="50%", cache=TRUE}
 # Response Curves for Bio_1 and Bio_2, first selected model 
@@ -254,8 +265,8 @@ response_curve(f_models, variable = "bio_12")
 
 ### Variable importance
 
-Variable importance or contribution to models can be calculated as a
-function of the relative deviance explained by each predictor.
+Variable importance or contribution to models can be calculated as a function of
+the relative deviance explained by each predictor.
 
 Analysis of Deviance for the first selected model:
 
@@ -263,8 +274,8 @@ Analysis of Deviance for the first selected model:
 anova(f_models$ModelID_29, test = "Chi")
 ```
 
-Using a function from `enmpa` you can also explore variable importance in terms of
-contribution.
+Using a function from `enmpa` you can also explore variable importance in terms
+of contribution.
 
 ```{r warning=FALSE}
 # Relative contribution of the deviance explained for the first model
@@ -288,12 +299,13 @@ plot_importance(vi_both_models, extra_info = TRUE)
 
 Finally, we will evaluate the final models using the "independent_eval"
 functions. Ideally, the model should be evaluated with an independent data set
-(i.e., data that was not used during model calibration or for final model fitting).
+(i.e., data that was not used during model calibration or for final model
+fitting).
 
 #### Evaluation using presence-absence data.
 
-Using independent data for which presence and absence is known can give the most 
-robust results. Here an example: 
+Using independent data for which presence and absence is known can give the most
+robust results. Here an example:
 
 ```{r}
 # In this example, we will use the final model calculated as the weighted 
@@ -315,7 +327,7 @@ eval
 When only presence data is available, the evaluation of performance is based on
 the omission error and the partial ROC analysis.
 
-To do this in our example, we will need to define a threshold value. We can use 
+To do this in our example, we will need to define a threshold value. We can use
 any of the three threshold values obtained above: ESS, maxTSS or SEN90.
 
 ```{r}

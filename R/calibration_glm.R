@@ -188,9 +188,8 @@ calibration_glm <- function(data, dependent, independent, weights = NULL,
     }
 
     # Final time
-    time.seq <- Sys.time() - start
     if (verbose == TRUE) {
-      message("\nRunning time: ", time.seq)
+      format_time(Sys.time() - start)
     }
 
   } else {
@@ -240,9 +239,8 @@ calibration_glm <- function(data, dependent, independent, weights = NULL,
     snow::stopCluster(cl)
 
     # Final time
-    time.seq <- Sys.time() - start
     if (verbose == TRUE) {
-      message("\nRunning time: ", time.seq)
+      format_time(Sys.time() - start)
     }
   }
 

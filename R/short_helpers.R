@@ -352,3 +352,18 @@ save_cal <- function(x, out_dir) {
 
 }
 
+#-------------------------------------------------------------------------------
+# Aux functions to show executing time as hours, minutes and seconds.
+format_time <- function(x){
+  # formatting time
+  hs <- as.numeric(x) %/% 3600
+  ms <- (as.numeric(x) %% 3600) %/% 60
+  ss<- as.numeric(x) %% 60
+
+  # Time running message
+  m <- sprintf("\nExecution time: %1.f hours, %1.f minutes and %.2f seconds",
+               hs, ms, ss)
+  message(m)
+}
+
+

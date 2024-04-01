@@ -47,5 +47,5 @@ forms <- c("Sp ~ bio_1 + I(bio_1^2) + I(bio_12^2)",
 # Fitting models
 fits <- fit_glms(forms, data = cal_res$data)
 
-fits$Model_ID_1
+fits$ModelID_1
 }

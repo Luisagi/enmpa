@@ -2,6 +2,7 @@
 % Please edit documentation in R/enmpa.R
 \docType{package}
 \name{enmpa}
+\alias{enmpa-package}
 \alias{enmpa}
 \title{enmpa: Ecological Niche Modeling using Presence-Absence Data}
 \description{
@@ -25,3 +26,21 @@ features as such variable response curves and variable importance.
 \code{\link{var_importance}}
 }
 
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/Luisagi/enmpa}
+  \item Report bugs at \url{https://github.com/Luisagi/enmpa/issues}
+}
+
+}
+\author{
+\strong{Maintainer}: Luis F. Arias-Giraldo \email{lfarias.giraldo@gmail.com} (\href{https://orcid.org/0000-0003-4861-8064}{ORCID})
+
+Authors:
+\itemize{
+  \item Marlon E. Cobos \email{manubio13@gmail.com} (\href{https://orcid.org/0000-0002-2611-1767}{ORCID})
+  \item A. Townsend Peterson \email{town@ku.edu} (\href{https://orcid.org/0000-0003-0243-2379}{ORCID})
+}
+
+}

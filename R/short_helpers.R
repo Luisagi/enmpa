@@ -208,7 +208,7 @@ response_curve_cons <- function(model, variable, n = 100, extrapolate = FALSE,
       coefs <- coef(x)[-1]
       variable_q <- c(variable, paste0("I(", variable,"^2)")) # find the quadratic too
 
-      if ( sum(variable_q %in% names(coefs))){
+      if (sum(variable_q %in% names(coefs)) > 0){
         x <- response(x, variable, new_data = new_data, extrapolate = extrapolate)
         return(x)
       } else{

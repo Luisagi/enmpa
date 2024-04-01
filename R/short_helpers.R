@@ -286,15 +286,14 @@ consensus_p <- function(predictions, weights = NULL){
         # Median
         c_media <- terra::app(predictions, median)
 
+        # Variance
+        c_var <- terra::app(predictions, var)
+
         # Weighted average
         c_wmean <- terra::app(predictions*weights, sum)
 
-        # Variance between the consensus predictions
-        c_var <- terra::app(c(c_mean, c_media, c_wmean), var)
-
-        cons <- c(c_mean, c_media, c_wmean, c_var)
-        names(cons) <- c("Mean", "Median", "Weighted_average",
-                         "Consensus_variance")
+        cons <- c(c_mean, c_media, c_var, c_wmean)
+        names(cons) <- c("Mean", "Median", "Variance", "Weighted_average")
     }
   } else {
 

@@ -26,7 +26,7 @@
 #' @param consensus (logical) valid if `newdata` is a `SpatRaster`, whether to
 #' produce consensus results obtained by combining the predictions from the
 #' collection of selected models. By default consensuses are calculated using
-#' the mean, median, a weighted average using the AIC weights, and variance.
+#' the mean, median, variance, and weighted average using the AIC weights.
 #' Default = TRUE.
 #'
 #' @return

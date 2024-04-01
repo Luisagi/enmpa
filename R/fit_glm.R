@@ -37,7 +37,7 @@
 #' # Fitting models
 #' fits <- fit_glms(forms, data = cal_res$data)
 #'
-#' fits$Model_ID_1
+#' fits$ModelID_1
 
 fit_selected <- function(glm_calibration) {
   if (missing(glm_calibration)) {

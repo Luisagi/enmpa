@@ -272,7 +272,7 @@ calibration_glm <- function(data, dependent, independent, weights = NULL,
   data_final <- data.frame(data, kfold_ID = folds$kfold_ID)
 
   # Add ModelID tag
-  fx  <- unique(glm_res$Formulas)
+  fx  <- user_formulas
   mid <- data.frame(ModelID = paste0("ModelID_", 1:length(fx)), Formulas = fx)
 
   glm_res <- merge(glm_res, mid, by = "Formulas", sort = F)

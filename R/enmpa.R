@@ -19,10 +19,9 @@
 #' \code{\link{predict_selected}}, \code{\link{response_curve}},
 #' \code{\link{var_importance}}
 #'
-#' @docType package
 #' @name enmpa
 
 ## usethis namespace: start
 #' @importFrom Rcpp sourceCpp
 ## usethis namespace: end
-NULL
+"_PACKAGE"

@@ -9,8 +9,7 @@
 #'          extrapolate = FALSE, color.palette	= NULL,
 #'          xlab = NULL, ylab = NULL, ...)
 #
-#' @param model an object of class `glm` or a list of GLMs obtained using the
-#' functions \code{\link{fit_selected}} or \code{\link{fit_glms}}.
+#' @param model an object of class `glm`.
 #' @param variable1 (character) name of the variable to be plotted in x axis.
 #' @param variable2 (character) name of the variable to be plotted in y axis.
 #' @param n (numeric) an integer guiding the number of breaks. Default = 100

@@ -9,8 +9,7 @@ resp2var(model, variable1 , variable2, n = 100, new_data = NULL,
          xlab = NULL, ylab = NULL, ...)
 }
 \arguments{
-\item{model}{an object of class \code{glm} or a list of GLMs obtained using the
-functions \code{\link{fit_selected}} or \code{\link{fit_glms}}.}
+\item{model}{an object of class \code{glm}.}
 
 \item{variable1}{(character) name of the variable to be plotted in x axis.}
 

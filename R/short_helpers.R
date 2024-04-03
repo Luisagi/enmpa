@@ -2,7 +2,7 @@
 # Aux function to evaluate the Variable Contribution of the predictors
 #
 # get variable contribution for an individual model
-var_importance_ind <- function(model, data){
+var_importance_ind <- function(model){
 
   # initial tests
   if (missing(model)) {
@@ -20,7 +20,7 @@ var_importance_ind <- function(model, data){
 
   # deviance of the reduced models
   dev_reduction <- sapply(pnames, function(x) {
-    dev_full - get_red_dev(model, x, data)
+    dev_full - get_red_dev(model, x)
   })
 
   deviance_importance <- dev_reduction / sum(dev_reduction)
@@ -39,7 +39,7 @@ var_importance_ind <- function(model, data){
 }
 
 #to get deviance of a model after excluding predictors
-get_red_dev <- function(full_model, reduce_var, data) {
+get_red_dev <- function(full_model, reduce_var) {
   # initial tests
   if (missing(full_model)) {
     stop("Argument 'full_model' must be defined.")
@@ -60,7 +60,7 @@ get_red_dev <- function(full_model, reduce_var, data) {
 
   # Attempt to update the model with the new formula and data
   reduce_model <- suppressWarnings(
-    update(full_model, formula = reduced_formula, data = data)
+    update(full_model, formula = reduced_formula)
   )
 
   return(deviance(reduce_model))

@@ -46,6 +46,7 @@ var_importance <- function(fitted){
     stop("Argument 'model' must be defined.")
   }
 
+
   fitted$selected <- NULL
 
   if (check_if_glm_list(fitted)){
@@ -54,6 +55,9 @@ var_importance <- function(fitted){
 
     tab_contr$Models <- rep(names(aux), times = sapply(aux, nrow))
     rownames(tab_contr) <- NULL
+
+    # standardize product names
+    tab_contr$predictor <- standardize_interaction_names(tab_contr$predictor)
 
   } else {
     tab_contr <- var_importance_ind(fitted)

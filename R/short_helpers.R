@@ -1,39 +1,26 @@
 # ------------------------------------------------------------------------------
 # Aux function to evaluate the Variable Contribution of the predictors
 #
-
-#to get deviance of a model after excluding predictors
-get_red_dev <- function(full_model, reduce_var) {
-  # initial tests
-  if (missing(full_model)) {
-    stop("Argument 'full_model' must be defined.")
-  }
-  if (missing(reduce_var)) {
-    stop("Argument 'reduce_var' must be defined.")
-  }
-
-  reduce_model <- suppressWarnings(
-    update(full_model, as.formula(paste("~.-", reduce_var)),
-           data = full_model$data)
-  )
-
-  return(deviance(reduce_model))
-}
-
 # get variable contribution for an individual model
-var_importance_ind <- function(model){
+var_importance_ind <- function(model, data){
 
   # initial tests
   if (missing(model)) {
     stop("Argument 'model' must be defined.")
   }
+  if (missing(data)) {
+    stop("Argument 'data' must be defined.")
+  }
 
   # deviance of the full model
   dev_full <- deviance(model)
 
+  # preds names
+  pnames <- names(coef(model))[-1]
+
   # deviance of the reduced models
-  dev_reduction <- sapply(names(coef(model))[-1], function(x) {
-    dev_full - get_red_dev(model, x)
+  dev_reduction <- sapply(pnames, function(x) {
+    dev_full - get_red_dev(model, x, data)
   })
 
   deviance_importance <- dev_reduction / sum(dev_reduction)
@@ -51,6 +38,46 @@ var_importance_ind <- function(model){
   return(tab_contr)
 }
 
+#to get deviance of a model after excluding predictors
+get_red_dev <- function(full_model, reduce_var, data) {
+  # initial tests
+  if (missing(full_model)) {
+    stop("Argument 'full_model' must be defined.")
+  }
+  if (missing(reduce_var)) {
+    stop("Argument 'reduce_var' must be defined.")
+  }
+  if (missing(data)) {
+    stop("Argument 'data' must be defined.")
+  }
+
+  # Ensure reduce_vars is a character vector
+  reduce_var <- as.character(reduce_var)
+
+  # Construct the reduced formula
+  reduced_formula_str <- paste("~ . -", paste(reduce_var, collapse = " - "))
+  reduced_formula <- as.formula(reduced_formula_str)
+
+  # Attempt to update the model with the new formula and data
+  reduce_model <- suppressWarnings(
+    update(full_model, formula = reduced_formula, data = data)
+  )
+
+  return(deviance(reduce_model))
+}
+
+# Function to standardize interaction term names
+standardize_interaction_names <- function(names) {
+  sapply(names, function(name) {
+    # Split the name by ':', sort, and re-join
+    parts <- strsplit(name, ":")[[1]]
+    if(length(parts) > 1) {
+      return(paste(sort(parts), collapse = ":"))
+    } else {
+      return(name)
+    }
+  })
+}
 
 # ------------------------------------------------------------------------------
 # Aux function to calculate the Response Curves

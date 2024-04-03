@@ -8,10 +8,6 @@ var_importance_ind <- function(model){
   if (missing(model)) {
     stop("Argument 'model' must be defined.")
   }
-  if (missing(data)) {
-    stop("Argument 'data' must be defined.")
-  }
-
   # deviance of the full model
   dev_full <- deviance(model)
 
@@ -47,9 +43,6 @@ get_red_dev <- function(full_model, reduce_var) {
   if (missing(reduce_var)) {
     stop("Argument 'reduce_var' must be defined.")
   }
-  if (missing(data)) {
-    stop("Argument 'data' must be defined.")
-  }
 
   # Ensure reduce_vars is a character vector
   reduce_var <- as.character(reduce_var)
@@ -60,7 +53,7 @@ get_red_dev <- function(full_model, reduce_var) {
 
   # Attempt to update the model with the new formula and data
   reduce_model <- suppressWarnings(
-    update(full_model, formula = reduced_formula)
+    update(full_model, formula = reduced_formula, data = full_model$data)
   )
 
   return(deviance(reduce_model))

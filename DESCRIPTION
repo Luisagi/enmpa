@@ -1,16 +1,16 @@
 Package: enmpa
 Title: Ecological Niche Modeling using Presence-Absence Data
-Version: 0.1.5
+Version: 0.1.6
 Authors@R: c(
     person("Luis F.", "Arias-Giraldo", email = "lfarias.giraldo@gmail.com",
     role = c("aut", "cre"), comment = c(ORCID = "0000-0003-4861-8064")),
     person("Marlon E.", "Cobos", email = "manubio13@gmail.com", 
     role = "aut", comment = c(ORCID = "0000-0002-2611-1767")),
-    person("A. Townsend", "Peterson", email = "town@ku.edu", role = "aut",
+    person("A. Townsend", "Peterson", email = "town@ku.edu", role = "ctb",
     comment = c(ORCID = "0000-0003-0243-2379"))
     )
 Maintainer: Luis F. Arias-Giraldo <lfarias.giraldo@gmail.com>
-Date: 2023-11-30
+Date: 2024-04-05
 Description: A set of tools to perform Ecological Niche Modeling with
     presence-absence data. It includes algorithms for data partitioning, 
     model fitting, calibration, evaluation, selection, and prediction. 

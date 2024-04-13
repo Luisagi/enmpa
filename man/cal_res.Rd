@@ -5,13 +5,15 @@
 \alias{cal_res}
 \title{Example of results obtained from GLM calibration using enmpa}
 \format{
-A list with results from the function \verb{\link{calibration_glm}}.
+An object of class enmpa_calibration with results from the function
+\verb{\link{calibration_glm}}.
 }
 \usage{
 cal_res
 }
 \description{
-A list of results from GLM calibration.
+An object of the class enmpa_calibration storing the results from GLM
+calibration.
 }
 \examples{
 data("cal_res", package = "enmpa")

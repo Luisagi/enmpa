@@ -9,8 +9,8 @@
 #' predict_selected(fitted, newdata, clamping = FALSE, var_to_clamp = NULL,
 #'                  type = "response", consensus = TRUE)
 #'
-#' @param fitted a list of GLMs obtained using the
-#' functions \code{\link{fit_selected}} or \code{\link{fit_glms}}.
+#' @param fitted an enmpa-class`fitted models` object obtained using the
+#' functions \code{\link{fit_selected}}.
 #' @param newdata a `SpatRaster`, data.frame, or matrix with the new data on
 #' which to predict.
 #' @param clamping (logical) this option controls extrapolation when making
@@ -65,7 +65,7 @@ predict_selected <- function(fitted, newdata, clamping = FALSE,
 
   # separate parts
   selected <- fitted$selected
-  fitted$selected <- NULL
+  fitted <- fitted$glms_fitted
 
   # Obtain the predicted values (p) for each selected model
   p <- lapply(fitted, function(y) {

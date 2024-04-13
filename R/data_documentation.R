@@ -1,8 +1,10 @@
 #' Example of results obtained from GLM calibration using enmpa
 #'
-#' A list of results from GLM calibration.
+#' An object of the class enmpa_calibration storing the results from GLM
+#' calibration.
 #'
-#' @format A list with results from the function `\link{calibration_glm}`.
+#' @format An object of class enmpa_calibration with results from the function
+#' `\link{calibration_glm}`.
 #'
 #' @examples
 #' data("cal_res", package = "enmpa")
@@ -52,13 +54,17 @@
 
 #' Example of selected models fitted
 #'
-#' @description A list containing fitted selected model(s) and the information
-#' from model evaluation for such model(s).
+#' @description An objecto of the class enmpa_fitted_models containing
+#' fitted selected model(s) and the information from model evaluation for such
+#' model(s).
 #'
-#' @format A list with two elements.
+#' @format A list with four elements.
 #' \describe{
-#'   \item{ModelID_7}{a fitted glm.}
+#'   \item{glms_fitted}{a fitted glm (ModelID_7).}
 #'   \item{selected}{a data.frame with results from evaluation of ModelID_7}
+#'   \item{data}{a data.frame containing information on presence and absence, and
+#'   independent variables used to fit GLM models.}
+#'   \item{weights}{a vector with the weights for observations.}
 #' }
 #'
 #' @examples

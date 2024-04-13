@@ -14,8 +14,7 @@
 #' @return
 #' A list of fitted GLMs.
 #'
-#' For `fit_selected`, the data.frame with results from model evaluation for
-#' selected models is added.
+#' For `fit_selected`, an enmpa `fitted models` object.
 #'
 #' @export
 #' @importFrom stats glm as.formula binomial
@@ -44,16 +43,23 @@ fit_selected <- function(glm_calibration) {
     stop("Arguments 'glm_calibration' must be defined.")
   }
 
-  return(
-    c(
-      fit_glms(formulas = glm_calibration$selected$Formulas,
-               data = glm_calibration$data,
-               weights = glm_calibration$weights,
-               id = glm_calibration$selected$ModelID),
-      list(selected = glm_calibration$selected)
-    )
-  )
+  glms_fitted_list_full <- fit_glms(formulas = glm_calibration$selected$Formulas,
+                                    data = glm_calibration$data,
+                                    weights = glm_calibration$weights,
+                                    id = glm_calibration$selected$ModelID)
 
+  # deleted redundant data to save memory
+  glms_fitted_list_full <- lapply(glms_fitted_list_full, function(x){
+    x$data <- NULL
+    x$weights <- NULL
+    return(x)
+  })
+
+  output <- new_enmpa_fitted_models(data = glm_calibration$data,
+                                    selected = glm_calibration$selected,
+                                    weights = glm_calibration$weights,
+                                    glms_fitted = glms_fitted_list_full)
+  return(output)
 }
 
 
@@ -82,7 +88,6 @@ fit_glms <- function(formulas, data, weights = NULL, id = NULL) {
   } else {
     names(fits) <- id
   }
-
   return(fits)
 }
 

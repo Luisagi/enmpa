@@ -23,7 +23,7 @@ features as such variable response curves and variable importance.
 \code{\link{model_validation}}, \code{\link{niche_signal}},
 \code{\link{optimize_metrics}}, \code{\link{predict_glm}},
 \code{\link{predict_selected}}, \code{\link{response_curve}},
-\code{\link{var_importance}}
+\code{\link{resp2var}}, \code{\link{var_importance}}
 }
 
 \seealso{
@@ -40,7 +40,11 @@ Useful links:
 Authors:
 \itemize{
   \item Marlon E. Cobos \email{manubio13@gmail.com} (\href{https://orcid.org/0000-0002-2611-1767}{ORCID})
-  \item A. Townsend Peterson \email{town@ku.edu} (\href{https://orcid.org/0000-0003-0243-2379}{ORCID})
+}
+
+Other contributors:
+\itemize{
+  \item A. Townsend Peterson \email{town@ku.edu} (\href{https://orcid.org/0000-0003-0243-2379}{ORCID}) [contributor]
 }
 
 }

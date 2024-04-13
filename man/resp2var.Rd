@@ -4,16 +4,23 @@
 \alias{resp2var}
 \title{Two-Way interaction response plot}
 \usage{
-resp2var(model, variable1 , variable2, n = 100, new_data = NULL,
-         extrapolate = FALSE, color.palette	= NULL,
+resp2var(model, variable1 , variable2, modelID = NULL, data = NULL, n = 100,
+         new_data = NULL, extrapolate = FALSE, color.palette	= NULL,
          xlab = NULL, ylab = NULL, ...)
 }
 \arguments{
-\item{model}{an object of class \code{glm}.}
+\item{model}{an object of class \code{glm} or \code{enmpa_fitted_models}.}
 
 \item{variable1}{(character) name of the variable to be plotted in x axis.}
 
 \item{variable2}{(character) name of the variable to be plotted in y axis.}
+
+\item{modelID}{(character) name of the ModelID if inputed \code{model} is  in the
+\code{enmpa_fitted_models} object.
+Default = NULL.}
+
+\item{data}{data.frame or matrix of data to be used in model calibration.
+Default = NULL.}
 
 \item{n}{(numeric) an integer guiding the number of breaks. Default = 100}
 
@@ -55,9 +62,11 @@ at their mean values.
 data(sel_fit, package = "enmpa")
 
 # Two-Way interaction response plot in the calibration limits
-resp2var(sel_fit$ModelID_7, variable1 = "bio_1", variable2 = "bio_12")
+
+resp2var(sel_fit, variable1 = "bio_1", variable2 = "bio_12", xlab = "BIO-1",
+ylab = "BIO-12", modelID = "ModelID_7")
 
 # Two-Way interaction response plot allowing extrapolation
-resp2var(sel_fit$ModelID_7, variable1 = "bio_1", variable2 = "bio_12",
-         extrapolation = FALSE)
+resp2var(sel_fit, variable1 = "bio_1", variable2 = "bio_12", xlab = "BIO-1",
+ylab = "BIO-12", modelID = "ModelID_7", extrapolate = TRUE)
 }

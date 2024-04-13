@@ -4,20 +4,30 @@
 \alias{response_curve}
 \title{Variable response curves for GLMs}
 \usage{
-response_curve(fitted, variable, n = 100, new_data = NULL, extrapolate = TRUE,
-               xlab = NULL, ylab = "Probability", col = "red", ...)
+response_curve(fitted, variable, data = NULL, modelID = NULL,  n = 100,
+               new_data = NULL,  extrapolate = TRUE, xlab = NULL,
+               ylab = "Probability", col = "red", ...)
 }
 \arguments{
-\item{fitted}{an object of class \code{glm} or a list of GLMs obtained using the
-functions \code{\link{fit_selected}} or \code{\link{fit_glms}}.}
+\item{fitted}{an object of class \code{glm}, a list of GLMs obtained using the
+function \code{\link{fit_glms}},  or an object \code{enmpa_fitted_models} from
+\code{\link{fit_selected}} .}
 
 \item{variable}{(character) name of the variables to be plotted.}
+
+\item{data}{data.frame or matrix of data used in the model calibration step.
+Default = NULL.}
+
+\item{modelID}{(character) vector of ModelID(s) to be considered when the
+fitted models is an \code{enmpa_fitted_object}. By default all models are included.
+Default = NULL.}
 
 \item{n}{(numeric) an integer guiding the number of breaks. Default = 100}
 
 \item{new_data}{a \code{SpatRaster}, data.frame, or  matrix of variables
 representing the range of variable values in an area of interest.
-Default = NULL.}
+Default = NULL. It must be defined in case the model entered does not
+explicitly include a data component.}
 
 \item{extrapolate}{(logical) whether to allow extrapolation to study the
 behavior of the response outside the calibration limits. Ignored if

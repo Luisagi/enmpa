@@ -5,16 +5,24 @@
 #' models can be provided.
 #'
 #' @usage
-#' response_curve(fitted, variable, n = 100, new_data = NULL, extrapolate = TRUE,
-#'                xlab = NULL, ylab = "Probability", col = "red", ...)
+#' response_curve(fitted, variable, data = NULL, modelID = NULL,  n = 100,
+#'                new_data = NULL,  extrapolate = TRUE, xlab = NULL,
+#'                ylab = "Probability", col = "red", ...)
 #
-#' @param fitted an object of class `glm` or a list of GLMs obtained using the
-#' functions \code{\link{fit_selected}} or \code{\link{fit_glms}}.
+#' @param fitted an object of class `glm`, a list of GLMs obtained using the
+#' function \code{\link{fit_glms}},  or an object `enmpa_fitted_models` from
+#' \code{\link{fit_selected}} .
 #' @param variable (character) name of the variables to be plotted.
+#' @param data data.frame or matrix of data used in the model calibration step.
+#' Default = NULL.
+#' @param modelID (character) vector of ModelID(s) to be considered when the
+#' fitted models is an `enmpa_fitted_object`. By default all models are included.
+#' Default = NULL.
 #' @param n (numeric) an integer guiding the number of breaks. Default = 100
 #' @param new_data a `SpatRaster`, data.frame, or  matrix of variables
 #' representing the range of variable values in an area of interest.
-#' Default = NULL.
+#' Default = NULL. It must be defined in case the model entered does not
+#' explicitly include a data component.
 #' @param extrapolate (logical) whether to allow extrapolation to study the
 #' behavior of the response outside the calibration limits. Ignored if
 #' `new_data` is defined. Default = TRUE.
@@ -52,8 +60,8 @@
 #' # Response curve when model(s) are in a list (only one model in this one)
 #' response_curve(sel_fit, variable = "bio_12")
 
-response_curve <- function(fitted, variable, n = 100, new_data = NULL,
-                           extrapolate = TRUE, xlab = NULL,
+response_curve <- function(fitted, variable, data = NULL, modelID = NULL, n = 100,
+                           new_data = NULL, extrapolate = TRUE, xlab = NULL,
                            ylab = "Probability", col = "red", ...) {
 
   # initial tests
@@ -67,20 +75,85 @@ response_curve <- function(fitted, variable, n = 100, new_data = NULL,
     }
   }
 
-  # preparing data
-  fitted$selected <- NULL
-  if (is.null(xlab)) {xlab <- variable}
-
-  # Response curve for all selected models
-  if (check_if_glm_list(fitted)){
-    response_curve_cons(fitted, variable, n = n, new_data = new_data,
-                        extrapolate = extrapolate, xlab = xlab, ylab = ylab,
-                        col = col, ...)
-  } else {
-    # Response curve of an individual model
-    response_curve_ind(fitted, variable, n = n, new_data = new_data,
-                       extrapolate = extrapolate, xlab = xlab, ylab = ylab,
-                       col = col, ...)
+  if (!is.null(data)) {
+    if (!class(data)[1] %in% c("matrix", "data.frame")) {
+      stop("'data' must be of class 'matrix', 'data.frame'")
+    }
   }
 
+
+  if (is.null(xlab)) {xlab <- variable}
+
+  #  individual GLMs____________________________________________________________
+  if (class(fitted)[1] == "glm") {
+    response_curve_ind(fitted, variable, data = data, n = n,
+                       new_data = new_data, extrapolate = extrapolate,
+                       xlab = xlab, ylab = ylab, col = col, ...)
+  }
+
+  #  List of GLMs_______________________________________________________________
+  if (check_if_glm_list(fitted)){
+
+    # if data argument is not empty
+    if (!is.null(data) && length(fitted) > 1 ){
+      response_curve_cons(fitted, variable, data = data, n = n,
+                          new_data = new_data, extrapolate = extrapolate,
+                          xlab = xlab, ylab = ylab, col = col, ...)
+    }
+
+    if (!is.null(data) && length(fitted) == 1 ){
+      response_curve_ind(fitted[1][[1]], variable, data = data, n = n,
+                          new_data = new_data, extrapolate = extrapolate,
+                          xlab = xlab, ylab = ylab, col = col, ...)
+    }
+
+    # if data argument is empty
+    if (is.null(fitted[1][[1]]$data)){
+      stop("Calibration data must be defined.")
+
+    } else {
+      data <- fitted[1][[1]]$data
+
+      if (length(fitted) > 1){
+        response_curve_cons(fitted, variable, data = data, n = n,
+                            new_data = new_data, extrapolate = extrapolate,
+                            xlab = xlab, ylab = ylab, col = col, ...)
+      } else {
+        response_curve_ind(fitted[1][[1]], variable, data = data, n = n,
+                           new_data = new_data, extrapolate = extrapolate,
+                           xlab = xlab, ylab = ylab, col = col, ...)
+      }
+    }
+  }
+
+  #  using de 'enmpa fitted object'_____________________________________________
+  if (class(fitted)[1] == "enmpa_fitted_models") {
+    data  <- fitted$data
+    list_glms <-  fitted$glms_fitted
+
+    if (is.null(modelID)){
+
+      response_curve_cons(list_glms, variable, data = data, n = n, new_data = new_data,
+                          extrapolate = extrapolate, xlab = xlab, ylab = ylab,
+                          col = col, ...)
+    } else {
+
+      if (!modelID %in% names(list_glms)){
+        stop(paste0("The ModelID is not correct, check the following:\n[",
+                    paste(names(list_glms), collapse = ", ")),
+             "]"
+        )
+      }
+
+      if (length(modelID) > 1){
+        response_curve_cons(list_glms[modelID], variable, data = data, n = n,
+                            new_data = new_data,extrapolate = extrapolate,
+                            xlab = xlab, ylab = ylab, col = col, ...)
+      } else {
+        response_curve_ind(list_glms[modelID][[1]], variable, data = data, n = n,
+                           new_data = new_data, extrapolate = extrapolate,
+                           xlab = xlab, ylab = ylab, col = col, ...)
+      }
+    }
+  }
 }

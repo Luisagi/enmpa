@@ -5,13 +5,18 @@
 #' environmental space.
 #'
 #' @usage
-#' resp2var(model, variable1 , variable2, n = 100, new_data = NULL,
-#'          extrapolate = FALSE, color.palette	= NULL,
+#' resp2var(model, variable1 , variable2, modelID = NULL, data = NULL, n = 100,
+#'          new_data = NULL, extrapolate = FALSE, color.palette	= NULL,
 #'          xlab = NULL, ylab = NULL, ...)
 #
-#' @param model an object of class `glm`.
+#' @param model an object of class `glm` or `enmpa_fitted_models`.
 #' @param variable1 (character) name of the variable to be plotted in x axis.
 #' @param variable2 (character) name of the variable to be plotted in y axis.
+#' @param modelID (character) name of the ModelID if inputed `model` is  in the
+#' `enmpa_fitted_models` object.
+#' Default = NULL.
+#' @param data data.frame or matrix of data to be used in model calibration.
+#' Default = NULL.
 #' @param n (numeric) an integer guiding the number of breaks. Default = 100
 #' @param new_data a `SpatRaster`, data.frame, or  matrix of variables
 #' representing the range of variable values in an area of interest.
@@ -51,15 +56,17 @@
 #' data(sel_fit, package = "enmpa")
 #'
 #' # Two-Way interaction response plot in the calibration limits
-#' resp2var(sel_fit$ModelID_7, variable1 = "bio_1", variable2 = "bio_12")
+#'
+#' resp2var(sel_fit, variable1 = "bio_1", variable2 = "bio_12", xlab = "BIO-1",
+#' ylab = "BIO-12", modelID = "ModelID_7")
 #'
 #' # Two-Way interaction response plot allowing extrapolation
-#' resp2var(sel_fit$ModelID_7, variable1 = "bio_1", variable2 = "bio_12",
-#'          extrapolation = FALSE)
+#' resp2var(sel_fit, variable1 = "bio_1", variable2 = "bio_12", xlab = "BIO-1",
+#' ylab = "BIO-12", modelID = "ModelID_7", extrapolate = TRUE)
 
-resp2var <- function(model, variable1 , variable2, n = 100, new_data = NULL,
-                     extrapolate = FALSE, color.palette	= NULL,
-                     xlab = NULL, ylab = NULL, ...) {
+resp2var <- function(model, variable1 , variable2, modelID = NULL, data = NULL,
+                     n = 100, new_data = NULL, extrapolate = FALSE,
+                     color.palette	= NULL, xlab = NULL, ylab = NULL, ...) {
 
   # initial tests
   if (missing(model) | missing(variable1) | missing(variable2)) {
@@ -72,6 +79,27 @@ resp2var <- function(model, variable1 , variable2, n = 100, new_data = NULL,
     }
   }
 
+  if (class(model)[1] == "glm" && is.null(try(model$data)) && is.null(data)) {
+    stop(paste("The argument 'data' must be defined in case the model entered",
+               "does not explicitly include a data component."))
+  }
+
+  if (class(model)[1] == "glm" && !is.null(try(model$data))) {
+    data <- model$data
+  }
+
+  #  using de 'enmpa fitted object'
+  if (class(model)[1] == "enmpa_fitted_models" && !is.null(modelID)) {
+    data  <- model$data
+    model <-  model$glms_fitted[modelID][[1]]
+  } else {
+    if (class(model)[1] == "enmpa_fitted_models" && is.null(modelID)) {
+      stop(paste("The argument 'modelID' must be defined if you are entering",
+                 "an object 'enmpa_fitted_models'."))
+    }
+  }
+
+
   if (is.null(xlab)) xlab <- variable1
   if (is.null(ylab)) ylab <- variable2
   if (is.null(color.palette)) color.palette = function(n) rev(hcl.colors(n, "terrain"))
@@ -82,7 +110,7 @@ resp2var <- function(model, variable1 , variable2, n = 100, new_data = NULL,
 
   # It gets only the variable names used in the fitted model
   vnames <- colSums(
-    sapply(colnames(model$data), grepl, names(coef(model)[-1]))
+    sapply(colnames(data), grepl, names(coef(model)[-1]))
   ) > 0
 
   if (any(!variables %in% names(vnames))) {
@@ -90,7 +118,7 @@ resp2var <- function(model, variable1 , variable2, n = 100, new_data = NULL,
   }
 
   # Extract calibration data from the model object
-  cal_data <- model$data[, vnames]
+  cal_data <- data[, vnames]
 
   # Extract the limits of the calibration data
   cal_maxs <-  apply(cal_data, 2, FUN = max)

@@ -5,18 +5,22 @@
 \alias{sel_fit}
 \title{Example of selected models fitted}
 \format{
-A list with two elements.
+A list with four elements.
 \describe{
-\item{ModelID_7}{a fitted glm.}
+\item{glms_fitted}{a fitted glm (ModelID_7).}
 \item{selected}{a data.frame with results from evaluation of ModelID_7}
+\item{data}{a data.frame containing information on presence and absence, and
+independent variables used to fit GLM models.}
+\item{weights}{a vector with the weights for observations.}
 }
 }
 \usage{
 sel_fit
 }
 \description{
-A list containing fitted selected model(s) and the information
-from model evaluation for such model(s).
+An objecto of the class enmpa_fitted_models containing
+fitted selected model(s) and the information from model evaluation for such
+model(s).
 }
 \examples{
 data("sel_fit", package = "enmpa")

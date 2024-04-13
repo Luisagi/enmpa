@@ -74,9 +74,9 @@ processors - 1.}
 Default = TRUE}
 }
 \value{
-A list containing: selected models, a summary of statistics for all models,
-results obtained in cross-validation for all models, original data used,
-weights, and data-partition indices used.
+An object of the class enmpa_calibration containing: selected models,
+a summary of statistics for all models, results obtained in cross-validation
+for all models, original data used, weights, and data-partition indices used.
 }
 \description{
 Creates candidate models based on distinct parameter settings, evaluates
@@ -112,6 +112,8 @@ cal_res <- calibration_glm(data = enm_data, dependent = "Sp",
                            response_type = "lpq", formula_mode = "moderate",
                            selection_criterion = "TSS", cv_kfolds = 3,
                            exclude_bimodal = TRUE, verbose = FALSE)
+print(cal_res)
+summary(cal_res)
 
 head(cal_res$calibration_results)
 head(cal_res$summary)

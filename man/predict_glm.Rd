@@ -47,6 +47,6 @@ data("sel_fit", package = "enmpa")
 env_vars <- terra::rast(system.file("extdata", "vars.tif", package = "enmpa"))
 
 # Prediction
-pred <- predict_glm(sel_fit$ModelID_7, newdata = env_vars)
+pred <- predict_glm(sel_fit$glms_fitted$ModelID_7, newdata = env_vars)
 terra::plot(pred)
 }

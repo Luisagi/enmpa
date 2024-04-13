@@ -4,11 +4,20 @@
 \alias{var_importance}
 \title{Variable importance for GLMs}
 \usage{
-var_importance(fitted)
+var_importance(fitted, modelID = NULL, data = NULL)
 }
 \arguments{
-\item{fitted}{an object of class \code{glm} or a list of GLMs obtained using the
-functions \code{\link{fit_selected}} or \code{\link{fit_glms}}.}
+\item{fitted}{an object of class \code{glm}, a list of GLMs obtained using the
+function \code{\link{fit_glms}},  or an object \code{enmpa_fitted_models} from
+\code{\link{fit_selected}} .}
+
+\item{modelID}{(character) vector of ModelID(s) to be considered when the
+\code{fitted} input is of the class \code{enmpa_fitted_models}. By default all models
+are included. Default = NULL.}
+
+\item{data}{data.frame or matrix of data used in the model calibration step.
+It must be defined in case the model entered does not explicitly include a
+data component. Default = NULL.}
 }
 \value{
 A data.frame containing the relative contribution of each variable. An
@@ -35,7 +44,7 @@ power.
 data(sel_fit, package = "enmpa")
 
 # Variable importance for single models
-var_importance(sel_fit$ModelID_7)
+var_importance(sel_fit, modelID = "ModelID_7")
 
 # Variable importance for multiple models (only one model in this list)
 var_importance(sel_fit)

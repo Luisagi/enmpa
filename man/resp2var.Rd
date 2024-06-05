@@ -4,9 +4,10 @@
 \alias{resp2var}
 \title{Two-Way interaction response plot}
 \usage{
-resp2var(model, variable1 , variable2, modelID = NULL, data = NULL, n = 100,
-         new_data = NULL, extrapolate = FALSE, color.palette	= NULL,
-         xlab = NULL, ylab = NULL, ...)
+resp2var(model, variable1 , variable2, modelID = NULL, data = NULL, n = 1000,
+         new_data = NULL, extrapolate = FALSE, add_bar = TRUE,
+         add_limits = FALSE, color.palette	= NULL, xlab = NULL, ylab = NULL,
+         ...)
 }
 \arguments{
 \item{model}{an object of class \code{glm} or \code{enmpa_fitted_models}.}
@@ -31,6 +32,11 @@ Default = NULL.}
 \item{extrapolate}{(logical) whether to allow extrapolation to study the
 behavior of the response outside the calibration limits. Ignored if
 \code{new_data} is defined. Default = TRUE.}
+
+\item{add_bar}{(logical) whether to add bar legend. Default = TRUE.}
+
+\item{add_limits}{(logical) whether to add calibration limits if
+\code{extrapolate = TRUE}. Default = FALSE.}
 
 \item{color.palette}{(function) a color palette function to be used to assign
 colors in the plot. Default = function(n) rev(hcl.colors(n, "terrain")).}

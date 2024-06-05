@@ -94,37 +94,72 @@ response_curve <- function(fitted, variable, data = NULL, modelID = NULL, n = 10
   #  List of GLMs_______________________________________________________________
   if (check_if_glm_list(fitted)){
 
-    # if data argument is not empty
-    if (!is.null(data) && length(fitted) > 1 ){
-      response_curve_cons(fitted, variable, data = data, n = n,
-                          new_data = new_data, extrapolate = extrapolate,
-                          xlab = xlab, ylab = ylab, col = col, ...)
-    }
-
-    if (!is.null(data) && length(fitted) == 1 ){
-      response_curve_ind(fitted[1][[1]], variable, data = data, n = n,
-                          new_data = new_data, extrapolate = extrapolate,
-                          xlab = xlab, ylab = ylab, col = col, ...)
-    }
-
-    # if data argument is empty
-    if (is.null(fitted[1][[1]]$data)){
+    # check availability
+    if (is.null(data) && is.null(fitted[1][[1]]$data)){
       stop("Calibration data must be defined.")
-
     } else {
-      data <- fitted[1][[1]]$data
+      if (!is.null(fitted[1][[1]]$data)){
+        data  <- fitted[1][[1]]$data
+      }
+    }
 
-      if (length(fitted) > 1){
-        response_curve_cons(fitted, variable, data = data, n = n,
-                            new_data = new_data, extrapolate = extrapolate,
+    if (is.null(modelID)){
+
+      response_curve_cons(fitted, variable, data = data, n = n, new_data = new_data,
+                          extrapolate = extrapolate, xlab = xlab, ylab = ylab,
+                          col = col, ...)
+    } else {
+
+      if (!modelID %in% names(fitted)){
+        stop(paste0("The 'ModelID' is not correct, check the following:\n[",
+                    paste(names(fitted), collapse = ", ")),
+             "]"
+        )
+      }
+
+      if (length(modelID) > 1){
+        response_curve_cons(fitted[modelID], variable, data = data, n = n,
+                            new_data = new_data,extrapolate = extrapolate,
                             xlab = xlab, ylab = ylab, col = col, ...)
       } else {
-        response_curve_ind(fitted[1][[1]], variable, data = data, n = n,
+        response_curve_ind(fitted[modelID][[1]], variable, data = data, n = n,
                            new_data = new_data, extrapolate = extrapolate,
                            xlab = xlab, ylab = ylab, col = col, ...)
       }
     }
   }
+
+  #   # if data argument is not empty
+  #   if (!is.null(data) && length(fitted) > 1 ){
+  #     response_curve_cons(fitted, variable, data = data, n = n,
+  #                         new_data = new_data, extrapolate = extrapolate,
+  #                         xlab = xlab, ylab = ylab, col = col, ...)
+  #   }
+  #
+  #   if (!is.null(data) && length(fitted) == 1 ){
+  #     response_curve_ind(fitted[1][[1]], variable, data = data, n = n,
+  #                         new_data = new_data, extrapolate = extrapolate,
+  #                         xlab = xlab, ylab = ylab, col = col, ...)
+  #   }
+  #
+  #   # if data argument is empty
+  #   if (is.null(fitted[1][[1]]$data)){
+  #     stop("Calibration data must be defined.")
+  #
+  #   } else {
+  #     data <- fitted[1][[1]]$data
+  #
+  #     if (length(fitted) > 1){
+  #       response_curve_cons(fitted, variable, data = data, n = n,
+  #                           new_data = new_data, extrapolate = extrapolate,
+  #                           xlab = xlab, ylab = ylab, col = col, ...)
+  #     } else {
+  #       response_curve_ind(fitted[1][[1]], variable, data = data, n = n,
+  #                          new_data = new_data, extrapolate = extrapolate,
+  #                          xlab = xlab, ylab = ylab, col = col, ...)
+  #     }
+  #   }
+  # }
 
   #  using de 'enmpa fitted object'_____________________________________________
   if (class(fitted)[1] == "enmpa_fitted_models") {

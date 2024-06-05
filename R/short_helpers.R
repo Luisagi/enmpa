@@ -252,13 +252,17 @@ response_curve_cons <- function(model, variable, data = NULL, n = 100,
         stop("The name of the 'variable' was not defined correctly.")
       }
 
-      coefs <- coef(x)[-1]
-      variable_q <- c(variable, paste0("I(", variable,"^2)")) # find the quadratic too
+      coefs <- names(coef(x)[-1])
+      c1 <- any(c(variable, paste0("I(", variable, "^2)")) %in% coefs)
+      c2 <- any(grepl(paste0("^", variable, ":"), coefs))
+      c3 <- any(grepl(paste0(":", variable, "$"), coefs))
 
-      if (sum(variable_q %in% names(coefs)) > 0){
-        x <- response(x, variable, data = data, new_data = new_data, extrapolate = extrapolate)
+      if (any(c1, c2, c3)){
+        x <- response(x, variable, data = data, new_data = new_data,
+                      extrapolate = extrapolate)
         return(x)
-      } else{
+
+      } else {
         return(NULL)
       }
     })

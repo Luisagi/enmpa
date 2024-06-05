@@ -5,9 +5,10 @@
 #' environmental space.
 #'
 #' @usage
-#' resp2var(model, variable1 , variable2, modelID = NULL, data = NULL, n = 100,
-#'          new_data = NULL, extrapolate = FALSE, color.palette	= NULL,
-#'          xlab = NULL, ylab = NULL, ...)
+#' resp2var(model, variable1 , variable2, modelID = NULL, data = NULL, n = 1000,
+#'          new_data = NULL, extrapolate = FALSE, add_bar = TRUE,
+#'          add_limits = FALSE, color.palette	= NULL, xlab = NULL, ylab = NULL,
+#'          ...)
 #
 #' @param model an object of class `glm` or `enmpa_fitted_models`.
 #' @param variable1 (character) name of the variable to be plotted in x axis.
@@ -24,6 +25,9 @@
 #' @param extrapolate (logical) whether to allow extrapolation to study the
 #' behavior of the response outside the calibration limits. Ignored if
 #' `new_data` is defined. Default = TRUE.
+#' @param add_bar (logical) whether to add bar legend. Default = TRUE.
+#' @param add_limits (logical) whether to add calibration limits if
+#' `extrapolate = TRUE`. Default = FALSE.
 #' @param color.palette (function) a color palette function to be used to assign
 #' colors in the plot. Default = function(n) rev(hcl.colors(n, "terrain")).
 #' @param xlab (character) a label for the x axis. The default, NULL, uses the
@@ -47,7 +51,7 @@
 #' @rdname resp2var
 #'
 #' @importFrom stats predict coef
-#' @importFrom graphics filled.contour par title
+#' @importFrom graphics par title axis image layout mtext plot.new plot.window rect
 #' @importFrom terra minmax
 #' @importFrom grDevices hcl.colors
 #'
@@ -65,8 +69,9 @@
 #' ylab = "BIO-12", modelID = "ModelID_7", extrapolate = TRUE)
 
 resp2var <- function(model, variable1 , variable2, modelID = NULL, data = NULL,
-                     n = 100, new_data = NULL, extrapolate = FALSE,
-                     color.palette	= NULL, xlab = NULL, ylab = NULL, ...) {
+                     n = 1000, new_data = NULL, extrapolate = FALSE,
+                     add_bar = TRUE, add_limits = FALSE, color.palette	= NULL,
+                     xlab = NULL, ylab = NULL, ...) {
 
   # initial tests
   if (missing(model) | missing(variable1) | missing(variable2)) {
@@ -184,10 +189,85 @@ resp2var <- function(model, variable1 , variable2, modelID = NULL, data = NULL,
   y = unique(m[, variables[2]])
   z = matrix(data = predicted, nrow = n, ncol = n)
 
-  filled.contour(x, y, z,
-                 nlevels = 10,
-                 color.palette = color.palette,
-                 key.title = {par(cex.main = 0.9); title(main = NULL)},
-                 xlab = xlab, ylab = ylab, ...
-  )
+
+  # Set colors
+  colors <- color.palette(10)
+
+  # Save the original par settings
+  original_par <- par(no.readonly = TRUE)
+
+  if (add_bar == FALSE){
+    # Plot the main image
+    image(x,y,z,
+          zlim = c(0,1),
+          col = colors,
+          xlab = xlab, ylab = ylab, useRaster = F, ...)
+
+    if (extrapolate & add_limits ){
+
+      abline(v = c(cal_mins[variables[1]], cal_maxs[variables[1]]),
+             h = c(cal_mins[variables[2]], cal_maxs[variables[2]]),
+             lty = 2)
+    }
+  } else{
+
+    layout(matrix(1:2, ncol = 2), widths = c(4, 1))  # Adjust widths to allocate space for the legend
+    par(mar = c(5, 4, 4, 2) + 0.1)  # Set margins for the main plot
+
+    # Plot the main image
+    image(x,y,z,
+          zlim = c(0,1),
+          col = colors,
+          xlab = xlab, ylab = ylab, useRaster = T, ...)
+
+    if (extrapolate & add_limits ){
+
+      abline(v = c(cal_mins[variables[1]], cal_maxs[variables[1]]),
+             h = c(cal_mins[variables[2]], cal_maxs[variables[2]]),
+             lty = 2)
+    }
+
+    # Add the color bar legend
+    par(mar = c(5, 0, 4, 2) + 0.1)  # Set margins for the legend
+    color_levels <- seq(0, 1, length.out = length(colors) + 1)
+    legend_y <- seq(min(y), max(y), length.out = length(colors) + 1)
+
+    # Plot the legend
+    plot.new()
+    plot.window(xlim = c(0, 1), ylim = range(legend_y))
+
+    # Draw rectangles for the legend
+    for (i in seq_along(colors)) {
+      rect(0.25, legend_y[i], 0.5, legend_y[i + 1], col = colors[i],
+           border = "transparent")
+    }
+    rect(0.25, min(legend_y), 0.5, max(legend_y), col = NA,
+         border = "black")
+
+    # Add text labels to the legend
+    axis(4, at = legend_y, labels = round(color_levels, 2), las = 1,
+         tick = FALSE, pos = 0.5  )
+    mtext("Suitability", side = 3, line = 0, cex = 1.2)
+
+    # Restore the original par settings
+    par(original_par)
+  }
+
+
+  # filled.contour(x, y, z,
+  #                nlevels = 10,
+  #                color.palette = color.palette,
+  #                key.title = {par(cex.main = 0.9); title(main = NULL)},
+  #                xlab = xlab, ylab = ylab,
+  # )
+
+  # other alternative
+  # image(x,y,z,
+  #       zlim = c(0,1),
+  #       col = color.palette(10),
+  #       xlab = xlab, ylab = ylab, useRaster = T)
+  # contour(x,y,z,
+  #         levels = seq(0, 1, by = 0.1),
+  #         add = TRUE, col = "black")
+
 }

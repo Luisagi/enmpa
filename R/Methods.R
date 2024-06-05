@@ -13,16 +13,19 @@
 print.enmpa_calibration <- function(x, ...) {
   cat("enmpa-class `enmpa_calibration`:\n")
   cat(paste0(
-    "$selected           : Selected models (N = ", nrow(x$selected), ")\n"))
-  cat()
+    "$selected             : Selected models (N = ", nrow(x$selected), ")\n"))
   cat(
-    "$data               : Data used for calibration. \n")
+    "$summary              : A summary of statistics for all models. \n")
+  cat(
+    "$calibration_results  : Results obtained from cross-validation for all models. \n")
+  cat(
+    "$data                 : Data used for calibration. \n")
   cat(paste0(
-    "$partitioned_data   : k-fold indexes (k = ", length(x$partitioned_data), ")\n"))
+    "$partitioned_data     : k-fold indexes (k = ", length(x$partitioned_data), ")\n"))
   cat(paste0(
-    "$weights            : Use of weights (", !is.null(x$weights), ")\n"))
+    "$weights              : Use of weights (", !is.null(x$weights), ")\n"))
   invisible(x)
-    "$summary            : Summary calibrations stats. \n"
+
 }
 
 #' @export
@@ -31,7 +34,7 @@ print.enmpa_calibration <- function(x, ...) {
 print.enmpa_fitted_models <- function(x, ...) {
   cat("enmpa-class `fitted models`:\n")
   cat(paste0(
-    "$glms_fitted    : List of GLMs fitted models (N = ", length(x$glms_fitted), ")\n"
+    "$glms_fitted    : List of GLMs fitted (N = ", length(x$glms_fitted), ")\n"
   ))
   cat(paste0(
     "$selected       : Selected models (N = ", nrow(x$selected), ")\n"
@@ -85,7 +88,7 @@ summary.enmpa_calibration <- function(object, ...) {
 summary.enmpa_fitted_models <- function(object, ...) {
   cat("\n                     Summary of enmpa_fitted_models                \n")
   cat("-------------------------------------------------------------------\n\n")
-  cat(paste0("Number of GLMs fitted models: ", length(object$glms_fitted), "\n"))
+  cat(paste0("Number of GLMs fitted: ", length(object$glms_fitted), "\n"))
   cat(paste0("Weights used: ", ifelse(is.null(object$weights), "No", "Yes"), "\n"))
   cat("Formulas of fitted models:\n")
 

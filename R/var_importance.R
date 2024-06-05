@@ -10,7 +10,7 @@
 #' var_importance(fitted, modelID = NULL, data = NULL)
 #'
 #' @param fitted an object of class `glm`, a list of GLMs obtained using the
-#' function \code{\link{fit_glms}},  or an object `enmpa_fitted_models` from
+#' function \code{\link{fit_glms}}, or an object `enmpa_fitted_models` from
 #' \code{\link{fit_selected}} .
 #' @param modelID (character) vector of ModelID(s) to be considered when the
 #' `fitted` input is of the class `enmpa_fitted_models`. By default all models

@@ -8,7 +8,7 @@ var_importance(fitted, modelID = NULL, data = NULL)
 }
 \arguments{
 \item{fitted}{an object of class \code{glm}, a list of GLMs obtained using the
-function \code{\link{fit_glms}},  or an object \code{enmpa_fitted_models} from
+function \code{\link{fit_glms}}, or an object \code{enmpa_fitted_models} from
 \code{\link{fit_selected}} .}
 
 \item{modelID}{(character) vector of ModelID(s) to be considered when the

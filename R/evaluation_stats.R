@@ -24,7 +24,7 @@
 #' all_res <- cal_res$calibration_results[, -1]
 #'
 #' # statistics for all evaluation results
-#' eval_stats <- evaluation_stats(all_res, bimodal_toexclude = TRUE)
+#' evaluation_stats(all_res, bimodal_toexclude = TRUE)
 
 evaluation_stats <- function(evaluation_results, bimodal_toexclude = FALSE) {
 
@@ -65,9 +65,9 @@ evaluation_stats <- function(evaluation_results, bimodal_toexclude = FALSE) {
   stats <- do.call(data.frame, lapply(xy, function(y) {y[, msd]}))
   colnames(stats) <- unlist(lapply(xy, function(y) {colnames(y[, msd])}))
 
-  # remove sd for AIC and parameters
-  stats <- cbind(xy[[1]][, 1:2] , stats[, -c(16, 18)])
-  colnames(stats)[c(17, 18)] <- c("Parameters", "AIC")
+  # remove sd for Devaince, AIC and parameters
+  stats <- cbind(xy[[1]][, 1:2] , stats[, -c(16, 18, 20)])
+  colnames(stats)[c(17, 18, 19)] <- c("Parameters", "Deviance", "AIC")
   colnames(stats) <- gsub(".", "_", colnames(stats), fixed = TRUE)
 
 
@@ -76,8 +76,7 @@ evaluation_stats <- function(evaluation_results, bimodal_toexclude = FALSE) {
   }
 
   # sort data by formula (more simple to complex)
-  ii <- order(factor(stats$Formulas,
-                     levels = unique(evaluation_results$Formulas)))
+  ii <- order(factor(stats$Formulas, levels = unique(evaluation_results$Formulas)))
   stats <- stats[ii,]
   rownames(stats) <- 1:nrow(stats)
 
@@ -87,15 +86,10 @@ evaluation_stats <- function(evaluation_results, bimodal_toexclude = FALSE) {
   AIC_weight <- exp(-0.5 * Delta_AIC)
   AIC_weight <- AIC_weight / sum(AIC_weight, na.rm = TRUE)
 
-  stats$Delta_AIC <- rep(Delta_AIC,
-                         each = length(unique(stats$Threshold_criteria)))
+  stats$Delta_AIC <- rep(Delta_AIC, each = length(unique(stats$Threshold_criteria)))
+  stats$AIC_weight <- rep(AIC_weight, each = length(unique(stats$Threshold_criteria)))
 
-  stats$AIC_weight <- rep(AIC_weight,
-                          each = length(unique(stats$Threshold_criteria)))
-
-  if (bimodal_toexclude) {
-    stats <- data.frame(stats[, c(1:18, 20, 21, 19)])
-  }
+  if (bimodal_toexclude) {stats <- data.frame(stats[, c(1:19, 21, 22, 20)])}
 
   return(stats)
 }

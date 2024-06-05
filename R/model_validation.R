@@ -77,6 +77,7 @@ model_validation <- function(formula, data, family = binomial(link = "logit"),
     )
 
   AIC <- gfit$aic
+  Deviance <- gfit$deviance
   nparameters <- length(gfit$coefficients) - 1
 
   if (cv) {
@@ -113,8 +114,12 @@ model_validation <- function(formula, data, family = binomial(link = "logit"),
                                  predicted = pred_k,
                                  n_threshold = n_threshold)$optimized
 
-      res <- data.frame(Formulas = formula, Kfold = x,
-                        eval_k, Parameters = nparameters, AIC = AIC)
+      res <- data.frame(Formulas = formula,
+                        Kfold = x,
+                        eval_k,
+                        Parameters = nparameters,
+                        Deviance = Deviance,
+                        AIC = AIC)
       out <- rbind(out, res)
     }
 
@@ -123,7 +128,10 @@ model_validation <- function(formula, data, family = binomial(link = "logit"),
     eval_global <- optimize_metrics(actual = data[, all.vars(f)[1]],
                                     predicted = pred_global,
                                     n_threshold = n_threshold)$optimized
-    out <- data.frame(Formulas = formula, eval_global, Parameters = nparameters,
+    out <- data.frame(Formulas = formula,
+                      eval_global,
+                      Parameters = nparameters,
+                      Deviance = Deviance,
                       AIC = AIC)
   }
 

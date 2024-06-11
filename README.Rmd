@@ -45,7 +45,7 @@ exploration, and model projection.
 You can install the development version of `enmpa` from
 [GitHub](https://github.com/Luisagi/enmpa) with:
 
-```{r eval=FALSE}
+```{r eval=FALSE, include=FALSE}
 # install.packages("remotes")
 remotes::install_github("Luisagi/enmpa")
 ```
@@ -187,20 +187,26 @@ Now lets run an example of model calibration and selection:
 
 ```{r cache=TRUE}
 # Linear + quadratic + products responses
-cal_res <- calibration_glm(data = enm_data, dependent = "Sp",
-                           independent = c("bio_1", "bio_12"),
-                           response_type = "lpq", formula_mode = "intensive", 
-                           exclude_bimodal = TRUE, selection_criterion = "TSS",
-                           cv_kfolds = 5, verbose = FALSE)
+calibration <- calibration_glm(data = enm_data, dependent = "Sp",
+                               independent = c("bio_1", "bio_12"),
+                               response_type = "lpq",
+                               formula_mode = "intensive", 
+                               exclude_bimodal = TRUE, 
+                               selection_criterion = "TSS",
+                               cv_kfolds = 5, verbose = FALSE)
+calibration
 ```
 
 Process results:
 
 ```{r cache=TRUE, paged.print=TRUE}
-## Two models were selected out of 31 models evaluated
-cal_res$selected[, 1]  # Selected models
+## Summary of the calibrationm
+summary(calibration)
+```
 
-cal_res$selected  # Metrics of evaluation
+```{r cache=TRUE, paged.print=TRUE}
+## Two models were selected out of 31 models evaluated
+calibration$selected[, 1:2]  # Selected models
 ```
 
 <br>
@@ -212,11 +218,11 @@ projection of these models. In this case we are projecting the models to the
 whole area of interest.
 
 ```{r warning=FALSE, cache=TRUE, figures-prediction_selected, fig.height=2.5,fig.width=8, cache=TRUE,fig.show="hold"}
-# Fitting
-f_models <- fit_selected(cal_res)
+# Fitting selected models
+fits <- fit_selected(calibration)
 
 # Prediction for the two selected models and their consensus
-preds <- predict_selected(f_models, newdata = env_vars, consensus = TRUE)
+preds <- predict_selected(fits, newdata = env_vars, consensus = TRUE)
 
 # Visualization
 plot(preds$predictions, mar = c(1, 1, 2, 4))
@@ -248,17 +254,41 @@ explore variable response curves. The following lines of code help to do so:
 
 ```{r figures-rcurve_model_ID_1, fig.show="hold", out.width="50%", cache=TRUE}
 # Response Curves for Bio_1 and Bio_2, first selected model 
-response_curve(f_models$ModelID_29, variable = "bio_1")
-
-response_curve(f_models$ModelID_29, variable = "bio_12")
-
+response_curve(fitted = fits, modelID = "ModelID_29", variable = "bio_1")
+response_curve(fitted = fits, modelID = "ModelID_29", variable = "bio_12")
 ```
 
 ```{r figures-rcurve_consensus, fig.show="hold", out.width="50%", cache=TRUE}
 # Consensus Response Curves for Bio_1 and Bio_2, for both models 
-response_curve(f_models, variable = "bio_1")
+response_curve(fits, variable = "bio_1")
+response_curve(fits, variable = "bio_12")
+```
 
-response_curve(f_models, variable = "bio_12")
+### Two-way interactions
+
+It is useful to examine whether the effect of one variable depends on the level
+of other variables. If it does, then we have what is called an 'interaction'.
+According to the calibration results from this example, in both models, the
+predictor `bio_1:bio_12` was selected. To explore the interaction of these two
+variables, the function `resp2var` can help us to visualize this interaction.
+
+```{r figures-rcurve_two, fig.show="hold", out.width="50%", cache=TRUE}
+# Consensus Response Curves for Bio_1 and Bio_2, for both models 
+resp2var(model = fits, 
+         modelID = "ModelID_29",
+         main = "ModelID 29",
+         variable1 = "bio_1", 
+         variable2 = "bio_12",
+         extrapolate = TRUE, 
+         add_limits = TRUE)
+
+resp2var(model = fits, 
+         modelID = "ModelID_31",
+         main = "ModelID 31",
+         variable1 = "bio_1", 
+         variable2 = "bio_12",
+         extrapolate = TRUE, 
+         add_limits = TRUE)
 ```
 
 <br>
@@ -271,7 +301,7 @@ the relative deviance explained by each predictor.
 Analysis of Deviance for the first selected model:
 
 ```{r warning=FALSE, cache=TRUE}
-anova(f_models$ModelID_29, test = "Chi")
+anova(fits$glms_fitted$ModelID_29, test = "Chi")
 ```
 
 Using a function from `enmpa` you can also explore variable importance in terms
@@ -279,7 +309,7 @@ of contribution.
 
 ```{r warning=FALSE}
 # Relative contribution of the deviance explained for the first model
-var_importance(f_models$ModelID_29)
+var_importance(fitted = fits, modelID = "ModelID_29")
 ```
 
 The function also allows to plot the contributions of the variables for the two
@@ -287,13 +317,38 @@ models together which can help with the interpretations:
 
 ```{r warning=FALSE}
 # Relative contribution of the deviance explained
-vi_both_models <- var_importance(f_models)
+vi_both_models <- var_importance(fits)
 ```
 
 ```{r warning=FALSE, figures-var_importance, fig.show="hold", out.width="70%", cache=TRUE}
 # Plot
 plot_importance(vi_both_models, extra_info = TRUE)
 ```
+
+
+The Jackknife function providing a detailed reflection of the impact of each
+variable on the overall model, considering four difference measures: ROC-AUC,
+TSS, AICc, and Deviance.
+
+
+```{r warning=FALSE}
+# Jackknife test
+jk <- jackknife(data = enm_data,
+          dependent = "Sp",
+          independent = c("bio_1", "bio_12"),
+          response_type = "lpq")
+
+jk
+```
+
+```{r warning=FALSE, cache=TRUE, figures-jackk, fig.show="hold", , fig.height=4, fig.width=7.5,out.width="50%"}
+# Jackknife plots
+plot_jk(jk, metric = "TSS")
+plot_jk(jk, metric = "AIC")
+plot_jk(jk, metric = "ROC_AUC")
+plot_jk(jk, metric = "Deviance")
+```
+
 
 ### Model evaluation with independent data
 
@@ -316,8 +371,9 @@ wmean <- preds$consensus$Weighted_average
 head(test, 10)
 
 # independent evaluation
-eval <- independent_eval01(prediction = wmean, observation = test$Sp, 
-                           lon_lat = test[, 2:3])
+eval <- independent_eval01(prediction = wmean,
+                           observation = test$Sp, 
+                           lon_lat = test[, c("lon", "lat")])
 
 eval
 ```
@@ -338,8 +394,9 @@ th <- eval[3, "Threshold"]
 test_p <- test[test$Sp == 1,]
 
 # independent evaluation 
-eval2 <- independent_eval1(prediction = wmean, threshold = th, 
-                           lon_lat = test_p[, 2:3])
+eval2 <- independent_eval1(prediction = wmean,
+                           threshold = th, 
+                           lon_lat = test[, c("lon", "lat")])
 
 eval2
 ```

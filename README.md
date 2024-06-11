@@ -15,6 +15,7 @@ Luis F. Arias-Giraldo, Marlon E. Cobos, A. Townsend Peterson
     models](#fitting-and-predictions-for-selected-models)
   - [Consensus models](#consensus-models)
   - [Response Curves](#response-curves)
+  - [Two-way interactions](#two-way-interactions)
   - [Variable importance](#variable-importance)
   - [Model evaluation with independent
     data](#model-evaluation-with-independent-data)
@@ -46,11 +47,6 @@ selection, variable response exploration, and model projection.
 
 You can install the development version of `enmpa` from
 [GitHub](https://github.com/Luisagi/enmpa) with:
-
-``` r
-# install.packages("remotes")
-remotes::install_github("Luisagi/enmpa")
-```
 
 <br>
 
@@ -219,36 +215,47 @@ Now lets run an example of model calibration and selection:
 
 ``` r
 # Linear + quadratic + products responses
-cal_res <- calibration_glm(data = enm_data, dependent = "Sp",
-                           independent = c("bio_1", "bio_12"),
-                           response_type = "lpq", formula_mode = "intensive", 
-                           exclude_bimodal = TRUE, selection_criterion = "TSS",
-                           cv_kfolds = 5, verbose = FALSE)
+calibration <- calibration_glm(data = enm_data, dependent = "Sp",
+                               independent = c("bio_1", "bio_12"),
+                               response_type = "lpq",
+                               formula_mode = "intensive", 
+                               exclude_bimodal = TRUE, 
+                               selection_criterion = "TSS",
+                               cv_kfolds = 5, verbose = FALSE)
+calibration
+#> enmpa-class `enmpa_calibration`:
+#> $selected             : Selected models (N = 2)
+#> $summary              : A summary of statistics for all models. 
+#> $calibration_results  : Results obtained from cross-validation for all models. 
+#> $data                 : Data used for calibration. 
+#> $partitioned_data     : k-fold indexes (k = 5)
+#> $weights              : Use of weights (FALSE)
 ```
 
 Process results:
 
 ``` r
-## Two models were selected out of 31 models evaluated
-cal_res$selected[, 1]  # Selected models
-#> [1] "ModelID_29" "ModelID_31"
+## Summary of the calibrationm
+summary(calibration)
+#> 
+#>                      Summary of enmpa_calibration                  
+#> -------------------------------------------------------------------
+#> 
+#> Number of selected models: 2
+#> Number of partitions: (k = 5)
+#> Weights used: No
+#> Summary of selected models (threshold criteria =  maxTSS ):
+#>      ModelID ROC_AUC_mean Specificity_mean Sensitivity_mean TSS_mean AIC_weight
+#> 1 ModelID_29       0.9003           0.8245            0.858   0.6825  0.3751818
+#> 2 ModelID_31       0.9002           0.8280            0.856   0.6840  0.6248182
+```
 
-cal_res$selected  # Metrics of evaluation
+``` r
+## Two models were selected out of 31 models evaluated
+calibration$selected[, 1:2]  # Selected models
 #>      ModelID                                                      Formulas
 #> 1 ModelID_29          Sp ~ bio_1 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12
 #> 2 ModelID_31 Sp ~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12
-#>   Threshold_criteria Threshold_mean Threshold_sd ROC_AUC_mean ROC_AUC_sd
-#> 1             maxTSS         0.0951       0.0166       0.9003     0.0190
-#> 2             maxTSS         0.0991       0.0154       0.9002     0.0192
-#>   False_positive_rate_mean False_positive_rate_sd Accuracy_mean Accuracy_sd
-#> 1                   0.1755                 0.0259        0.8274      0.0232
-#> 2                   0.1720                 0.0216        0.8305      0.0198
-#>   Sensitivity_mean Sensitivity_sd Specificity_mean Specificity_sd TSS_mean
-#> 1            0.858         0.0363           0.8245         0.0259   0.6825
-#> 2            0.856         0.0404           0.8280         0.0216   0.6840
-#>   TSS_sd Parameters     AIC Delta_AIC AIC_weight Concave_responses
-#> 1 0.0404          4 2186.70    1.0201  0.3751818                  
-#> 2 0.0450          5 2185.68    0.0000  0.6248182
 ```
 
 <br>
@@ -260,11 +267,11 @@ and projection of these models. In this case we are projecting the
 models to the whole area of interest.
 
 ``` r
-# Fitting
-f_models <- fit_selected(cal_res)
+# Fitting selected models
+fits <- fit_selected(calibration)
 
 # Prediction for the two selected models and their consensus
-preds <- predict_selected(f_models, newdata = env_vars, consensus = TRUE)
+preds <- predict_selected(fits, newdata = env_vars, consensus = TRUE)
 
 # Visualization
 plot(preds$predictions, mar = c(1, 1, 2, 4))
@@ -302,21 +309,49 @@ code help to do so:
 
 ``` r
 # Response Curves for Bio_1 and Bio_2, first selected model 
-response_curve(f_models$ModelID_29, variable = "bio_1")
-
-response_curve(f_models$ModelID_29, variable = "bio_12")
+response_curve(fitted = fits, modelID = "ModelID_29", variable = "bio_1")
+response_curve(fitted = fits, modelID = "ModelID_29", variable = "bio_12")
 ```
 
 <img src="man/figures/README-figures-rcurve_model_ID_1-1.png" width="50%" /><img src="man/figures/README-figures-rcurve_model_ID_1-2.png" width="50%" />
 
 ``` r
 # Consensus Response Curves for Bio_1 and Bio_2, for both models 
-response_curve(f_models, variable = "bio_1")
-
-response_curve(f_models, variable = "bio_12")
+response_curve(fits, variable = "bio_1")
+response_curve(fits, variable = "bio_12")
 ```
 
 <img src="man/figures/README-figures-rcurve_consensus-1.png" width="50%" /><img src="man/figures/README-figures-rcurve_consensus-2.png" width="50%" />
+
+### Two-way interactions
+
+It is useful to examine whether the effect of one variable depends on
+the level of other variables. If it does, then we have what is called an
+‘interaction’. According to the calibration results from this example,
+in both models, the predictor `bio_1:bio_12` was selected. To explore
+the interaction of these two variables, the function `resp2var` can help
+us to visualize this interaction.
+
+``` r
+# Consensus Response Curves for Bio_1 and Bio_2, for both models 
+resp2var(model = fits, 
+         modelID = "ModelID_29",
+         main = "ModelID 29",
+         variable1 = "bio_1", 
+         variable2 = "bio_12",
+         extrapolate = TRUE, 
+         add_limits = TRUE)
+
+resp2var(model = fits, 
+         modelID = "ModelID_31",
+         main = "ModelID 31",
+         variable1 = "bio_1", 
+         variable2 = "bio_12",
+         extrapolate = TRUE, 
+         add_limits = TRUE)
+```
+
+<img src="man/figures/README-figures-rcurve_two-1.png" width="50%" /><img src="man/figures/README-figures-rcurve_two-2.png" width="50%" />
 
 <br>
 
@@ -328,7 +363,7 @@ function of the relative deviance explained by each predictor.
 Analysis of Deviance for the first selected model:
 
 ``` r
-anova(f_models$ModelID_29, test = "Chi")
+anova(fits$glms_fitted$ModelID_29, test = "Chi")
 #> Analysis of Deviance Table
 #> 
 #> Model: binomial, link: logit
@@ -353,7 +388,7 @@ in terms of contribution.
 
 ``` r
 # Relative contribution of the deviance explained for the first model
-var_importance(f_models$ModelID_29)
+var_importance(fitted = fits, modelID = "ModelID_29")
 #>      predictor contribution cum_contribution
 #> 3  I(bio_12^2)    0.3572673        0.3572673
 #> 1        bio_1    0.2919587        0.6492259
@@ -366,7 +401,7 @@ the two models together which can help with the interpretations:
 
 ``` r
 # Relative contribution of the deviance explained
-vi_both_models <- var_importance(f_models)
+vi_both_models <- var_importance(fits)
 ```
 
 ``` r
@@ -375,6 +410,52 @@ plot_importance(vi_both_models, extra_info = TRUE)
 ```
 
 <img src="man/figures/README-figures-var_importance-1.png" width="70%" />
+
+The Jackknife function providing a detailed reflection of the impact of
+each variable on the overall model, considering four difference
+measures: ROC-AUC, TSS, AICc, and Deviance.
+
+``` r
+# Jackknife test
+jk <- jackknife(data = enm_data,
+          dependent = "Sp",
+          independent = c("bio_1", "bio_12"),
+          response_type = "lpq")
+
+jk
+#> $Full_model_stats
+#>     ROC_AUC       TSS     AIC Deviance
+#> 1 0.9023279 0.6732916 2185.68  2173.68
+#> 
+#> $Formula
+#> [1] "Sp ~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12"
+#> 
+#> $Without
+#>                ROC_AUC       TSS      AIC Deviance
+#> bio_1        0.9015319 0.6707435 2212.307 2202.307
+#> bio_12       0.8991734 0.6684712 2226.488 2216.488
+#> I(bio_1^2)   0.8978504 0.6651925 2237.051 2227.051
+#> I(bio_12^2)  0.9016647 0.6744525 2186.700 2176.700
+#> bio_1:bio_12 0.8938496 0.6600718 2243.562 2233.562
+#> 
+#> $With_only
+#>                ROC_AUC       TSS      AIC Deviance
+#> bio_1        0.6549700 0.2970911 3373.978 3369.978
+#> bio_12       0.6902666 0.2871473 3191.205 3187.205
+#> I(bio_1^2)   0.8641785 0.5786819 2599.638 2595.638
+#> I(bio_12^2)  0.6916871 0.2894878 3164.568 3160.568
+#> bio_1:bio_12 0.8646620 0.5868336 2509.565 2505.565
+```
+
+``` r
+# Jackknife plots
+plot_jk(jk, metric = "TSS")
+plot_jk(jk, metric = "AIC")
+plot_jk(jk, metric = "ROC_AUC")
+plot_jk(jk, metric = "Deviance")
+```
+
+<img src="man/figures/README-figures-jackk-1.png" width="50%" /><img src="man/figures/README-figures-jackk-2.png" width="50%" /><img src="man/figures/README-figures-jackk-3.png" width="50%" /><img src="man/figures/README-figures-jackk-4.png" width="50%" />
 
 ### Model evaluation with independent data
 
@@ -408,8 +489,9 @@ head(test, 10)
 #> 10  0 -118.8269 38.62374
 
 # independent evaluation
-eval <- independent_eval01(prediction = wmean, observation = test$Sp, 
-                           lon_lat = test[, 2:3])
+eval <- independent_eval01(prediction = wmean,
+                           observation = test$Sp, 
+                           lon_lat = test[, c("lon", "lat")])
 
 eval
 #>     Threshold_criteria Threshold   ROC_AUC False_positive_rate Accuracy
@@ -439,17 +521,19 @@ th <- eval[3, "Threshold"]
 test_p <- test[test$Sp == 1,]
 
 # independent evaluation 
-eval2 <- independent_eval1(prediction = wmean, threshold = th, 
-                           lon_lat = test_p[, 2:3])
+eval2 <- independent_eval1(prediction = wmean,
+                           threshold = th, 
+                           lon_lat = test[, c("lon", "lat")])
 
 eval2
 #>   omission_error threshold Mean_AUC_ratio pval_pROC
-#> 1     0.09090909 0.1394197       1.634595         0
+#> 1           0.81 0.1394197            NaN       NaN
 ```
 
 ### Literature
 
-<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="refs" class="references csl-bib-body hanging-indent"
+entry-spacing="0">
 
 <div id="ref-akaike1973" class="csl-entry">
 

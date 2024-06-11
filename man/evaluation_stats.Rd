@@ -23,4 +23,9 @@ candidate models considering cross-validation kfolds.
 }
 \examples{
 # data
+data("cal_res", package = "enmpa")
+all_res <- cal_res$calibration_results[, -1]
+
+# statistics for all evaluation results
+evaluation_stats(all_res, bimodal_toexclude = TRUE)
 }

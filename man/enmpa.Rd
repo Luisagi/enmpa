@@ -24,6 +24,7 @@ features as such variable response curves and variable importance.
 \code{\link{optimize_metrics}}, \code{\link{predict_glm}},
 \code{\link{predict_selected}}, \code{\link{response_curve}},
 \code{\link{resp2var}}, \code{\link{var_importance}}
+\code{\link{jackknife}}
 }
 
 \seealso{

@@ -18,7 +18,7 @@ independent variables used to fit GLM models.}
 sel_fit
 }
 \description{
-An objecto of the class enmpa_fitted_models containing
+An object of the class enmpa_fitted_models containing
 fitted selected model(s) and the information from model evaluation for such
 model(s).
 }

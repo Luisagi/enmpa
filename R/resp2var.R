@@ -35,7 +35,7 @@
 #' @param ylab (character) a label for the y axis. The default, NULL, uses the
 #' name defined in `variable2`.
 #' @param ... additional arguments passed to
-#' \code{\link[graphics]{filled.contour}}.
+#' \code{\link[graphics]{image}}.
 #'
 #' @details
 #' The function calculates probabilities by focusing on each combination of the

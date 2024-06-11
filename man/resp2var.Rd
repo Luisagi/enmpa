@@ -48,7 +48,7 @@ name defined in \code{variable1}.}
 name defined in \code{variable2}.}
 
 \item{...}{additional arguments passed to
-\code{\link[graphics]{filled.contour}}.}
+\code{\link[graphics]{image}}.}
 }
 \value{
 A plot with the response interaction of two environmental dimensions for

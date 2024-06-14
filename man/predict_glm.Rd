@@ -8,7 +8,7 @@ predict_glm(
   model,
   newdata,
   data = NULL,
-  ext_type = "E",
+  extrapolation_type = "E",
   var_to_clamp = NULL,
   type = "response"
 )
@@ -22,16 +22,17 @@ predictions.}
 \item{data}{data.frame or matrix of data used in the model calibration step.
 Default = NULL.}
 
-\item{ext_type}{(character) to indicate extrapolation type of model. Models can
-be transferred with three options: free extrapolation ('E'), extrapolation with
-clamping ('EC'), and no extrapolation ('NE'). Default = 'E'.}
+\item{extrapolation_type}{(character) to indicate extrapolation type of model.
+Models can be transferred with three options: free extrapolation ('E'),
+extrapolation with clamping ('EC'), and no extrapolation ('NE').
+Default = 'E'.}
 
 \item{var_to_clamp}{(character) a vector containing the names of the variables
 that will undergo clamping. This variables are set to a minimum and maximum
 values, that are established for the max and min values within calibration
 values. By default, if no specific names are provided, the value is set to
 NULL, which indicates that clamping will be applied to all variables.
-Ignore if ext_type = 'E' or ext_type = 'NE'.}
+Ignore if extrapolation_type = 'E' or extrapolation_type = 'NE'.}
 
 \item{type}{(character) the type of prediction required. For a default
 binomial model the default predictions are of log-odds (probabilities on

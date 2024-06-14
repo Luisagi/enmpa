@@ -10,15 +10,16 @@
 #' predictions.
 #' @param data data.frame or matrix of data used in the model calibration step.
 #' Default = NULL.
-#' @param ext_type (character) to indicate extrapolation type of model. Models can
-#' be transferred with three options: free extrapolation ('E'), extrapolation with
-#' clamping ('EC'), and no extrapolation ('NE'). Default = 'E'.
+#' @param extrapolation_type (character) to indicate extrapolation type of model.
+#' Models can be transferred with three options: free extrapolation ('E'),
+#' extrapolation with clamping ('EC'), and no extrapolation ('NE').
+#' Default = 'E'.
 #' @param var_to_clamp (character) a vector containing the names of the variables
 #' that will undergo clamping. This variables are set to a minimum and maximum
 #' values, that are established for the max and min values within calibration
 #' values. By default, if no specific names are provided, the value is set to
 #' NULL, which indicates that clamping will be applied to all variables.
-#' Ignore if ext_type = 'E' or ext_type = 'NE'.
+#' Ignore if extrapolation_type = 'E' or extrapolation_type = 'NE'.
 #' @param type (character) the type of prediction required. For a default
 #' binomial model the default predictions are of log-odds (probabilities on
 #' logit scale). The default, "response", returns predicted probabilities.
@@ -42,7 +43,7 @@
 #'                     data = sel_fit$data)
 #' terra::plot(pred)
 
-predict_glm <- function(model, newdata, data = NULL, ext_type = "E",
+predict_glm <- function(model, newdata, data = NULL, extrapolation_type = "E",
                         var_to_clamp = NULL, type = "response") {
 
   # initial test
@@ -56,8 +57,8 @@ predict_glm <- function(model, newdata, data = NULL, ext_type = "E",
     }
   }
 
-  if (!ext_type %in% c("E", "NE", "EC")){
-    stop("'ext_type' must be of class 'E','NE', or 'EC'")
+  if (!extrapolation_type %in% c("E", "NE", "EC")){
+    stop("'extrapolation_type' must be of class 'E','NE', or 'EC'")
   }
 
   # check calibration data availability
@@ -72,7 +73,7 @@ predict_glm <- function(model, newdata, data = NULL, ext_type = "E",
   ## Extrapolation type:
 
   # E = "Free extrapolation"____________________________________________________
-  if (ext_type == "E"){
+  if (extrapolation_type == "E"){
     # Prediction
     if (class(newdata)[1] == "SpatRaster") {
       out <- terra::predict(newdata, model,  type = type)
@@ -82,7 +83,7 @@ predict_glm <- function(model, newdata, data = NULL, ext_type = "E",
   }
 
   # NE = "No extrapolation"_____________________________________________________
-  if (ext_type == "NE") {
+  if (extrapolation_type == "NE") {
 
     if (class(newdata)[1] == "SpatRaster") {
       newdata_clam <- terra::as.data.frame(newdata, na.rm = FALSE)
@@ -122,7 +123,7 @@ predict_glm <- function(model, newdata, data = NULL, ext_type = "E",
   }
 
   # EC = "Extrapolation with clamping"_________________________________________
-  if (ext_type == "EC") {
+  if (extrapolation_type == "EC") {
 
     if (class(newdata)[1] == "SpatRaster") {
       newdata_clam <- terra::as.data.frame(newdata, na.rm = FALSE)

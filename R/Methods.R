@@ -74,7 +74,7 @@ summary.enmpa_calibration <- function(object, ...) {
     "Summary of selected models (threshold criteria = ",
     object$selected$Threshold_criteria[1],
     "):\n")
-  print(object$selected[,c("ModelID", "ROC_AUC_mean",
+  print(object$selected[,c("ModelID", "ROC_AUC_mean", "Accuracy_mean",
                            "Specificity_mean", "Sensitivity_mean" ,"TSS_mean",
                            "AIC_weight")
                         ]

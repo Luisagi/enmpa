@@ -6,20 +6,22 @@
 #' consensus models, when more than one model are selected.
 #'
 #' @usage
-#' predict_selected(fitted, newdata, clamping = FALSE, var_to_clamp = NULL,
+#' predict_selected(fitted, newdata, ext_type = "E", var_to_clamp = NULL,
 #'                  type = "response", consensus = TRUE)
 #'
 #' @param fitted an enmpa-class`fitted models` object obtained using the
 #' functions \code{\link{fit_selected}}.
 #' @param newdata a `SpatRaster`, data.frame, or matrix with the new data on
 #' which to predict.
-#' @param clamping (logical) this option controls extrapolation when making
-#' predictions for environmental conditions beyond the calibration data.
-#' Default = FALSE.
+#' @param ext_type (character) to indicate extrapolation type of model. Models can
+#' be transferred with three options: free extrapolation ('E'), extrapolation with
+#' clamping ('EC'), and no extrapolation ('NE'). Default = 'E'.
 #' @param var_to_clamp (character) a vector containing the names of the variables
-#' that will undergo clamping. By default, if no specific names are provided,
-#' the value is set to NULL, which indicates that clamping will be applied to
-#' all variables. Ignore if clamping = FALSE.
+#' that will undergo clamping. This variables are set to a minimum and maximum
+#' values, that are established for the max and min values within calibration
+#' values. By default, if no specific names are provided, the value is set to
+#' NULL, which indicates that clamping will be applied to all variables.
+#' Ignore if ext_type = 'E' or ext_type = 'NE'.
 #' @param type (character) the type of prediction required. For a default
 #' binomial model the default predictions are of log-odds (probabilities on
 #' logit scale). The default, "response", returns predicted probabilities.
@@ -52,7 +54,7 @@
 #' # Plot prediction
 #' terra::plot(preds$predictions)
 
-predict_selected <- function(fitted, newdata, clamping = FALSE,
+predict_selected <- function(fitted, newdata, ext_type = "E",
                              var_to_clamp = NULL, type = "response",
                              consensus = TRUE) {
 
@@ -63,27 +65,23 @@ predict_selected <- function(fitted, newdata, clamping = FALSE,
     stop("Arguments 'newdata' must be defined.")
   }
 
-  # separate parts
-  selected <- fitted$selected
-  fitted <- fitted$glms_fitted
-
   # Obtain the predicted values (p) for each selected model
-  p <- lapply(fitted, function(y) {
-    predict_glm(y, newdata, clamping = clamping, var_to_clamp = var_to_clamp,
-                type = type)
+  p <- lapply(fitted$glms_fitted, function(y) {
+    predict_glm(y, newdata, data = fitted$data, ext_type = ext_type,
+                var_to_clamp = var_to_clamp, type = type)
   })
 
   if (class(newdata)[1] == "SpatRaster") {
     p <- terra::rast(p)
   }
 
-  names(p) <- names(fitted)
+  names(p) <- names(fitted$glms_fitted)
 
   # Consensus obtained by combining the forecasts from
   # the selected models.
-  if (consensus  && length(fitted) > 1 &&
+  if (consensus  && length(fitted$glms_fitted) > 1 &&
       class(newdata)[1] == "SpatRaster") {
-    cons_p <- consensus_p(predictions = p, weights = selected$AIC_weight)
+    cons_p <- consensus_p(predictions = p, weights = fitted$selected$AIC_weight)
     out <- list(predictions = p, consensus = cons_p)
     return(out)
 

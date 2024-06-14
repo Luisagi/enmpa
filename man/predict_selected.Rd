@@ -4,7 +4,7 @@
 \alias{predict_selected}
 \title{Predictions for the models selected after calibration}
 \usage{
-predict_selected(fitted, newdata, clamping = FALSE, var_to_clamp = NULL,
+predict_selected(fitted, newdata, ext_type = "E", var_to_clamp = NULL,
                  type = "response", consensus = TRUE)
 }
 \arguments{
@@ -14,14 +14,16 @@ functions \code{\link{fit_selected}}.}
 \item{newdata}{a \code{SpatRaster}, data.frame, or matrix with the new data on
 which to predict.}
 
-\item{clamping}{(logical) this option controls extrapolation when making
-predictions for environmental conditions beyond the calibration data.
-Default = FALSE.}
+\item{ext_type}{(character) to indicate extrapolation type of model. Models can
+be transferred with three options: free extrapolation ('E'), extrapolation with
+clamping ('EC'), and no extrapolation ('NE'). Default = 'E'.}
 
 \item{var_to_clamp}{(character) a vector containing the names of the variables
-that will undergo clamping. By default, if no specific names are provided,
-the value is set to NULL, which indicates that clamping will be applied to
-all variables. Ignore if clamping = FALSE.}
+that will undergo clamping. This variables are set to a minimum and maximum
+values, that are established for the max and min values within calibration
+values. By default, if no specific names are provided, the value is set to
+NULL, which indicates that clamping will be applied to all variables.
+Ignore if ext_type = 'E' or ext_type = 'NE'.}
 
 \item{type}{(character) the type of prediction required. For a default
 binomial model the default predictions are of log-odds (probabilities on

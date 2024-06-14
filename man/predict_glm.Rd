@@ -7,7 +7,8 @@
 predict_glm(
   model,
   newdata,
-  clamping = FALSE,
+  data = NULL,
+  ext_type = "E",
   var_to_clamp = NULL,
   type = "response"
 )
@@ -18,14 +19,19 @@ predict_glm(
 \item{newdata}{a data.frame or matrix with the new data to project the
 predictions.}
 
-\item{clamping}{(logical) whether to clamp values to a minimum and maximum
-value, that are established for the max and min values within calibration
-values. Default = FALSE.}
+\item{data}{data.frame or matrix of data used in the model calibration step.
+Default = NULL.}
+
+\item{ext_type}{(character) to indicate extrapolation type of model. Models can
+be transferred with three options: free extrapolation ('E'), extrapolation with
+clamping ('EC'), and no extrapolation ('NE'). Default = 'E'.}
 
 \item{var_to_clamp}{(character) a vector containing the names of the variables
-that will undergo clamping. By default, if no specific names are provided,
-the value is set to NULL, which indicates that clamping will be applied to
-all variables. Ignore if clamping = FALSE.}
+that will undergo clamping. This variables are set to a minimum and maximum
+values, that are established for the max and min values within calibration
+values. By default, if no specific names are provided, the value is set to
+NULL, which indicates that clamping will be applied to all variables.
+Ignore if ext_type = 'E' or ext_type = 'NE'.}
 
 \item{type}{(character) the type of prediction required. For a default
 binomial model the default predictions are of log-odds (probabilities on
@@ -47,6 +53,7 @@ data("sel_fit", package = "enmpa")
 env_vars <- terra::rast(system.file("extdata", "vars.tif", package = "enmpa"))
 
 # Prediction
-pred <- predict_glm(sel_fit$glms_fitted$ModelID_7, newdata = env_vars)
+pred <- predict_glm(sel_fit$glms_fitted$ModelID_7, newdata = env_vars,
+                    data = sel_fit$data)
 terra::plot(pred)
 }

@@ -77,7 +77,7 @@ model_validation <- function(formula, data, family = binomial(link = "logit"),
     )
 
   AIC <- gfit$aic
-  Deviance <- gfit$deviance
+  Residual_deviance <- gfit$deviance
   nparameters <- length(gfit$coefficients) - 1
 
   if (cv) {
@@ -118,7 +118,7 @@ model_validation <- function(formula, data, family = binomial(link = "logit"),
                         Kfold = x,
                         eval_k,
                         Parameters = nparameters,
-                        Deviance = Deviance,
+                        Residual_deviance = Residual_deviance,
                         AIC = AIC)
       out <- rbind(out, res)
     }
@@ -131,7 +131,7 @@ model_validation <- function(formula, data, family = binomial(link = "logit"),
     out <- data.frame(Formulas = formula,
                       eval_global,
                       Parameters = nparameters,
-                      Deviance = Deviance,
+                      Residual_deviance = Residual_deviance,
                       AIC = AIC)
   }
 

@@ -31,7 +31,7 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>",
 
 ## Package description
 
-`enmpa` is an r package that contains a set of tools to perform Ecological Niche
+`enmpa` is an R package that contains a set of tools to perform Ecological Niche
 Modeling using presence-absence data. Some of the main functions help perform
 data partitioning, model calibration, model selection, variable response
 exploration, and model projection.
@@ -60,6 +60,11 @@ perform ENM.
 ```{r message=FALSE}
 library(enmpa)
 library(terra)
+```
+
+```{r echo=FALSE, message=FALSE}
+# set terrain default palette
+options(terra.pal=terrain.colors(234, rev = TRUE))
 ```
 
 <br>
@@ -215,17 +220,25 @@ calibration$selected[, 1:2]  # Selected models
 
 After one or more models are selected, the next steps are the fitting and
 projection of these models. In this case we are projecting the models to the
-whole area of interest.
+whole area of interest. Models can be transferred with three options: 
+free extrapolation ('E'), extrapolation with clamping ('EC'), and 
+no extrapolation ('NE').
 
-```{r warning=FALSE, cache=TRUE, figures-prediction_selected, fig.height=2.5,fig.width=8, cache=TRUE,fig.show="hold"}
+```{r warning=FALSE, cache=TRUE, figures-prediction_selected, cache=TRUE,fig.show="hold"}
 # Fitting selected models
 fits <- fit_selected(calibration)
 
 # Prediction for the two selected models and their consensus
-preds <- predict_selected(fits, newdata = env_vars, consensus = TRUE)
+preds_E  <- predict_selected(fits, newdata = env_vars, extrapolation_type = "E",
+                             consensus = TRUE)
+preds_NE <- predict_selected(fits, newdata = env_vars,extrapolation_type = "NE",
+                             consensus = TRUE)
 
 # Visualization
-plot(preds$predictions, mar = c(1, 1, 2, 4))
+plot(c(preds_E$predictions,preds_NE$predictions),
+     main = c("Model ID 29 (E)", "Model ID 31 (E)",
+              "Model ID 29 (NE)", "Model ID 29 (NE)"),
+     mar = c(1, 1, 2, 5))
 ```
 
 <br>
@@ -242,7 +255,7 @@ the mean, median, and a weighted average (using Akaike weights) [@akaike1973;
 
 ```{r warning=FALSE, figures-consensus, fig.show="hold", cache=TRUE}
 # Consensus projections
-plot(preds$consensus, mar = c(1, 1, 2, 5))
+plot(preds_E$consensus, mar = c(1, 1, 2, 5))
 ```
 
 <br>
@@ -264,34 +277,34 @@ response_curve(fits, variable = "bio_1")
 response_curve(fits, variable = "bio_12")
 ```
 
-### Two-way interactions
+<!-- ### Two-way interactions -->
 
-It is useful to examine whether the effect of one variable depends on the level
-of other variables. If it does, then we have what is called an 'interaction'.
-According to the calibration results from this example, in both models, the
-predictor `bio_1:bio_12` was selected. To explore the interaction of these two
-variables, the function `resp2var` can help us to visualize this interaction.
+<!-- It is useful to examine whether the effect of one variable depends on the level -->
+<!-- of other variables. If it does, then we have what is called an 'interaction'. -->
+<!-- According to the calibration results from this example, in both models, the -->
+<!-- predictor `bio_1:bio_12` was selected. To explore the interaction of these two -->
+<!-- variables, the function `resp2var` can help us to visualize this interaction. -->
 
-```{r figures-rcurve_two, fig.show="hold", out.width="50%", cache=TRUE}
-# Consensus Response Curves for Bio_1 and Bio_2, for both models 
-resp2var(model = fits, 
-         modelID = "ModelID_29",
-         main = "ModelID 29",
-         variable1 = "bio_1", 
-         variable2 = "bio_12",
-         extrapolate = TRUE, 
-         add_limits = TRUE)
+<!-- ```{r figures-rcurve_two, fig.show="hold", out.width="50%", cache=TRUE} -->
+<!-- # Consensus Response Curves for Bio_1 and Bio_2, for both models -->
+<!-- resp2var(model = fits, -->
+<!--          modelID = "ModelID_29", -->
+<!--          main = "ModelID 29", -->
+<!--          variable1 = "bio_1", -->
+<!--          variable2 = "bio_12", -->
+<!--          extrapolate = TRUE, -->
+<!--          add_limits = TRUE) -->
 
-resp2var(model = fits, 
-         modelID = "ModelID_31",
-         main = "ModelID 31",
-         variable1 = "bio_1", 
-         variable2 = "bio_12",
-         extrapolate = TRUE, 
-         add_limits = TRUE)
-```
+<!-- resp2var(model = fits, -->
+<!--          modelID = "ModelID_31", -->
+<!--          main = "ModelID 31", -->
+<!--          variable1 = "bio_1", -->
+<!--          variable2 = "bio_12", -->
+<!--          extrapolate = TRUE, -->
+<!--          add_limits = TRUE) -->
+<!-- ``` -->
 
-<br>
+<!-- <br> -->
 
 ### Variable importance
 
@@ -325,57 +338,68 @@ vi_both_models <- var_importance(fits)
 plot_importance(vi_both_models, extra_info = TRUE)
 ```
 
+<!-- The Jackknife function providing a detailed reflection of the impact of each -->
+<!-- variable on the overall model, considering four difference measures: ROC-AUC, -->
+<!-- TSS, AICc, and Deviance. -->
 
-The Jackknife function providing a detailed reflection of the impact of each
-variable on the overall model, considering four difference measures: ROC-AUC,
-TSS, AICc, and Deviance.
+<!-- ```{r warning=FALSE} -->
+<!-- # Jackknife test -->
+<!-- jk <- jackknife(data = enm_data, -->
+<!--           dependent = "Sp", -->
+<!--           independent = c("bio_1", "bio_12"), -->
+<!--           response_type = "lpq") -->
 
+<!-- jk -->
+<!-- ``` -->
 
-```{r warning=FALSE}
-# Jackknife test
-jk <- jackknife(data = enm_data,
-          dependent = "Sp",
-          independent = c("bio_1", "bio_12"),
-          response_type = "lpq")
-
-jk
-```
-
-```{r warning=FALSE, cache=TRUE, figures-jackk, fig.show="hold", , fig.height=4, fig.width=7.5,out.width="50%"}
-# Jackknife plots
-plot_jk(jk, metric = "TSS")
-plot_jk(jk, metric = "AIC")
-plot_jk(jk, metric = "ROC_AUC")
-plot_jk(jk, metric = "Deviance")
-```
+<!-- ```{r warning=FALSE, cache=TRUE, figures-jackk, fig.show="hold", , fig.height=4, fig.width=7.5,out.width="50%"} -->
+<!-- # Jackknife plots -->
+<!-- plot_jk(jk, metric = "TSS") -->
+<!-- plot_jk(jk, metric = "AIC") -->
+<!-- plot_jk(jk, metric = "ROC_AUC") -->
+<!-- plot_jk(jk, metric = "Deviance") -->
+<!-- ``` -->
 
 
-### Model evaluation with independent data
+### Final model evaluation with independent data
 
 Finally, we will evaluate the final models using the "independent_eval"
 functions. Ideally, the model should be evaluated with an independent data set
 (i.e., data that was not used during model calibration or for final model
 fitting).
 
-#### Evaluation using presence-absence data.
+```{r}
+# Loading an independent dataset
+data("test", package = "enmpa")
+
+# The independent evaluation data are divided into two groups: 
+# presences-absences (test_01) and presences-only (test_1).
+test_1  <- test[test$Sp == 1,]
+test_01 <- test
+
+head(test_1)
+head(test_01)
+```
+
+#### Using presence-absence data.
 
 Using independent data for which presence and absence is known can give the most
 robust results. Here an example:
 
 ```{r}
-# In this example, we will use the final model calculated as the weighted 
-# average of the two selected models.
-wmean <- preds$consensus$Weighted_average
+projections <- list(
+  ModelID_29 = preds_E$predictions$ModelID_29,
+  ModelID_31 = preds_E$predictions$ModelID_31,
+  Consensus_WA = preds_E$consensus$Weighted_average
+)
 
-# check the test data
-head(test, 10)
+ie_01 <- lapply(projections, function(x){
+  independent_eval01(prediction = x,
+                     observation = test_01$Sp,
+                     lon_lat = test_01[, c("lon", "lat")])
+})
 
-# independent evaluation
-eval <- independent_eval01(prediction = wmean,
-                           observation = test$Sp, 
-                           lon_lat = test[, c("lon", "lat")])
-
-eval
+ie_01
 ```
 
 #### Evaluation using presence-only data.
@@ -387,18 +411,23 @@ To do this in our example, we will need to define a threshold value. We can use
 any of the three threshold values obtained above: ESS, maxTSS or SEN90.
 
 ```{r}
-# Threshold based in criteria: Sensitivity = 90%
-th <- eval[3, "Threshold"]   
+# In this example, we will use the weighted average of the two selected models.
 
-# Keep only presence records
-test_p <- test[test$Sp == 1,]
+# Consensus_WA
+Consensus_WA_T1 <- ie_01[["Consensus_WA"]][1, "Threshold"] # ESS
+Consensus_WA_T2 <- ie_01[["Consensus_WA"]][2, "Threshold"] # maxTSS
+Consensus_WA_T3 <- ie_01[["Consensus_WA"]][3, "Threshold"] # SEN90
 
-# independent evaluation 
-eval2 <- independent_eval1(prediction = wmean,
-                           threshold = th, 
-                           lon_lat = test[, c("lon", "lat")])
+aux_list <- list(ESS = Consensus_WA_T1, maxTSS = Consensus_WA_T2,
+                  SEN90 = Consensus_WA_T3)
 
-eval2
+lapply(aux_list, function(th){
+  independent_eval1(prediction = projections[["Consensus_WA"]],
+                    threshold = th,
+                    lon_lat = test_1[, c("lon", "lat")])
+  
+})
+
 ```
 
 ### Literature

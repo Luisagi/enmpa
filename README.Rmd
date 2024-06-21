@@ -237,7 +237,7 @@ preds_NE <- predict_selected(fits, newdata = env_vars,extrapolation_type = "NE",
 # Visualization
 plot(c(preds_E$predictions,preds_NE$predictions),
      main = c("Model ID 29 (E)", "Model ID 31 (E)",
-              "Model ID 29 (NE)", "Model ID 29 (NE)"),
+              "Model ID 29 (NE)", "Model ID 31 (NE)"),
      mar = c(1, 1, 2, 5))
 ```
 

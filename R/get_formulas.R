@@ -75,7 +75,7 @@ get_formulas <- function(dependent, independent, type = "l",
 
   if (mode == "light") {
 
-    red_var_comb <- aux_var_comb(independent, minvar = 2, maxvar = maxvar)
+    red_var_comb <- aux_var_comb(independent, minvar = minvar, maxvar = maxvar)
     reponse_comb <- aux_string_comb(type)
 
     output <-lapply(red_var_comb, function(y){
@@ -87,7 +87,7 @@ get_formulas <- function(dependent, independent, type = "l",
 
   if (mode == "moderate") {
 
-    red_var_comb <- aux_var_comb(independent, minvar = 2, maxvar = maxvar)
+    red_var_comb <- aux_var_comb(independent, minvar = minvar, maxvar = maxvar)
     reponse_comb <- aux_string_comb(type)
 
     output <- lapply(reponse_comb, function(x){

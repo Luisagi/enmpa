@@ -39,14 +39,32 @@ Ecological Niche Modeling using presence-absence data. Some of the main
 functions help perform data partitioning, model calibration, model
 selection, variable response exploration, and model projection.
 
+##### How to Cite
+
+Arias-Giraldo, Luis F., and Marlon E. Cobos. 2024. “enmpa: An R Package
+for Ecological Niche Modeling Using Presence-Absence Data and
+Generalized Linear Models”. Biodiversity Informatics 18.
+<https://doi.org/10.17161/bi.v18i.21742>.
+
 <br>
 
 <hr>
 
 ## Installation
 
+To install the stable version of `enmpa` from CRAN use:
+
+``` r
+install.packages("enmpa")
+```
+
 You can install the development version of `enmpa` from
 [GitHub](https://github.com/Luisagi/enmpa) with:
+
+``` r
+# install.packages("remotes")
+remotes::install_github("Luisagi/enmpa")
+```
 
 <br>
 

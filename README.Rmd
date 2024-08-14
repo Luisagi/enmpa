@@ -36,7 +36,10 @@ Modeling using presence-absence data. Some of the main functions help perform
 data partitioning, model calibration, model selection, variable response
 exploration, and model projection.
 
-##### How to Cite
+
+##### Citation
+If you use `enmpa` in your research, please cite the following paper:
+
 Arias-Giraldo, Luis F., and Marlon E. Cobos. 2024. “enmpa: An R Package for Ecological Niche Modeling Using Presence-Absence Data and Generalized Linear Models”. Biodiversity Informatics 18. https://doi.org/10.17161/bi.v18i.21742.
 
 <br>
@@ -83,7 +86,7 @@ options(terra.pal=terrain.colors(234, rev = TRUE))
 The data used in this example is included in `enmpa`.
 
 ```{r message=FALSE, cache=TRUE}
-# Species presence absence data associated with envrionmental variables
+# Species presence absence data associated with environmental variables
 data("enm_data", package = "enmpa")
 
 # Data for final model evaluation 
@@ -214,14 +217,10 @@ calibration
 Process results:
 
 ```{r cache=TRUE, paged.print=TRUE}
-## Summary of the calibrationm
+## Summary of the calibration
 summary(calibration)
 ```
 
-```{r cache=TRUE, paged.print=TRUE}
-## Two models were selected out of 31 models evaluated
-calibration$selected[, 1:2]  # Selected models
-```
 
 <br>
 
@@ -244,7 +243,7 @@ preds_NE <- predict_selected(fits, newdata = env_vars,extrapolation_type = "NE",
                              consensus = TRUE)
 
 # Visualization
-plot(c(preds_E$predictions,preds_NE$predictions),
+plot(c(preds_E$predictions, preds_NE$predictions),
      main = c("Model ID 29 (E)", "Model ID 31 (E)",
               "Model ID 29 (NE)", "Model ID 31 (NE)"),
      mar = c(1, 1, 2, 5))
@@ -286,34 +285,34 @@ response_curve(fits, variable = "bio_1")
 response_curve(fits, variable = "bio_12")
 ```
 
-<!-- ### Two-way interactions -->
+### Two-way interactions
 
-<!-- It is useful to examine whether the effect of one variable depends on the level -->
-<!-- of other variables. If it does, then we have what is called an 'interaction'. -->
-<!-- According to the calibration results from this example, in both models, the -->
-<!-- predictor `bio_1:bio_12` was selected. To explore the interaction of these two -->
-<!-- variables, the function `resp2var` can help us to visualize this interaction. -->
+It is useful to examine whether the effect of one variable depends on the level
+of other variables. If it does, then we have what is called an 'interaction'.
+According to the calibration results from this example, in both models, the
+predictor `bio_1:bio_12` was selected. To explore the interaction of these two
+variables, the function `resp2var` can help us to visualize this interaction.
 
-<!-- ```{r figures-rcurve_two, fig.show="hold", out.width="50%", cache=TRUE} -->
-<!-- # Consensus Response Curves for Bio_1 and Bio_2, for both models -->
-<!-- resp2var(model = fits, -->
-<!--          modelID = "ModelID_29", -->
-<!--          main = "ModelID 29", -->
-<!--          variable1 = "bio_1", -->
-<!--          variable2 = "bio_12", -->
-<!--          extrapolate = TRUE, -->
-<!--          add_limits = TRUE) -->
+```{r figures-rcurve_two, fig.show="hold", out.width="50%", cache=TRUE}
+# Consensus Response Curves for Bio_1 and Bio_2, for both models
+resp2var(model = fits,
+         modelID = "ModelID_29",
+         main = "ModelID 29",
+         variable1 = "bio_1",
+         variable2 = "bio_12",
+         extrapolate = TRUE,
+         add_limits = TRUE)
 
-<!-- resp2var(model = fits, -->
-<!--          modelID = "ModelID_31", -->
-<!--          main = "ModelID 31", -->
-<!--          variable1 = "bio_1", -->
-<!--          variable2 = "bio_12", -->
-<!--          extrapolate = TRUE, -->
-<!--          add_limits = TRUE) -->
-<!-- ``` -->
+resp2var(model = fits,
+         modelID = "ModelID_31",
+         main = "ModelID 31",
+         variable1 = "bio_1",
+         variable2 = "bio_12",
+         extrapolate = TRUE,
+         add_limits = TRUE)
+```
 
-<!-- <br> -->
+<br>
 
 ### Variable importance
 
@@ -347,27 +346,27 @@ vi_both_models <- var_importance(fits)
 plot_importance(vi_both_models, extra_info = TRUE)
 ```
 
-<!-- The Jackknife function providing a detailed reflection of the impact of each -->
-<!-- variable on the overall model, considering four difference measures: ROC-AUC, -->
-<!-- TSS, AICc, and Deviance. -->
+The Jackknife function providing a detailed reflection of the impact of each
+variable on the overall model, considering four difference measures: ROC-AUC,
+TSS, AICc, and Deviance.
 
-<!-- ```{r warning=FALSE} -->
-<!-- # Jackknife test -->
-<!-- jk <- jackknife(data = enm_data, -->
-<!--           dependent = "Sp", -->
-<!--           independent = c("bio_1", "bio_12"), -->
-<!--           response_type = "lpq") -->
+```{r warning=FALSE}
+# Jackknife test
+jk <- jackknife(data = enm_data,
+          dependent = "Sp",
+          independent = c("bio_1", "bio_12"),
+          response_type = "lpq")
 
-<!-- jk -->
-<!-- ``` -->
+jk
+```
 
-<!-- ```{r warning=FALSE, cache=TRUE, figures-jackk, fig.show="hold", , fig.height=4, fig.width=7.5,out.width="50%"} -->
-<!-- # Jackknife plots -->
-<!-- plot_jk(jk, metric = "TSS") -->
-<!-- plot_jk(jk, metric = "AIC") -->
-<!-- plot_jk(jk, metric = "ROC_AUC") -->
-<!-- plot_jk(jk, metric = "Deviance") -->
-<!-- ``` -->
+```{r warning=FALSE, cache=TRUE, figures-jackk, fig.show="hold", fig.height=4, fig.width=7.5,out.width="50%"}
+# Jackknife plots
+plot_jk(jk, metric = "TSS")
+plot_jk(jk, metric = "AIC")
+plot_jk(jk, metric = "ROC_AUC")
+plot_jk(jk, metric = "Residual_deviance")
+```
 
 
 ### Final model evaluation with independent data

@@ -15,6 +15,7 @@ Luis F. Arias-Giraldo, Marlon E. Cobos, A. Townsend Peterson
     models](#fitting-and-predictions-for-selected-models)
   - [Consensus models](#consensus-models)
   - [Response Curves](#response-curves)
+  - [Two-way interactions](#two-way-interactions)
   - [Variable importance](#variable-importance)
   - [Final model evaluation with independent
     data](#final-model-evaluation-with-independent-data)
@@ -39,7 +40,9 @@ Ecological Niche Modeling using presence-absence data. Some of the main
 functions help perform data partitioning, model calibration, model
 selection, variable response exploration, and model projection.
 
-##### How to Cite
+##### Citation
+
+If you use `enmpa` in your research, please cite the following paper:
 
 Arias-Giraldo, Luis F., and Marlon E. Cobos. 2024. “enmpa: An R Package
 for Ecological Niche Modeling Using Presence-Absence Data and
@@ -85,7 +88,7 @@ library(terra)
 The data used in this example is included in `enmpa`.
 
 ``` r
-# Species presence absence data associated with envrionmental variables
+# Species presence absence data associated with environmental variables
 data("enm_data", package = "enmpa")
 
 # Data for final model evaluation 
@@ -253,7 +256,7 @@ calibration
 Process results:
 
 ``` r
-## Summary of the calibrationm
+## Summary of the calibration
 summary(calibration)
 #> 
 #>                      Summary of enmpa_calibration                  
@@ -269,14 +272,6 @@ summary(calibration)
 #>   TSS_mean AIC_weight
 #> 1   0.6825  0.3751818
 #> 2   0.6840  0.6248182
-```
-
-``` r
-## Two models were selected out of 31 models evaluated
-calibration$selected[, 1:2]  # Selected models
-#>      ModelID                                                      Formulas
-#> 1 ModelID_29          Sp ~ bio_1 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12
-#> 2 ModelID_31 Sp ~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12
 ```
 
 <br>
@@ -300,7 +295,7 @@ preds_NE <- predict_selected(fits, newdata = env_vars,extrapolation_type = "NE",
                              consensus = TRUE)
 
 # Visualization
-plot(c(preds_E$predictions,preds_NE$predictions),
+plot(c(preds_E$predictions, preds_NE$predictions),
      main = c("Model ID 29 (E)", "Model ID 31 (E)",
               "Model ID 29 (NE)", "Model ID 31 (NE)"),
      mar = c(1, 1, 2, 5))
@@ -352,30 +347,37 @@ response_curve(fits, variable = "bio_12")
 
 <img src="man/figures/README-figures-rcurve_consensus-1.png" width="50%" /><img src="man/figures/README-figures-rcurve_consensus-2.png" width="50%" />
 
-<!-- ### Two-way interactions -->
-<!-- It is useful to examine whether the effect of one variable depends on the level -->
-<!-- of other variables. If it does, then we have what is called an 'interaction'. -->
-<!-- According to the calibration results from this example, in both models, the -->
-<!-- predictor `bio_1:bio_12` was selected. To explore the interaction of these two -->
-<!-- variables, the function `resp2var` can help us to visualize this interaction. -->
-<!-- ```{r figures-rcurve_two, fig.show="hold", out.width="50%", cache=TRUE} -->
-<!-- # Consensus Response Curves for Bio_1 and Bio_2, for both models -->
-<!-- resp2var(model = fits, -->
-<!--          modelID = "ModelID_29", -->
-<!--          main = "ModelID 29", -->
-<!--          variable1 = "bio_1", -->
-<!--          variable2 = "bio_12", -->
-<!--          extrapolate = TRUE, -->
-<!--          add_limits = TRUE) -->
-<!-- resp2var(model = fits, -->
-<!--          modelID = "ModelID_31", -->
-<!--          main = "ModelID 31", -->
-<!--          variable1 = "bio_1", -->
-<!--          variable2 = "bio_12", -->
-<!--          extrapolate = TRUE, -->
-<!--          add_limits = TRUE) -->
-<!-- ``` -->
-<!-- <br> -->
+### Two-way interactions
+
+It is useful to examine whether the effect of one variable depends on
+the level of other variables. If it does, then we have what is called an
+‘interaction’. According to the calibration results from this example,
+in both models, the predictor `bio_1:bio_12` was selected. To explore
+the interaction of these two variables, the function `resp2var` can help
+us to visualize this interaction.
+
+``` r
+# Consensus Response Curves for Bio_1 and Bio_2, for both models
+resp2var(model = fits,
+         modelID = "ModelID_29",
+         main = "ModelID 29",
+         variable1 = "bio_1",
+         variable2 = "bio_12",
+         extrapolate = TRUE,
+         add_limits = TRUE)
+
+resp2var(model = fits,
+         modelID = "ModelID_31",
+         main = "ModelID 31",
+         variable1 = "bio_1",
+         variable2 = "bio_12",
+         extrapolate = TRUE,
+         add_limits = TRUE)
+```
+
+<img src="man/figures/README-figures-rcurve_two-1.png" width="50%" /><img src="man/figures/README-figures-rcurve_two-2.png" width="50%" />
+
+<br>
 
 ### Variable importance
 
@@ -433,24 +435,51 @@ plot_importance(vi_both_models, extra_info = TRUE)
 
 <img src="man/figures/README-figures-var_importance-1.png" width="70%" />
 
-<!-- The Jackknife function providing a detailed reflection of the impact of each -->
-<!-- variable on the overall model, considering four difference measures: ROC-AUC, -->
-<!-- TSS, AICc, and Deviance. -->
-<!-- ```{r warning=FALSE} -->
-<!-- # Jackknife test -->
-<!-- jk <- jackknife(data = enm_data, -->
-<!--           dependent = "Sp", -->
-<!--           independent = c("bio_1", "bio_12"), -->
-<!--           response_type = "lpq") -->
-<!-- jk -->
-<!-- ``` -->
-<!-- ```{r warning=FALSE, cache=TRUE, figures-jackk, fig.show="hold", , fig.height=4, fig.width=7.5,out.width="50%"} -->
-<!-- # Jackknife plots -->
-<!-- plot_jk(jk, metric = "TSS") -->
-<!-- plot_jk(jk, metric = "AIC") -->
-<!-- plot_jk(jk, metric = "ROC_AUC") -->
-<!-- plot_jk(jk, metric = "Deviance") -->
-<!-- ``` -->
+The Jackknife function providing a detailed reflection of the impact of
+each variable on the overall model, considering four difference
+measures: ROC-AUC, TSS, AICc, and Deviance.
+
+``` r
+# Jackknife test
+jk <- jackknife(data = enm_data,
+          dependent = "Sp",
+          independent = c("bio_1", "bio_12"),
+          response_type = "lpq")
+
+jk
+#> $Full_model_stats
+#>     ROC_AUC       TSS     AIC Residual_deviance
+#> 1 0.9023279 0.6732916 2185.68           2173.68
+#> 
+#> $Formula
+#> [1] "Sp ~ bio_1 + bio_12 + I(bio_1^2) + I(bio_12^2) + bio_1:bio_12"
+#> 
+#> $Without
+#>                ROC_AUC       TSS      AIC Residual_deviance
+#> bio_1        0.9015319 0.6707435 2212.307          2202.307
+#> bio_12       0.8991734 0.6684712 2226.488          2216.488
+#> I(bio_1^2)   0.8978504 0.6651925 2237.051          2227.051
+#> I(bio_12^2)  0.9016647 0.6744525 2186.700          2176.700
+#> bio_1:bio_12 0.8938496 0.6600718 2243.562          2233.562
+#> 
+#> $With_only
+#>                ROC_AUC       TSS      AIC Residual_deviance
+#> bio_1        0.6549700 0.2970911 3373.978          3369.978
+#> bio_12       0.6902666 0.2871473 3191.205          3187.205
+#> I(bio_1^2)   0.8641785 0.5786819 2599.638          2595.638
+#> I(bio_12^2)  0.6916871 0.2894878 3164.568          3160.568
+#> bio_1:bio_12 0.8646620 0.5868336 2509.565          2505.565
+```
+
+``` r
+# Jackknife plots
+plot_jk(jk, metric = "TSS")
+plot_jk(jk, metric = "AIC")
+plot_jk(jk, metric = "ROC_AUC")
+plot_jk(jk, metric = "Residual_deviance")
+```
+
+<img src="man/figures/README-figures-jackk-1.png" width="50%" /><img src="man/figures/README-figures-jackk-2.png" width="50%" /><img src="man/figures/README-figures-jackk-3.png" width="50%" /><img src="man/figures/README-figures-jackk-4.png" width="50%" />
 
 ### Final model evaluation with independent data
 
@@ -577,8 +606,7 @@ lapply(aux_list, function(th){
 
 ### Literature
 
-<div id="refs" class="references csl-bib-body hanging-indent"
-entry-spacing="0">
+<div id="refs" class="references csl-bib-body hanging-indent">
 
 <div id="ref-akaike1973" class="csl-entry">
 

@@ -1,3 +1,15 @@
+# enmpa 0.1.9
+================================================================================
+
+- **New Functions**:
+  - Added three new functions: `resp2var()`,  `jackknife()`, and `plot_jk()`.
+    - `resp2var()`: Transforms species probability data into a two-dimensional environmental space for visualization.
+    - `jackknife()`: Evaluates the influence of each variable on the overall model using four distinct metrics: ROC-AUC, TSS, AICc, and Deviance. This function facilitates jackknife resampling to assess variable importance.
+    - `plot_jk()`: A function to plot the results of the jackknife resampling.
+  
+- **Bug Fixes**:
+  - Fixed a bug in `calibration_glm()` related to runtime calculation errors.
+  
 # enmpa 0.1.8
 ================================================================================
 

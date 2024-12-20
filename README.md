@@ -26,7 +26,7 @@ Luis F. Arias-Giraldo, Marlon E. Cobos, A. Townsend Peterson
 
 [![R-CMD-check](https://github.com/Luisagi/enmpa/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/Luisagi/enmpa/actions/workflows/R-CMD-check.yaml)
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/enmpa)](https://cran.r-project.org/package=enmpa)
-[![](https://cranlogs.r-pkg.org/badges/grand-total/enmpa)](https://cran.rstudio.com/web/packages/enmpa/index.html)
+[![](https://cranlogs.r-pkg.org/badges/grand-total/enmpa)](https://cran.r-project.org/package=enmpa)
 <!-- badges: end -->
 
 <img src="man/figures/enmpa_logo_100dpi.png" align="right" width="166"/></a>

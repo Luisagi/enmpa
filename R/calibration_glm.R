@@ -191,7 +191,8 @@ calibration_glm <- function(data, dependent, independent, weights = NULL,
 
     # Final time
     if (verbose == TRUE) {
-      format_time(Sys.time() - start)
+      elapsed <- difftime(Sys.time(), start, units = "secs")
+      format_time(elapsed)
     }
 
   } else {
@@ -242,7 +243,8 @@ calibration_glm <- function(data, dependent, independent, weights = NULL,
 
     # Final time
     if (verbose == TRUE) {
-      format_time(Sys.time() - start)
+      elapsed <- difftime(Sys.time(), start, units = "secs")
+      format_time(elapsed)
     }
   }
 

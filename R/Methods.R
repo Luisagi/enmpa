@@ -76,7 +76,7 @@ summary.enmpa_calibration <- function(object, ...) {
     "):\n")
   print(object$selected[,c("ModelID", "ROC_AUC_mean", "Accuracy_mean",
                            "Specificity_mean", "Sensitivity_mean" ,"TSS_mean",
-                           "AIC_weight")
+                           "AIC", "Delta_AIC")
                         ]
         )
   invisible(object)

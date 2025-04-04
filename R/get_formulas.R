@@ -206,11 +206,11 @@ get_formulas_main <- function(dependent, independent, type = "l",
 
     range_var <- minvar:maxvar
 
-    if (length(range_var) >= 20){
-      l <- length(range_var)
-      range_var <- range_var[-c(l %/% 2 - 1, l %/% 2, l %/% 2 + 1)]
-
-    }
+    # if (length(range_var) >= 20){
+    #   l <- length(range_var)
+    #   range_var <- range_var[-c(l %/% 2 - 1, l %/% 2, l %/% 2 + 1)]
+    #
+    # }
 
     ## Get all combinations
     all_comb <- lapply(range_var, utils::combn, x = vec, simplify = FALSE)

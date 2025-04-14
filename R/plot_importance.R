@@ -60,7 +60,7 @@ plot_importance <- function(x, xlab = NULL, ylab = "Relative contribution",
   }
 
   # Check if single or multiple models
-  if ("Models" %in% colnames(x)) {
+  if (length(unique(x[,"Models"])) > 1) {
 
     # sort predictors by importance
     sort_p <- with(x, reorder(predictor, contribution, median,

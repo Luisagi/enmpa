@@ -1,3 +1,13 @@
+# enmpa 0.2.0
+================================================================================
+
+- **Bug Fixes**:
+  - `var_importance()` now generates a bar plot even when the model list
+  contains a single model, instead of throwing an error.
+
+  - `get_formulas()` now returns the correct count of generated formulas when
+  `mode = "intensive"`.
+  
 # enmpa 0.1.9
 ================================================================================
 

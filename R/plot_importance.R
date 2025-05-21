@@ -90,14 +90,18 @@ plot_importance <- function(x, xlab = NULL, ylab = "Relative contribution",
           text(i, text_y , paste("N =", counts[i]), pos = 1)
         }
       }
+    } else {
+      # Create a list of arguments to pass to barplot
+      barplot_args <- list(height = x$contribution, names.arg = x$predictor,
+                           main = main, xlab = xlab, ylab = ylab, ...)
+
+      # plot a barplot using do.call()
+      do.call(barplot, barplot_args)
     }
 
   } else {
-    # Create a list of arguments to pass to barplot
     barplot_args <- list(height = x$contribution, names.arg = x$predictor,
                          main = main, xlab = xlab, ylab = ylab, ...)
-
-    # plot a barplot using do.call()
     do.call(barplot, barplot_args)
   }
 }

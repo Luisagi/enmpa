@@ -218,8 +218,8 @@ plot_niche_signal_univariate <- function(niche_signal_univariate_list, statistic
   # plot
   hist(all, breaks = breaks, xlim = xrang, main = main, xlab = xlab,
        ylab = ylab, col = h_col, cex = h_cex, ...)
-  abline(v = pos, col = l_col[1], lty = lty[1], lwd = lty[1])
-  abline(v = ci, col = l_col[2], lty = lty[2], lwd = lty[2])
+  abline(v = pos, col = l_col[1], lty = lty[1], lwd = lwd[1])
+  abline(v = ci, col = l_col[2], lty = lty[2], lwd = lwd[2])
   box(bty = "l")
 }
 

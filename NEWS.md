@@ -1,3 +1,10 @@
+# enmpa 0.2.1
+================================================================================
+
+- **Bug Fixes**:
+  - Fixed bug in plot_niche_signal related to the 'lwd' argument handling.
+  - Fixed bug in plot_importance that caused an error when the model list contained only one model.
+
 # enmpa 0.2.0
 ================================================================================
 

@@ -253,7 +253,7 @@ response_curve_cons <- function(model, variable, data = NULL, n = 100,
     }
 
     coefs <- names(coef(x)[-1])
-    c <- any(c(variable, paste0("I(", variable, "^2)")) %in% coefs)
+    c1 <- any(c(variable, paste0("I(", variable, "^2)")) %in% coefs)
     c2 <- any(grepl(paste0("^", variable, ":"), coefs))
     c3 <- any(grepl(paste0(":", variable, "$"), coefs))
 

@@ -5,8 +5,8 @@
 \title{Variable response curves for GLMs}
 \usage{
 response_curve(fitted, variable, data = NULL, modelID = NULL,  n = 100,
-               new_data = NULL,  extrapolate = TRUE, xlab = NULL,
-               ylab = "Probability", col = "red", ...)
+               new_data = NULL,  extrapolate = TRUE, show_lines = TRUE,
+               xlab = NULL, ylab = "Probability", col = "red", ...)
 }
 \arguments{
 \item{fitted}{an object of class \code{glm}, a list of GLMs obtained using the
@@ -33,6 +33,9 @@ explicitly include a data component.}
 behavior of the response outside the calibration limits. Ignored if
 \code{new_data} is defined. Default = TRUE.}
 
+\item{show_lines}{(logical) whether to show variable responses of distinct
+models as different lines. Default = TRUE. If}
+
 \item{xlab}{(character) a label for the x axis. The default, NULL, uses the
 name defined in \code{variable}.}
 
@@ -54,15 +57,16 @@ The function calculates these probabilities by focusing on a single
 environmental variable while keeping all other variables constant at their
 mean values.
 
-When responses for multiple models are to be plotted, the mean and confidence
-intervals for the set of responses are calculated using a GAM.
+When responses for multiple models are to be plotted, and \code{show_lines} =
+FALSE, the mean and confidence intervals for the set of responses are
+calculated using a GAM.
 }
 \examples{
 # Load a fitted selected model
 data(sel_fit, package = "enmpa")
 
 # Response curve for single models
-response_curve(sel_fit$ModelID_7, variable = "bio_1")
+response_curve(sel_fit, modelID = "ModelID_7", variable = "bio_1")
 
 # Response curve when model(s) are in a list (only one model in this one)
 response_curve(sel_fit, variable = "bio_12")

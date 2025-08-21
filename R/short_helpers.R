@@ -111,7 +111,7 @@ response <- function(model, variable, data = NULL, n = 100, new_data = NULL,
   # It gets only the variable names used in the fitted model
   vnames <- colSums(
     sapply(colnames(data), grepl, names(coef(model)[-1]))
-    ) > 0
+  ) > 0
 
   if (any(!variable %in% names(vnames))) {
     stop("The name of the 'variable' was not defined correctly.")
@@ -165,7 +165,7 @@ response <- function(model, variable, data = NULL, n = 100, new_data = NULL,
   # Response of the variable
   m$predicted <- stats::predict(model, m, type = "response")
 
-  return(m[,c(variable, "predicted")])
+  return(m[, c(variable, "predicted")])
 
 }
 
@@ -221,13 +221,14 @@ response_curve_ind <- function(model, variable, data = NULL, n = 100,
          col = c("black", "black"),
          lty = c(2, 2),
          lwd = c(1, 1)
-         )
+  )
 }
 
 # Consensus response curve
 response_curve_cons <- function(model, variable, data = NULL, n = 100,
                                 new_data = NULL, extrapolate = FALSE,
-                                xlab = NULL, ylab = NULL, col = NULL, ...) {
+                                show_lines = TRUE, xlab = NULL, ylab = NULL,
+                                col = NULL, ...) {
 
   # initial tests
   if (missing(model) | missing(variable)) {
@@ -242,50 +243,41 @@ response_curve_cons <- function(model, variable, data = NULL, n = 100,
 
 
   # extract the response of the variable for each models
-  response_out <-
-    lapply(model, function(x){
+  response_out <- lapply(model, function(x){
 
-      # It gets only the variable names used in the fitted model
-      vnames <- colSums(sapply(colnames(data), grepl, names(coef(x)[-1]))) > 0
+    # It gets only the variable names used in the fitted model
+    vnames <- colSums(sapply(colnames(data), grepl, names(coef(x)[-1]))) > 0
 
-      if (any(!variable %in% names(vnames))) {
-        stop("The name of the 'variable' was not defined correctly.")
-      }
+    if (any(!variable %in% names(vnames))) {
+      stop("The name of the 'variable' was not defined correctly.")
+    }
 
-      coefs <- names(coef(x)[-1])
-      c1 <- any(c(variable, paste0("I(", variable, "^2)")) %in% coefs)
-      c2 <- any(grepl(paste0("^", variable, ":"), coefs))
-      c3 <- any(grepl(paste0(":", variable, "$"), coefs))
+    coefs <- names(coef(x)[-1])
+    c1 <- any(c(variable, paste0("I(", variable, "^2)")) %in% coefs)
+    c2 <- any(grepl(paste0("^", variable, ":"), coefs))
+    c3 <- any(grepl(paste0(":", variable, "$"), coefs))
 
-      if (any(c1, c2, c3)){
-        x <- response(x, variable, data = data, new_data = new_data,
-                      extrapolate = extrapolate)
-        return(x)
+    if (any(c1, c2, c3)){
+      x <- response(x, variable, data = data, new_data = new_data,
+                    extrapolate = extrapolate)
+      return(x)
 
-      } else {
-        return(NULL)
-      }
-    })
+    } else {
+      return(NULL)
+    }
+  })
 
+  if (show_lines) {
+    response_out0 <- response_out
+  }
+
+  # summary of responses
   response_out <- do.call(rbind, response_out)
   limits <- range(data[, variable])
 
 
   x <- response_out[, variable]
   y <- response_out$predicted
-
-  # Fit GAM model
-  fitting <- mgcv::gam(y ~ s(x, bs = "cs"))
-
-  # Generate predicted values and standard error.
-  x_seq <- seq(min(x), max(x), length.out = 100)
-  pred <- predict(fitting, newdata = data.frame(x = x_seq), se = T)
-
-  # Extract predicted values, confidence intervals (95%), and standard errors
-  y_pred <- pred$fit
-  lower_ci <- y_pred - 1.96 * pred$se.fit
-  upper_ci <- y_pred + 1.96 * pred$se.fit
-
 
   ## Plotting curve
   # Create a list of arguments to pass to the plot function
@@ -297,23 +289,43 @@ response_curve_cons <- function(model, variable, data = NULL, n = 100,
                          ylab = ylab,
                          ...)
 
-  # plot using do.call()
-  do.call(plot, plotcurve_args)
+  if (show_lines) {
+    # plot using do.call()
+    do.call(plot, plotcurve_args)
 
-  # Create shading interval using polygon
-  x_polygon <- c(x_seq, rev(x_seq))
-  y_polygon <- c(lower_ci, rev(upper_ci))
-  polygon(x_polygon, y_polygon, col = "lightgrey", border = NA)
+    # adding lines
+    col <- adjustcolor(col, alpha.f = 0.5)
+    for (i in response_out0) {
+      lines(i[, variable], i[, "predicted"], col = col)
+    }
 
-  # Add the regression curve
-  lines(x_seq, y_pred, col = col)
+  } else {
+    # Fit GAM model
+    fitting <- mgcv::gam(y ~ s(x, bs = "cs"))
+
+    # Generate predicted values and standard error.
+    x_seq <- seq(min(x), max(x), length.out = 100)
+    pred <- predict(fitting, newdata = data.frame(x = x_seq), se = T)
+
+    # Extract predicted values, confidence intervals (95%), and standard errors
+    y_pred <- pred$fit
+    lower_ci <- y_pred - 1.96 * pred$se.fit
+    upper_ci <- y_pred + 1.96 * pred$se.fit
+
+    # plot using do.call()
+    do.call(plot, plotcurve_args)
+
+    # Create shading interval using polygon
+    x_polygon <- c(x_seq, rev(x_seq))
+    y_polygon <- c(lower_ci, rev(upper_ci))
+    polygon(x_polygon, y_polygon, col = "lightgrey", border = NA)
+
+    # Add the regression curve
+    lines(x_seq, y_pred, col = col)
+  }
 
   # It adds the calibration limits
-  abline(v = limits,
-         col = c("black", "black"),
-         lty = c(2, 2),
-         lwd = c(1, 1)
-  )
+  abline(v = limits, col = c("black", "black"), lty = c(2, 2), lwd = c(1, 1))
 }
 
 # ------------------------------------------------------------------------------

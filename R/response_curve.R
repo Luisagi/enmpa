@@ -6,8 +6,8 @@
 #'
 #' @usage
 #' response_curve(fitted, variable, data = NULL, modelID = NULL,  n = 100,
-#'                new_data = NULL,  extrapolate = TRUE, xlab = NULL,
-#'                ylab = "Probability", col = "red", ...)
+#'                new_data = NULL,  extrapolate = TRUE, show_lines = TRUE,
+#'                xlab = NULL, ylab = "Probability", col = "red", ...)
 #
 #' @param fitted an object of class `glm`, a list of GLMs obtained using the
 #' function \code{\link{fit_glms}},  or an object `enmpa_fitted_models` from
@@ -26,6 +26,8 @@
 #' @param extrapolate (logical) whether to allow extrapolation to study the
 #' behavior of the response outside the calibration limits. Ignored if
 #' `new_data` is defined. Default = TRUE.
+#' @param show_lines (logical) whether to show variable responses of distinct
+#' models as different lines. Default = TRUE. If
 #' @param xlab (character) a label for the x axis. The default, NULL, uses the
 #' name defined in `variable`.
 #' @param ylab (character) a label for the y axis. Default = "Probability".
@@ -37,8 +39,9 @@
 #' environmental variable while keeping all other variables constant at their
 #' mean values.
 #'
-#' When responses for multiple models are to be plotted, the mean and confidence
-#' intervals for the set of responses are calculated using a GAM.
+#' When responses for multiple models are to be plotted, and `show_lines` =
+#' FALSE, the mean and confidence intervals for the set of responses are
+#' calculated using a GAM.
 #'
 #' @return
 #' A plot with the response curve for a `variable`.
@@ -55,14 +58,14 @@
 #' data(sel_fit, package = "enmpa")
 #'
 #' # Response curve for single models
-#' response_curve(sel_fit$ModelID_7, variable = "bio_1")
+#' response_curve(sel_fit, modelID = "ModelID_7", variable = "bio_1")
 #'
 #' # Response curve when model(s) are in a list (only one model in this one)
 #' response_curve(sel_fit, variable = "bio_12")
 
 response_curve <- function(fitted, variable, data = NULL, modelID = NULL, n = 100,
-                           new_data = NULL, extrapolate = TRUE, xlab = NULL,
-                           ylab = "Probability", col = "red", ...) {
+                           new_data = NULL, extrapolate = TRUE, show_lines = TRUE,
+                           xlab = NULL, ylab = "Probability", col = "red", ...) {
 
   # initial tests
   if (missing(fitted) | missing(variable)) {
@@ -106,8 +109,8 @@ response_curve <- function(fitted, variable, data = NULL, modelID = NULL, n = 10
     if (is.null(modelID)){
 
       response_curve_cons(fitted, variable, data = data, n = n, new_data = new_data,
-                          extrapolate = extrapolate, xlab = xlab, ylab = ylab,
-                          col = col, ...)
+                          extrapolate = extrapolate, show_lines = show_lines,
+                          xlab = xlab, ylab = ylab, col = col, ...)
     } else {
 
       if (!modelID %in% names(fitted)){
@@ -119,8 +122,9 @@ response_curve <- function(fitted, variable, data = NULL, modelID = NULL, n = 10
 
       if (length(modelID) > 1){
         response_curve_cons(fitted[modelID], variable, data = data, n = n,
-                            new_data = new_data,extrapolate = extrapolate,
-                            xlab = xlab, ylab = ylab, col = col, ...)
+                            new_data = new_data, extrapolate = extrapolate,
+                            show_lines = show_lines, xlab = xlab, ylab = ylab,
+                            col = col, ...)
       } else {
         response_curve_ind(fitted[modelID][[1]], variable, data = data, n = n,
                            new_data = new_data, extrapolate = extrapolate,
@@ -169,8 +173,8 @@ response_curve <- function(fitted, variable, data = NULL, modelID = NULL, n = 10
     if (is.null(modelID)){
 
       response_curve_cons(list_glms, variable, data = data, n = n, new_data = new_data,
-                          extrapolate = extrapolate, xlab = xlab, ylab = ylab,
-                          col = col, ...)
+                          extrapolate = extrapolate, show_lines = show_lines,
+                          xlab = xlab, ylab = ylab, col = col, ...)
     } else {
 
       if (!modelID %in% names(list_glms)){
@@ -183,7 +187,8 @@ response_curve <- function(fitted, variable, data = NULL, modelID = NULL, n = 10
       if (length(modelID) > 1){
         response_curve_cons(list_glms[modelID], variable, data = data, n = n,
                             new_data = new_data,extrapolate = extrapolate,
-                            xlab = xlab, ylab = ylab, col = col, ...)
+                            show_lines = show_lines, xlab = xlab, ylab = ylab,
+                            col = col, ...)
       } else {
         response_curve_ind(list_glms[modelID][[1]], variable, data = data, n = n,
                            new_data = new_data, extrapolate = extrapolate,

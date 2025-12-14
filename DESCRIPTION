@@ -10,7 +10,7 @@ Authors@R: c(
     comment = c(ORCID = "0000-0003-0243-2379"))
     )
 Maintainer: Luis F. Arias-Giraldo <lfarias.giraldo@gmail.com>
-Date: 2025-06-12
+Date: 2025-12-14
 Description: A set of tools to perform Ecological Niche Modeling with
     presence-absence data. It includes algorithms for data partitioning, 
     model fitting, calibration, evaluation, selection, and prediction. 
@@ -26,7 +26,7 @@ Description: A set of tools to perform Ecological Niche Modeling with
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 URL: https://github.com/Luisagi/enmpa
 BugReports: https://github.com/Luisagi/enmpa/issues
 Imports:

@@ -294,7 +294,7 @@ response_curve_cons <- function(model, variable, data = NULL, n = 100,
     do.call(plot, plotcurve_args)
 
     # adding lines
-    col <- adjustcolor(col, alpha.f = 0.5)
+    col <- grDevices::adjustcolor(col, alpha.f = 0.5)
     for (i in response_out0) {
       lines(i[, variable], i[, "predicted"], col = col)
     }

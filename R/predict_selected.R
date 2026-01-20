@@ -85,6 +85,11 @@ predict_selected <- function(fitted, newdata, extrapolation_type = "E",
   # the selected models.
   if (consensus  && length(fitted$glms_fitted) > 1 &&
       class(newdata)[1] == "SpatRaster") {
+
+    # Adjust AIC weights to sum 1
+    aicw_dif <- 1 - sum(fitted$selected$AIC_weight)
+    fitted$selected$AIC_weight[1] <- fitted$selected$AIC_weight[1] + aicw_dif
+
     cons_p <- consensus_p(predictions = p, weights = fitted$selected$AIC_weight)
     out <- list(predictions = p, consensus = cons_p)
     return(out)

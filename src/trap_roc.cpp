@@ -12,7 +12,7 @@ double trap_roc(NumericVector x, NumericVector y) {
   int x_s = x.size();
   int y_s = y.size();
   if(x_s != y_s)
-    ::Rf_error("x  and y must have the same length x_size (%d) != y_size (%d)", x_s, y_s);
+    Rcpp::stop("x and y must have the same length: x_size (%d) != y_size (%d)", x_s, y_s);
   double auc = 0;
 
   for(int i = 1; i < x_s; ++i) {

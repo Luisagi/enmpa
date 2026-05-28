@@ -40,6 +40,7 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Luis F. Arias-Giraldo \email{lfarias.giraldo@gmail.com} (\href{https://orcid.org/0000-0003-4861-8064}{ORCID})
   \item Marlon E. Cobos \email{manubio13@gmail.com} (\href{https://orcid.org/0000-0002-2611-1767}{ORCID})
 }
 

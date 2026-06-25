@@ -118,7 +118,7 @@ response <- function(model, variable, data = NULL, n = 100, new_data = NULL,
   }
 
   # Extract calibration data from the model object
-  cal_data <- data[, vnames]
+  cal_data <- data[, vnames, drop = FALSE]
 
   # Extract the limits of the calibration data
   cal_maxs <-  apply(cal_data, 2, FUN = max)

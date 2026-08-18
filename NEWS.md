@@ -1,34 +1,42 @@
-# enmpa 0.2.5
+# version 0.2.6
 ================================================================================
 
-- **Bug fixed**:
+- **Enhancements**:
+  - Replaced `snow` with `parallel`. Thanks to Henrik Bengtsson. [#12](https://github.com/Luisagi/enmpa/pull/12)
+
+
+# version 0.2.5
+================================================================================
+
+ **Bug fixed**:
   - Fixed: Bug in response curves with fitted models with one variable.
-# enmpa 0.2.4
+
+# version 0.2.4
 ================================================================================
 
 - **Bug fixed**:
   - Fixed: Replace Rf_error with `Rcpp::stop` ([Calls to Rf_error #11](https://github.com/Luisagi/enmpa/issues/11)).
  
-# enmpa 0.2.3
+# version 0.2.3
 ================================================================================
 
 - **Bug fixed**:
   - Fixed bug in predict_selected related to the 'AICw' rounded values.
   
-# enmpa 0.2.2
+# version 0.2.2
 ================================================================================
 
 - **Functions update**:
   - add flag "show_lines" (Default = TRUE) in response_curve() function.
 
-# enmpa 0.2.1
+# version 0.2.1
 ================================================================================
 
 - **Bug Fixes**:
   - Fixed bug in plot_niche_signal related to the 'lwd' argument handling.
   - Fixed bug in plot_importance that caused an error when the model list contained only one model.
 
-# enmpa 0.2.0
+# version 0.2.0
 ================================================================================
 
 - **Bug Fixes**:
@@ -38,7 +46,7 @@
   - `get_formulas()` now returns the correct count of generated formulas when
   `mode = "intensive"`.
   
-# enmpa 0.1.9
+# version 0.1.9
 ================================================================================
 
 - **New Functions**:
@@ -50,7 +58,7 @@
 - **Bug Fixes**:
   - Fixed a bug in `calibration_glm()` related to runtime calculation errors.
   
-# enmpa 0.1.8
+# version 0.1.8
 ================================================================================
 
 - **New Classes**:
@@ -69,7 +77,7 @@
 - **Updates to `model_validation`**:
   - Now includes 'residual deviance' as a validation metric.
 
-# enmpa 0.1.5
+# version 0.1.5
 ================================================================================
 
 - Initial CRAN submission.

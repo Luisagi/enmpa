@@ -100,9 +100,8 @@
 #'
 #' @importFrom utils txtProgressBar write.table
 #' @importFrom stats aggregate sd
-#' @importFrom snow makeSOCKcluster stopCluster
 #' @importFrom doSNOW registerDoSNOW
-#' @importFrom parallel clusterExport
+#' @importFrom parallel clusterExport makeCluster stopCluster
 #' @importFrom foreach foreach %dopar%
 
 calibration_glm <- function(data, dependent, independent, weights = NULL,
@@ -221,7 +220,7 @@ calibration_glm <- function(data, dependent, independent, weights = NULL,
 
 
     ## Make cluster
-    cl <- snow::makeSOCKcluster(n_cores)
+    cl <- makeCluster(n_cores, type = "PSOCK")
     # export local function
     #parallel::clusterExport(cl, c("optimize_metrics", "model_validation"))
     doSNOW::registerDoSNOW(cl)
@@ -239,7 +238,7 @@ calibration_glm <- function(data, dependent, independent, weights = NULL,
     }
 
     # Closing cluster
-    snow::stopCluster(cl)
+    stopCluster(cl)
 
     # Final time
     if (verbose == TRUE) {

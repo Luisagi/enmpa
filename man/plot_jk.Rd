@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_jk.R
 \name{plot_jk}
 \alias{plot_jk}
-\title{Jackkniffe plot for variable contribution}
+\title{Jackknife plot for variable contribution}
 \usage{
 plot_jk(x, metric = "ROC_AUC", legend = TRUE,
         colors = c("cyan", "blue", "red"),

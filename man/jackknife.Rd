@@ -2,7 +2,7 @@
 % Please edit documentation in R/jackknife.R
 \name{jackknife}
 \alias{jackknife}
-\title{Jackkniffe test for variable contribution}
+\title{Jackknife test for variable contribution}
 \usage{
 jackknife(data, dependent, independent, user_formula = NULL, cv = 3,
           response_type = "l", weights = NULL)

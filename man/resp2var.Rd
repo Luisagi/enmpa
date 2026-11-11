@@ -16,7 +16,7 @@ resp2var(model, variable1 , variable2, modelID = NULL, data = NULL, n = 1000,
 
 \item{variable2}{(character) name of the variable to be plotted in y axis.}
 
-\item{modelID}{(character) name of the ModelID if inputed \code{model} is  in the
+\item{modelID}{(character) name of the ModelID if the input \code{model} is in the
 \code{enmpa_fitted_models} object.
 Default = NULL.}
 

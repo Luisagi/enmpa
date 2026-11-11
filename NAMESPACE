@@ -36,59 +36,70 @@ export(resp2var)
 export(response_curve)
 export(var_importance)
 importFrom(Rcpp,sourceCpp)
-importFrom(doSNOW,registerDoSNOW)
 importFrom(ellipse,ellipse)
-importFrom(foreach,"%dopar%")
-importFrom(foreach,foreach)
 importFrom(grDevices,hcl.colors)
-importFrom(graphics,abline)
-importFrom(graphics,axis)
-importFrom(graphics,barplot)
-importFrom(graphics,box)
-importFrom(graphics,boxplot)
-importFrom(graphics,hist)
-importFrom(graphics,image)
-importFrom(graphics,layout)
-importFrom(graphics,legend)
-importFrom(graphics,lines)
-importFrom(graphics,mtext)
-importFrom(graphics,par)
-importFrom(graphics,plot.new)
-importFrom(graphics,plot.window)
-importFrom(graphics,points)
-importFrom(graphics,polygon)
-importFrom(graphics,rect)
-importFrom(graphics,text)
-importFrom(graphics,title)
+importFrom(graphics,
+  abline,
+  axis,
+  barplot,
+  box,
+  boxplot,
+  hist,
+  image,
+  layout,
+  legend,
+  lines,
+  mtext,
+  par,
+  plot.new,
+  plot.window,
+  points,
+  polygon,
+  rect,
+  text,
+  title
+)
 importFrom(mgcv,gam)
-importFrom(parallel,clusterExport)
-importFrom(parallel,makeCluster)
-importFrom(parallel,stopCluster)
-importFrom(stats,aggregate)
-importFrom(stats,anova)
-importFrom(stats,as.formula)
-importFrom(stats,binomial)
-importFrom(stats,coef)
-importFrom(stats,cov)
-importFrom(stats,deviance)
-importFrom(stats,ecdf)
-importFrom(stats,glm)
-importFrom(stats,median)
-importFrom(stats,na.omit)
-importFrom(stats,predict)
-importFrom(stats,predict.glm)
-importFrom(stats,quantile)
-importFrom(stats,sd)
-importFrom(stats,update)
-importFrom(stats,var)
-importFrom(terra,as.data.frame)
-importFrom(terra,extract)
-importFrom(terra,minmax)
-importFrom(terra,predict)
-importFrom(terra,rast)
-importFrom(terra,setValues)
-importFrom(utils,combn)
-importFrom(utils,txtProgressBar)
-importFrom(utils,write.table)
+importFrom(parallel,
+  clusterExport,
+  makeCluster,
+  stopCluster
+)
+importFrom(pbapply,
+  pblapply,
+  pboptions
+)
+importFrom(stats,
+  aggregate,
+  anova,
+  as.formula,
+  binomial,
+  coef,
+  cov,
+  deviance,
+  ecdf,
+  glm,
+  median,
+  na.omit,
+  predict,
+  predict.glm,
+  quantile,
+  sd,
+  update,
+  var
+)
+importFrom(terra,
+  as.data.frame,
+  extract,
+  minmax,
+  predict,
+  rast,
+  setValues
+)
+importFrom(utils,
+  combn,
+  txtProgressBar,
+  write.table
+)
 importFrom(vegan,adonis2)
 useDynLib(enmpa, .registration = TRUE)

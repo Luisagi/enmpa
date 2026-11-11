@@ -3,6 +3,11 @@
 
 - **Enhancements**:
   - Replaced `snow` with `parallel`. Thanks to Henrik Bengtsson. [#12](https://github.com/Luisagi/enmpa/pull/12)
+  - Replaced `doSNOW` and `foreach` with `pbapply` for parallel processing and progress bars in `calibration_glm()`.
+
+ **Bug fixed**:
+  - `calibration_glm()` no longer fails when only one model is evaluated (e.g., `formula_mode = "complex"`) with `verbose = TRUE`.
+  - `calibration_glm()` now closes the parallel cluster even if an error occurs during model evaluation.
 
 
 # version 0.2.5

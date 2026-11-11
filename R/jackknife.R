@@ -1,4 +1,4 @@
-#' Jackkniffe test for variable contribution
+#' Jackknife test for variable contribution
 #'
 #' @description
 #' The Jackknife function providing a detailed reflection of the  impact of each

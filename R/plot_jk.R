@@ -1,4 +1,4 @@
-#' Jackkniffe plot for variable contribution
+#' Jackknife plot for variable contribution
 #'
 #' @description
 #' The jackknife figure shows the impact of each variable on the full model,

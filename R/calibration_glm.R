@@ -100,9 +100,8 @@
 #'
 #' @importFrom utils txtProgressBar write.table
 #' @importFrom stats aggregate sd
-#' @importFrom doSNOW registerDoSNOW
 #' @importFrom parallel clusterExport makeCluster stopCluster
-#' @importFrom foreach foreach %dopar%
+#' @importFrom pbapply pblapply pboptions
 
 calibration_glm <- function(data, dependent, independent, weights = NULL,
                             response_type = "l", formula_mode = "moderate",
@@ -168,7 +167,7 @@ calibration_glm <- function(data, dependent, independent, weights = NULL,
 
     ## progress bar
     if (verbose == TRUE) {
-      pb <- utils::txtProgressBar(min = 1, max = iterations, style = 3)
+      pb <- utils::txtProgressBar(min = 0, max = iterations, style = 3)
     }
 
     glm_res <- data.frame() # empty df to store results for each iteration.
@@ -207,38 +206,30 @@ calibration_glm <- function(data, dependent, independent, weights = NULL,
     # time start
     start <- Sys.time()
 
-    ## progress bar
+    ## progress bar (pbapply); user's pbapply options are restored on exit
     if (verbose == TRUE) {
-      pb <- utils::txtProgressBar(min = 1, max = iterations, style = 3)
-      progress <- function(n) {
-        utils::setTxtProgressBar(pb, n)
-      }
-      opts <- list(progress = progress)
+      old_pbo <- pbapply::pboptions(type = "txt", style = 3, char = "=")
     } else {
-      opts <- NULL
+      old_pbo <- pbapply::pboptions(type = "none")
     }
+    on.exit(pbapply::pboptions(old_pbo), add = TRUE)
 
 
-    ## Make cluster
-    cl <- makeCluster(n_cores, type = "PSOCK")
-    # export local function
-    #parallel::clusterExport(cl, c("optimize_metrics", "model_validation"))
-    doSNOW::registerDoSNOW(cl)
+    ## Make cluster (closed on exit, also if an error occurs)
+    cl <- parallel::makeCluster(n_cores, type = "PSOCK")
+    on.exit(parallel::stopCluster(cl), add = TRUE)
 
-    glm_res <- foreach::foreach(
-      i = 1:iterations, .combine = "rbind", .inorder = FALSE,
-      .options.snow = opts
-    ) %dopar% {
+    glm_res <- pbapply::pblapply(1:iterations, function(i) {
       res <- model_validation(formula = user_formulas[i],
                               data = data, weights = weights, cv = TRUE,
                               partition_index = data_partition,
                               n_threshold = n_threshold,
                               keep_coefficients = exclude_bimodal)
       return(res)
-    }
+    }, cl = cl)
 
-    # Closing cluster
-    stopCluster(cl)
+    # Concatenate results by rows
+    glm_res <- do.call(rbind, glm_res)
 
     # Final time
     if (verbose == TRUE) {

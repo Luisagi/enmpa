@@ -13,7 +13,7 @@
 #' @param model an object of class `glm` or `enmpa_fitted_models`.
 #' @param variable1 (character) name of the variable to be plotted in x axis.
 #' @param variable2 (character) name of the variable to be plotted in y axis.
-#' @param modelID (character) name of the ModelID if inputed `model` is  in the
+#' @param modelID (character) name of the ModelID if the input `model` is in the
 #' `enmpa_fitted_models` object.
 #' Default = NULL.
 #' @param data data.frame or matrix of data to be used in model calibration.

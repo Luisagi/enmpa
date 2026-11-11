@@ -1,74 +1,23 @@
-## This is a resubmission v0.1.5 01/12/23
+## enmpa 0.2.6
 
-### Comments by Benjamin Altmann on 30/11/23
+This is an update of enmpa 0.2.5. Changes in this version:
 
-The following issues have been corrected or commented here inline:
-
-```
-Found the following URLs which should use \doi (with the DOI name only):
-    File 'niche_signal.Rd':
-      https://doi.org/10.17161/bi.v17i.15985
-    File 'plot_niche_signal.Rd':
-      https://doi.org/10.17161/bi.v17i.15985
-    File 'proc_enm.Rd':
-      http://dx.doi.org/10.1016/j.ecolmodel.2007.11.008
-```
-
-ANSWER: Now the references have the correct format.
-
-```
-Please ensure that your functions do not write by default or in your examples/vignettes/tests in the user's home filespace (including the package directory and getwd()). This is not allowed by CRAN policies. Please omit any default path in writing functions. In your examples/vignettes/tests you can write to tempdir(). -> R/short_helpers.R 
-```
-
-ANSWER: It is fixed. Now no default paths are defined in writing functions.
+* Removed the dependencies on 'snow', 'doSNOW' and 'foreach'. Parallel
+  processing in `calibration_glm()` now uses 'parallel' and 'pbapply'.
+* Bug fixes in `calibration_glm()` (see NEWS.md).
 
 ## Test environments
-* Debian GNU/Linux 12, R 4.2.2 (local)
-* MacOS 12.7.1, R release (GitHub Actions)
-* Windows 10.0.20348, R release (GitHub Actions)
-* Ubuntu 22.04.3 LTS, R release (GitHub Actions)
-* Ubuntu 22.04.3 LTS, R devel (GitHub Actions)
-* Ubuntu 22.04.3 LTS, R oldrel-1 (GitHub Actions)
-
-
-## R CMD check results
-There were no ERRORs:
-
-There were no WARNINGs:
-
-There were no NOTEs:
-
-
-## Downstream dependencies
-There are currently no downstream dependencies for this package. 
-
-
-<br>
-<hr>
-
-
-## V 0.1.5 first submission
-
-This is a new release.
-
-## Test environments
-* Debian GNU/Linux 12, R 4.2.2 (local)
-* MacOS 12.7.1, R release (GitHub Actions)
-* Windows 10.0.20348, R release (GitHub Actions)
-* Ubuntu 22.04.3 LTS, R release (GitHub Actions)
-* Ubuntu 22.04.3 LTS, R devel (GitHub Actions)
-* Ubuntu 22.04.3 LTS, R oldrel-1 (GitHub Actions)
-
+* macOS 27.2 (aarch64), R 4.5.2 (local)
+* win-builder, R-devel
+* macOS-latest, R release (GitHub Actions)
+* Windows-latest, R release (GitHub Actions)
+* Ubuntu-latest, R release (GitHub Actions)
+* Ubuntu-latest, R devel (GitHub Actions)
+* Ubuntu-latest, R oldrel-1 (GitHub Actions)
 
 ## R CMD check results
-There were no ERRORs:
+0 errors | 0 warnings | 0 notes
 
-There were no WARNINGs:
-
-There were no NOTEs:
-
-
-## Downstream dependencies
-There are currently no downstream dependencies for this package. 
-
-
+## Reverse dependencies
+There is one reverse dependency on CRAN: kuenm2. It uses `aux_var_comb()`,
+`predict_glm()` and `plot_importance()`, which are unchanged in this release.
